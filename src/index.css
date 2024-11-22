@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
+
+/* Concept Map Styles */
+.node {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.node:hover circle {
+  fill: #059669 !important;
+  filter: brightness(1.1);
+  transform: scale(1.2);
+}
+
+.node:hover text {
+  font-weight: 500;
+}
+
+.node:hover rect {
+  stroke: #10b981;
+  stroke-width: 1px;
+}
+
+.link {
+  transition: all 0.2s ease;
+}
+
+.link:hover {
+  stroke-width: 2px !important;
+  opacity: 0.8 !important;
+}
+
+/* Custom scrollbar */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
