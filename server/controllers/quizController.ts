@@ -63,7 +63,7 @@ export async function generateQuiz(req: Request, res: Response) {
     if (!content) {
       throw new Error('No se recibió respuesta del generador de preguntas');
     }
-
+    
     let parsed;
     try {
       parsed = JSON.parse(content);

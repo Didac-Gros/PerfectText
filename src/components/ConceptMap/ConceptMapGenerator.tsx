@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Send, Map, AlertCircle } from 'lucide-react';
 import * as d3 from 'd3';
 import { LoadingProgress } from '../shared/LoadingProgress';
+import { parseFileToString } from '../../utils/utils';
+import { FileUploader } from '../shared/FileUploader';
 
 interface Node {
   id: string;
@@ -12,6 +14,7 @@ interface Node {
 
 export function ConceptMapGenerator() {
   const [userText, setUserText] = useState('');
+  const [fileText, setFileText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -88,7 +91,7 @@ export function ConceptMapGenerator() {
       .style('fill', '#374151');
 
     // Add background to text
-    texts.each(function() {
+    texts.each(function () {
       const text = d3.select(this);
       const bbox = (this as SVGTextElement).getBBox();
       const padding = { x: 6, y: 3 };
@@ -133,10 +136,10 @@ export function ConceptMapGenerator() {
         const label = match[2].trim();
 
         if (label) {
-          const node: Node = { 
-            id: Math.random().toString(36).substr(2, 9), 
-            label, 
-            children: [] 
+          const node: Node = {
+            id: Math.random().toString(36).substr(2, 9),
+            label,
+            children: []
           };
 
           while (level <= currentLevel && nodeStack.length > 1) {
@@ -157,11 +160,6 @@ export function ConceptMapGenerator() {
   };
 
   const generateConceptMap = async () => {
-    if (!userText.trim()) {
-      setError('Por favor, introduce un texto');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
@@ -169,7 +167,7 @@ export function ConceptMapGenerator() {
       const response = await fetch('http://localhost:3000/api/conceptmap/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: userText }),
+        body: JSON.stringify({ text: `${userText} ${fileText}` }),
       });
 
       if (!response.ok) {
@@ -196,6 +194,12 @@ export function ConceptMapGenerator() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFileUpload = (file: File) => {
+    parseFileToString(file).then((text) => {
+      setFileText(text);
+    });
   };
 
   return (
@@ -231,14 +235,15 @@ export function ConceptMapGenerator() {
               </div>
             )}
 
+            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading}></FileUploader>
+
             <motion.button
               type="submit"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              disabled={isLoading || !userText.trim()}
-              className={`mt-4 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${
-                isLoading || !userText.trim() ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              disabled={isLoading || (!userText.trim() && !fileText.trim())}
+              className={`mt-4 px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${isLoading || (!userText.trim() && !fileText.trim()) ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
               {isLoading ? (
                 <LoadingProgress isLoading={isLoading} text="Generando mapa conceptual" />
@@ -253,7 +258,7 @@ export function ConceptMapGenerator() {
         </div>
       </div>
 
-      <div 
+      <div
         ref={containerRef}
         className="bg-white rounded-2xl shadow-lg p-8 overflow-x-auto"
       >

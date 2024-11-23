@@ -6,6 +6,9 @@ import { Question } from '../../types';
 import { GamepadIcon, Send } from 'lucide-react';
 import { generateQuestions } from '../../services/quizApi';
 import { LoadingProgress } from '../shared/LoadingProgress';
+import { FileUploader } from '../shared/FileUploader';
+import { parseFileToString } from '../../utils/utils';
+import pdfToText from 'react-pdftotext'
 
 export function QuizGame() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -14,21 +17,19 @@ export function QuizGame() {
   const [answers, setAnswers] = useState<{ correct: boolean; time: number }[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
   const [userText, setUserText] = useState('');
+  const [fileText, setFileText] = useState('');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerateQuestions = async () => {
-    if (!userText.trim()) {
-      setError('Por favor, introduce un texto');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
-      const generatedQuestions = await generateQuestions(userText);
+      console.log(`${userText} ${fileText}`);
+      
+      const generatedQuestions = await generateQuestions(`${userText} ${fileText}`);
       setQuestions(generatedQuestions);
       setHasStarted(true);
     } catch (err) {
@@ -58,8 +59,22 @@ export function QuizGame() {
     setAnswers([]);
     setHasStarted(false);
     setUserText('');
+    setFileText('');
     setQuestions([]);
     setError(null);
+  };
+
+  const handleFileUpload = (file: File) => {
+    if (file.type === 'application/pdf') {
+
+      pdfToText(file)
+        .then(text => { setFileText(text); console.log(text); })
+        .catch(() => console.error("Failed to extract text from pdf"))
+    } else {
+      parseFileToString(file)
+        .then(text => { setFileText(text); console.log(text); })
+        .catch(() => console.error("Failed to extract text from txt"))
+    };
   };
 
   if (!hasStarted) {
@@ -78,7 +93,7 @@ export function QuizGame() {
               ¡Crea tu propio Quiz!
             </h2>
             <p className="text-gray-600 mb-6">
-              Introduce un texto y generaremos preguntas automáticamente
+              Introduce un texto y/o un archivo y generaremos preguntas automáticamente
             </p>
 
             <div className="mb-6">
@@ -96,14 +111,15 @@ export function QuizGame() {
               </div>
             )}
 
+            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading}></FileUploader>
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleGenerateQuestions}
-              disabled={isLoading || !userText.trim()}
-              className={`px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${
-                isLoading || !userText.trim() ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              onClick={() => handleGenerateQuestions()}
+              disabled={isLoading || (!userText.trim() && !fileText.trim())}
+              className={`px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${isLoading || (!userText.trim() && !fileText.trim()) ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
               {isLoading ? (
                 <LoadingProgress isLoading={isLoading} text="Generando preguntas" />
