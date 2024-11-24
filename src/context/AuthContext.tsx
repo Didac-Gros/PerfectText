@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
+import React, { createContext, useEffect, useState } from "react";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../services/firebase"; // Configuración de Firebase
+import { ReactNode } from "react";
 
-export const AuthContext = React.createContext<{
+interface AuthContextProps {
   user: User | null;
   loading: boolean;
-}>({ user: null, loading: true });
+  logout: () => Promise<void>; // Añadimos la función logout
+}
 
-import { ReactNode } from "react";
+export const AuthContext = createContext<AuthContextProps>({
+  user: null,
+  loading: true,
+  logout: async () => { },
+});
+
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -26,8 +33,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => unsubscribe(); // Limpia el listener cuando el componente se desmonta
   }, []);
 
+  const logout = async () => {
+    try {
+      await signOut(auth); // Cierra la sesión en Firebase
+      setUser(null); // Limpia el estado del usuario en el contexto
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, logout }}>
       {loading ? <p>Cargando...</p> : children}
     </AuthContext.Provider>
   );

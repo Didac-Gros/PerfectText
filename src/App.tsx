@@ -1,4 +1,4 @@
-import routes from "./routes/routes"; // Importa las rutas
+import routes from "./routes"; // Importa las rutas
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 
 function App() {

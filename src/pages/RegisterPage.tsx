@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "../services/firebase"; // Archivo de configuración de Firebase
 import { RegisterInput } from "../components/register/RegisterInput"; // Importa el nuevo componente
-import { FaRegEye } from "react-icons/fa6";
+import { FaArrowLeftLong, FaRegEye } from "react-icons/fa6";
 import { HiOutlineMail } from "react-icons/hi";
 import { GoogleButton } from "../components/register/GoogleButton";
+import SubmitButton from "../components/register/SubmitButton";
 
 export const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState<string>("");
@@ -14,6 +15,7 @@ export const RegisterPage: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
     const [isVerificationSent, setIsVerificationSent] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     const validateEmail = (email: string): boolean => {
@@ -54,7 +56,9 @@ export const RegisterPage: React.FC = () => {
         e.preventDefault();
         setError(null);
 
-        if (validateForm(password, email))
+        if (validateForm(password, email)) {
+            setIsLoading(true);
+
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -62,7 +66,11 @@ export const RegisterPage: React.FC = () => {
                 setIsVerificationSent(true);
             } catch (err: any) {
                 setError(err.message);
+            } finally {
+                setIsLoading(false);
             }
+        }
+
     };
 
     const handleLogin = async () => {
@@ -70,6 +78,14 @@ export const RegisterPage: React.FC = () => {
             navigate("/login");
         } catch (error) {
             console.error("Error al entrar en el login: ", (error as Error).message);
+        }
+    };
+
+    const handleHome = async () => {
+        try {
+            navigate("/");
+        } catch (error) {
+            console.error("Error al entrar en el registro: ", (error as Error).message);
         }
     };
 
@@ -96,6 +112,12 @@ export const RegisterPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+                <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-gray-800 mb-5">
+                    <FaArrowLeftLong color="blue" size={"15px"} />
+                    <a href="#" className="text-blue-500 hover:underline text-sm " onClick={handleHome}>
+                        Volver a la home
+                    </a>
+                </div>
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">
                         Bienvenido a Perfect Text
@@ -107,13 +129,10 @@ export const RegisterPage: React.FC = () => {
                     text="Registrarse con Google">
                 </GoogleButton>
 
-                <div className="relative text-center my-4">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative bg-white px-4 text-gray-500">
-                        o registrarse con
-                    </div>
+                <div className="flex items-center justify-center my-4">
+                    <div className="flex-grow border-t border-gray-300"></div>
+                    <span className="relative bg-white px-4 text-gray-500">o registrarse con</span>
+                    <div className="flex-grow border-t border-gray-300"></div>
                 </div>
 
                 <form onSubmit={(e) => e.preventDefault()}>
@@ -144,13 +163,7 @@ export const RegisterPage: React.FC = () => {
                     />
                     <p className="text-red-500 mb-4 text-xs">{error}</p>
 
-                    <button
-                        type="submit"
-                        onClick={handleRegister}
-                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-                    >
-                        →
-                    </button>
+                    <SubmitButton onClick={handleRegister} isLoading={isLoading}></SubmitButton>
                 </form>
 
                 <div className="mt-6 text-center">

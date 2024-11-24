@@ -1,8 +1,7 @@
-import React from 'react';
 import { RouteObject } from "react-router-dom"; // Para definir rutas
-import { HomePage } from '../pages/HomePage';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 // Configuración de las rutas
 const routes: RouteObject[] = [

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { QuizQuestion } from './QuizQuestion';
 import { QuizSummary } from './QuizSummary';
@@ -27,11 +27,11 @@ export function QuizGame() {
     setError(null);
 
     try {
-      console.log(`${userText} ${fileText}`);
-      
       const generatedQuestions = await generateQuestions(`${userText} ${fileText}`);
       setQuestions(generatedQuestions);
       setHasStarted(true);
+      localStorage.setItem("quizText", `${userText} ${fileText}`);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
     } finally {
@@ -82,7 +82,7 @@ export function QuizGame() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
+        className="max-w mx-auto"
       >
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
@@ -116,7 +116,7 @@ export function QuizGame() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => handleGenerateQuestions()}
+              onClick={handleGenerateQuestions}
               disabled={isLoading || (!userText.trim() && !fileText.trim())}
               className={`px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${isLoading || (!userText.trim() && !fileText.trim()) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}

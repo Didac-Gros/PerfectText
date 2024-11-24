@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Clock, Target, RotateCcw } from 'lucide-react';
 import ReactConfetti from 'react-confetti';
 import { useWindowSize } from '../../hooks/useWindowSize';
+import { SummaryButton } from './SummaryButton';
 
 interface QuizSummaryProps {
   score: number;
@@ -44,7 +45,7 @@ export function QuizSummary({
         >
           <Trophy className="w-12 h-12 text-white" />
         </motion.div>
-        
+
         <h2 className="text-3xl font-bold text-gray-800 mb-2">
           ¡Quiz completado!
         </h2>
@@ -100,16 +101,13 @@ export function QuizSummary({
           <p className="text-sm text-gray-500">respuestas correctas seguidas</p>
         </motion.div>
       </div>
+      <div className='flex gap-2'>
+        <SummaryButton handleClick={onRestart} text='Repetir quiz' color="bg-blue-400"></SummaryButton>
+        <SummaryButton handleClick={onRestart} text='Crear nuevo quiz' color="bg-teal-400"></SummaryButton>
+        <SummaryButton handleClick={onRestart} text='Guardar quiz' color="bg-indigo-400"></SummaryButton>
+      </div>
 
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onRestart}
-        className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
-      >
-        <RotateCcw className="w-5 h-5" />
-        Crear nuevo quiz
-      </motion.button>
+
     </motion.div>
   );
 }

@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Header } from '../components/home/Header';
-import { TextInput } from '../components/TextInput';
-import { TextOutput } from '../components/TextOutput';
-import { OptimizationModes } from '../components/OptimizationModes';
+import { TextInput } from '../components/correctText/TextInput';
+import { TextOutput } from '../components/correctText/TextOutput';
+import { OptimizationModes } from '../components/home/OptimizationModes';
 import { Navigation } from '../components/home/Navigation';
 import { QuizGame } from '../components/QuizGame/QuizGame';
 import { ConceptMapGenerator } from '../components/ConceptMap/ConceptMapGenerator';
 import { correctText, summarizeText } from '../services/api';
-import { useAuth } from "../hooks/useAuth"; // Un hook para usar el contexto de autenticación
 
 type TabType = 'correct' | 'summarize' | 'quiz' | 'conceptmap';
 

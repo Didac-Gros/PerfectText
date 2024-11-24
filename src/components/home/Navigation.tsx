@@ -3,6 +3,7 @@ import { Wand2, FileText, GamepadIcon, Map } from 'lucide-react';
 import { User } from 'lucide-react'; // Importa el ícono de usuario
 import { useNavigate } from "react-router-dom"; // Para redirigir después del registro
 import { useAuth } from '../../hooks/useAuth';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
 type TabType = 'correct' | 'summarize' | 'quiz' | 'conceptmap';
 
@@ -13,13 +14,22 @@ interface NavigationProps {
 
 export function Navigation({ activeTab, onTabChange }: NavigationProps) {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogin = async () => {
     try {
       navigate("/login");
     } catch (error) {
       console.error("Error al entrar en login:", (error as Error).message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // Llama a logout desde el contexto
+      console.log("Sesión cerrada correctamente");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
     }
   };
 
@@ -81,16 +91,66 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
           </motion.button>
         </div>
 
-        {/* Botón de Iniciar Sesión */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => handleLogin()}
-          className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
-        >
-          <User className="w-5 h-5" /> {/* Ícono de usuario */}
-          <span className="text-sm font-medium">{user ? `Bienvenido` : "Iniciar sesión"}</span>
-        </motion.button>
+        {!user ?
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleLogin()}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+          >
+            <User className="w-5 h-5" /> {/* Ícono de usuario */}
+            <span className="text-sm font-medium">{"Iniciar sesión"}</span>
+          </motion.button>
+
+          :
+          <Menu as="div" className="relative">
+            <MenuButton className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100">
+              <User className="w-5 h-5" />
+              <span className="text-sm font-medium">Bienvenido</span>
+            </MenuButton>
+
+            <MenuItems className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+              <MenuItem>
+                {({ active }) => (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleLogin()}
+                    className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+                  >
+                    <span className="text-sm font-medium">Ver quizzes</span>
+                  </motion.button>
+                )}
+              </MenuItem>
+              <MenuItem>
+                {({ active }) => (
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleLogin()}
+                    className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+                  >
+                    <span className="text-sm font-medium">Ver mapas</span>
+                  </motion.button>
+                )}
+
+              </MenuItem>
+              <MenuItem>
+                {({ active }) => (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleLogout()}
+                    className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+                  >
+                    <span className="text-sm font-medium">Cerrar sesión</span>
+                  </motion.button>
+                )}
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+        }
       </div>
     </nav>
   );

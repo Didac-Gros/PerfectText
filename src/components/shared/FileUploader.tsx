@@ -42,7 +42,7 @@ export function FileUploader({ onFileUpload, isLoading }: FileUploaderProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full h-50"
+      className="w-full mb-6"
     >
       <div
         {...getRootProps()}
