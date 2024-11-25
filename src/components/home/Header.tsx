@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Wand2, Sparkles } from 'lucide-react';
+import { HeaderButton } from './HeaderButton';
 
 export function Header() {
   return (
@@ -46,38 +47,10 @@ export function Header() {
             </p>
             
             <div className="flex flex-wrap justify-center gap-4">
-              <motion.span 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="px-6 py-2 rounded-full bg-blue-100/80 text-blue-600 font-medium shadow-md hover:shadow-lg transition-all duration-200 backdrop-blur-sm hover:bg-blue-100"
-              >
-                Corrección
-              </motion.span>
-              <motion.span 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-                className="px-6 py-2 rounded-full bg-purple-100/80 text-purple-600 font-medium shadow-md hover:shadow-lg transition-all duration-200 backdrop-blur-sm hover:bg-purple-100"
-              >
-                Resumen
-              </motion.span>
-              <motion.span 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-                className="px-6 py-2 rounded-full bg-indigo-100/80 text-indigo-600 font-medium shadow-md hover:shadow-lg transition-all duration-200 backdrop-blur-sm hover:bg-indigo-100"
-              >
-                Quiz
-              </motion.span>
-              <motion.span 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.7 }}
-                className="px-6 py-2 rounded-full bg-green-100/80 text-green-600 font-medium shadow-md hover:shadow-lg transition-all duration-200 backdrop-blur-sm hover:bg-green-100"
-              >
-                Flashcards
-              </motion.span>
+              <HeaderButton text="Corrección" color="blue"></HeaderButton>
+              <HeaderButton text="Resumen" color="purple"></HeaderButton>
+              <HeaderButton text="Quiz" color="indigo"></HeaderButton>
+              <HeaderButton text="Mapa conceptual" color="green"></HeaderButton>
             </div>
           </motion.div>
         </div>

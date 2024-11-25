@@ -17,9 +17,8 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({
 
         try {
             const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-
-            navigate("/");
+            
+            navigate("/profile");
         } catch (error: any) {
             console.error("Error al iniciar sesión con Google:", error.message);
         }

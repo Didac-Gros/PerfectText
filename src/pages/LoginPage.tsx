@@ -6,7 +6,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { RegisterInput } from "../components/register/RegisterInput";
 import { HiOutlineMail } from "react-icons/hi";
 import { FaRegEye } from "react-icons/fa6";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { GoogleButton } from "../components/register/GoogleButton";
 import { FirebaseError } from "firebase/app";
 import SubmitButton from "../components/register/SubmitButton";

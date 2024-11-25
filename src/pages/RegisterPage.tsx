@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { FcGoogle } from "react-icons/fc"; // Icono de Google (de react-icons)
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth } from "../services/firebase"; // Archivo de configuración de Firebase
 import { RegisterInput } from "../components/register/RegisterInput"; // Importa el nuevo componente
 import { FaArrowLeftLong, FaRegEye } from "react-icons/fa6";
 import { HiOutlineMail } from "react-icons/hi";
 import { GoogleButton } from "../components/register/GoogleButton";
 import SubmitButton from "../components/register/SubmitButton";
+import { FaRegUser } from "react-icons/fa";
 
 export const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [name, setName] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
     const [isVerificationSent, setIsVerificationSent] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -143,7 +144,13 @@ export const RegisterPage: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         icon={<HiOutlineMail className="w-5 h-5" />}
                     />
-
+                    <RegisterInput
+                        type="text"
+                        placeholder="Username"
+                        value={email}
+                        onChange={(e) => setName(e.target.value)}
+                        icon={<FaRegUser className="w-5 h-4" />}
+                    />
                     <RegisterInput
                         type="password"
                         placeholder="Introduzca su contraseña"

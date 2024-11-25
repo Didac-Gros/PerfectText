@@ -4,11 +4,14 @@ import { QuizQuestion } from './QuizQuestion';
 import { QuizSummary } from './QuizSummary';
 import { Question } from '../../types';
 import { GamepadIcon, Send } from 'lucide-react';
-import { generateQuestions } from '../../services/quizApi';
+import { fetchGenerateQuestions } from '../../services/quizApi';
 import { LoadingProgress } from '../shared/LoadingProgress';
 import { FileUploader } from '../shared/FileUploader';
 import { parseFileToString } from '../../utils/utils';
 import pdfToText from 'react-pdftotext'
+import { useAuth } from '../../hooks/useAuth'
+import { LoginPopUp } from '../shared/LoginPopUp';
+import { useNavigate } from "react-router-dom";
 
 export function QuizGame() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -21,22 +24,28 @@ export function QuizGame() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [showPopUp, setShowPopUp] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleGenerateQuestions = async () => {
-    setIsLoading(true);
-    setError(null);
+    if (user) {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const generatedQuestions = await generateQuestions(`${userText} ${fileText}`);
-      setQuestions(generatedQuestions);
-      setHasStarted(true);
-      localStorage.setItem("quizText", `${userText} ${fileText}`);
+      try {
+        const generatedQuestions = await fetchGenerateQuestions(`${userText} ${fileText}`);
+        setQuestions(generatedQuestions);
+        setHasStarted(true);
+        localStorage.setItem("quizText", `${userText} ${fileText}`);
 
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
-    } finally {
-      setIsLoading(false);
-    }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
+      } finally {
+        setIsLoading(false);
+      }
+    } else setShowPopUp(true);
+
   };
 
   const handleAnswer = (isCorrect: boolean, time: number) => {
@@ -77,6 +86,14 @@ export function QuizGame() {
     };
   };
 
+  const handleLogin = () => {
+    try {
+      navigate("/login");
+    } catch (error) {
+      console.error("Error al entrar en el login: ", (error as Error).message);
+    }
+  }
+
   if (!hasStarted) {
     return (
       <motion.div
@@ -109,6 +126,13 @@ export function QuizGame() {
               <div className="text-red-500 mb-4 text-sm">
                 {error}
               </div>
+            )}
+
+            {showPopUp && (
+              <LoginPopUp
+                onClose={() => setShowPopUp(false)}
+                onLogin={handleLogin}
+              ></LoginPopUp>
             )}
 
             <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading}></FileUploader>

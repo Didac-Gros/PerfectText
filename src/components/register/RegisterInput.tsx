@@ -35,7 +35,7 @@ export const RegisterInput: React.FC<RegisterInputProps> = ({
           className="absolute right-4 top-2.5 text-gray-500 hover:text-gray-700"
           onClick={() => setVisibility(!visibility)}
         >
-          {password ? (visibility ? icon : <FaRegEyeSlash />) : icon}
+          {password ? (visibility ? icon : <FaRegEyeSlash className="w-5 h-5" />) : icon}
         </button>
       )}
     </div>

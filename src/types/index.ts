@@ -18,3 +18,9 @@ export interface Question {
   options: string[];
   correctAnswer: number;
 }
+
+export interface Node {
+  id: string;
+  label: string;
+  children?: Node[];
+}

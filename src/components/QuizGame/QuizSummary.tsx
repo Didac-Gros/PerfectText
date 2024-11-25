@@ -104,7 +104,6 @@ export function QuizSummary({
       <div className='flex gap-2'>
         <SummaryButton handleClick={onRestart} text='Repetir quiz' color="bg-blue-400"></SummaryButton>
         <SummaryButton handleClick={onRestart} text='Crear nuevo quiz' color="bg-teal-400"></SummaryButton>
-        <SummaryButton handleClick={onRestart} text='Guardar quiz' color="bg-indigo-400"></SummaryButton>
       </div>
 
 

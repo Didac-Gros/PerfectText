@@ -98,56 +98,30 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
             onClick={() => handleLogin()}
             className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
           >
-            <User className="w-5 h-5" /> {/* Ícono de usuario */}
+            <User className="w-5 h-5" />
             <span className="text-sm font-medium">{"Iniciar sesión"}</span>
           </motion.button>
 
           :
-          <Menu as="div" className="relative">
-            <MenuButton className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100">
-              <User className="w-5 h-5" />
-              <span className="text-sm font-medium">Bienvenido</span>
+          <Menu as="div" className="relative z-20">
+            <MenuButton className="flex items-center space-x-2 px-2 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100">
+              <img
+                src={user.photoURL ? user.photoURL : ""}
+                alt={`Avatar del usuario ${user.displayName}`}
+                className="w-8 h-8 rounded-full border-2 cursor-pointer "
+              />
+              <span className="text-sm font-medium">{`Bienvenido, ${user.displayName}`} </span>
             </MenuButton>
 
-            <MenuItems className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-              <MenuItem>
-                {({ active }) => (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleLogin()}
-                    className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
-                  >
-                    <span className="text-sm font-medium">Ver quizzes</span>
-                  </motion.button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ active }) => (
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleLogin()}
-                    className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
-                  >
-                    <span className="text-sm font-medium">Ver mapas</span>
-                  </motion.button>
-                )}
-
-              </MenuItem>
-              <MenuItem>
-                {({ active }) => (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleLogout()}
-                    className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
-                  >
-                    <span className="text-sm font-medium">Cerrar sesión</span>
-                  </motion.button>
-                )}
-              </MenuItem>
+            <MenuItems className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-12">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleLogout()}
+                  className="flex items-center w-full space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+                >
+                  <span className="text-sm font-medium">Cerrar sesión</span>
+                </motion.button>
             </MenuItems>
           </Menu>
         }

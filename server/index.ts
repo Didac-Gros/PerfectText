@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { correctText, summarizeText } from './controllers/textController';
+import { summarizeText } from './controllers/summarizeController';
+import { correctText, } from './controllers/correctController';
 import { generateQuiz } from './controllers/quizController';
 import { generateConceptMap } from './controllers/conceptMapController';
 import { errorHandler } from './middleware/errorHandler';

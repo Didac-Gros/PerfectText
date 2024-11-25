@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 import { Send, Map, AlertCircle } from 'lucide-react';
 import * as d3 from 'd3';
 import { LoadingProgress } from '../shared/LoadingProgress';
-import { parseFileToString } from '../../utils/utils';
+import { parseFileToString, parseMarkdownToNodes } from '../../utils/utils';
 import { FileUploader } from '../shared/FileUploader';
+import { fetchConceptMap } from '../../services/conceptMapApi';
+import { Node } from "../../types";
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { LoginPopUp } from '../shared/LoginPopUp';
 
-interface Node {
-  id: string;
-  label: string;
-  children?: Node[];
-}
 
 export function ConceptMapGenerator() {
   const [userText, setUserText] = useState('');
@@ -19,6 +19,9 @@ export function ConceptMapGenerator() {
   const [error, setError] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const [showPopUp, setShowPopUp] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const renderConceptMap = (data: Node) => {
     if (!svgRef.current || !containerRef.current) return;
@@ -122,78 +125,29 @@ export function ConceptMapGenerator() {
         .scale(0.8));
   };
 
-  const parseMarkdownToNodes = (markdown: string): Node => {
-    const lines = markdown.split('\n').filter(line => line.trim());
-    const root: Node = { id: 'root', label: 'Conceptos Principales', children: [] };
-    let currentLevel = 0;
-    let currentNode = root;
-    let nodeStack = [root];
-
-    lines.forEach(line => {
-      const match = line.match(/^(#+)\s+(.+)$/);
-      if (match) {
-        const level = match[1].length;
-        const label = match[2].trim();
-
-        if (label) {
-          const node: Node = {
-            id: Math.random().toString(36).substr(2, 9),
-            label,
-            children: []
-          };
-
-          while (level <= currentLevel && nodeStack.length > 1) {
-            nodeStack.pop();
-            currentLevel--;
-          }
-
-          currentNode = nodeStack[nodeStack.length - 1];
-          if (!currentNode.children) currentNode.children = [];
-          currentNode.children.push(node);
-          nodeStack.push(node);
-          currentLevel = level;
-        }
-      }
-    });
-
-    return root;
-  };
-
   const generateConceptMap = async () => {
-    setIsLoading(true);
-    setError(null);
+    if (user) {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const response = await fetch('http://localhost:3000/api/conceptmap/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: `${userText} ${fileText}` }),
-      });
+      try {
+        const response = await fetchConceptMap(`${userText} ${fileText}`);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al generar el mapa conceptual');
+        const root = parseMarkdownToNodes(response);
+        if (!root.children?.length) {
+          throw new Error('No se pudieron generar conceptos del texto proporcionado');
+        }
+
+        renderConceptMap(root);
+        setUserText('');
+      } catch (err) {
+        console.error('Error generating concept map:', err);
+        setError(err instanceof Error ? err.message : 'Error al generar el mapa conceptual');
+      } finally {
+        setIsLoading(false);
       }
+    } else setShowPopUp(true);
 
-      const data = await response.json();
-
-      if (!data.success || !data.data) {
-        throw new Error('Formato de respuesta inválido');
-      }
-
-      const root = parseMarkdownToNodes(data.data);
-      if (!root.children?.length) {
-        throw new Error('No se pudieron generar conceptos del texto proporcionado');
-      }
-
-      renderConceptMap(root);
-      setUserText('');
-    } catch (err) {
-      console.error('Error generating concept map:', err);
-      setError(err instanceof Error ? err.message : 'Error al generar el mapa conceptual');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleFileUpload = (file: File) => {
@@ -201,6 +155,14 @@ export function ConceptMapGenerator() {
       setFileText(text);
     });
   };
+
+  const handleLogin = () => {
+    try {
+      navigate("/login");
+    } catch (error) {
+      console.error("Error al entrar en el login: ", (error as Error).message);
+    }
+  }
 
   return (
     <motion.div
@@ -233,6 +195,13 @@ export function ConceptMapGenerator() {
                 <AlertCircle className="w-4 h-4" />
                 <span>{error}</span>
               </div>
+            )}
+
+            {showPopUp && (
+              <LoginPopUp
+                onClose={() => setShowPopUp(false)}
+                onLogin={handleLogin}
+              ></LoginPopUp>
             )}
 
             <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading}></FileUploader>

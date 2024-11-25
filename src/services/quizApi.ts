@@ -2,7 +2,7 @@ import { Question } from '../types';
 
 const API_URL = 'http://localhost:3000/api';
 
-export async function generateQuestions(text: string): Promise<Question[]> {
+export async function fetchGenerateQuestions(text: string): Promise<Question[]> {
   if (!text?.trim()) {
     throw new Error('No se ha proporcionado ningún texto');
   }
