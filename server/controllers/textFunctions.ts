@@ -40,7 +40,7 @@ export async function generateQuiz(req: Request, res: Response) {
     const cacheKey = `quiz:${text}`;
     const questions = await processWithCache(cacheKey, async () => {
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -141,7 +141,7 @@ export async function correctText(req: Request, res: Response) {
     const cacheKey = `correct:${text}:${language}:${mode}`;
     const result = await processWithCache(cacheKey, async () => {
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -192,7 +192,7 @@ export async function summarizeText(req: Request, res: Response) {
     const cacheKey = `summarize:${text}:${language}:${mode}`;
     const result = await processWithCache(cacheKey, async () => {
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",

@@ -25,11 +25,11 @@ export async function correctText(req: Request, res: Response) {
 
     const [correctionResponse, enhancementResponse] = await Promise.all([
       openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [{ role: "user", content: correctionPrompt }],
       }),
       openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [{ role: "user", content: enhancementPrompt }],
       })
     ]);
@@ -69,7 +69,7 @@ export async function summarizeText(req: Request, res: Response) {
     }
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
