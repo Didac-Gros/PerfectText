@@ -24,15 +24,15 @@ export async function summarizeText(req: Request, res: Response) {
       messages: [
         {
           role: "system",
-          content: `Genera un resumen conciso y claro del siguiente texto en ${language} usando un estilo ${mode || 'general'}.`
+          content: `Genera un resumen extremadamente breve y directo del siguiente texto en ${language} usando un estilo ${mode || 'general'}.`
         },
         {
           role: "user",
           content: text
         }
       ],
-      temperature: 0.3,
-      max_tokens: 1024
+      temperature: 0.2,
+      max_tokens: 400
     });
 
     const summary = response.choices[0].message.content;

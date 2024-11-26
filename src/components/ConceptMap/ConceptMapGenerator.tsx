@@ -11,12 +11,16 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { LoginPopUp } from '../shared/LoginPopUp';
 
+interface ConceptMapGeneratorProps {
+  mapRef: React.RefObject<HTMLDivElement>; // Prop para recibir el ref
+}
 
-export function ConceptMapGenerator() {
+export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef }) => {
   const [userText, setUserText] = useState('');
   const [fileText, setFileText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetFile, setResetFile] = useState(false); // Estado para reiniciar el archivo
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -140,6 +144,7 @@ export function ConceptMapGenerator() {
 
         renderConceptMap(root);
         setUserText('');
+        setResetFile(true); // Indicar al FileUploader que reinicie el archivo
       } catch (err) {
         console.error('Error generating concept map:', err);
         setError(err instanceof Error ? err.message : 'Error al generar el mapa conceptual');
@@ -170,7 +175,7 @@ export function ConceptMapGenerator() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4"
     >
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8" ref={mapRef}>
         <div className="text-center mb-8">
           <div className="inline-block p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mb-4">
             <Map className="w-12 h-12 text-white" />
@@ -204,7 +209,8 @@ export function ConceptMapGenerator() {
               ></LoginPopUp>
             )}
 
-            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading}></FileUploader>
+            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading} resetFile={resetFile} // Nueva prop
+            ></FileUploader>
 
             <motion.button
               type="submit"

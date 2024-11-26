@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import { RegisterInput } from "../components/register/RegisterInput";
 import { FaRegUser } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
-import { useAuth } from '../hooks/useAuth';
 import { auth } from "../services/firebase"; // Tu configuración de Firebase
 import { useNavigate } from "react-router-dom";
 
 const UserProfileForm = () => {
-  const [name, setName] = useState("");
+  const user = auth.currentUser;
+  const [name, setName] = useState<string>(user?.displayName || "");
   const navigate = useNavigate();
   const avatars = Array.from({ length: 25 }, (_, i) =>
     `https://api.dicebear.com/6.x/pixel-art/svg?seed=user${i + 1}`
   );
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(avatars[0]);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(user ? user.photoURL : avatars[0]);
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
 
   const handleAvatarClick = (avatar: string) => {
@@ -21,8 +21,7 @@ const UserProfileForm = () => {
   };
 
   const handleSubmit = async () => {
-    const user = auth.currentUser;
-    if (user) {
+    if (user && name.trim()) {
       try {
         await updateProfile(user, {
           displayName: name,
@@ -81,8 +80,9 @@ const UserProfileForm = () => {
 
         <button
           type="submit"
-          className="mt-2 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 rounded-md font-semibold shadow-md hover:opacity-90"
+          className={`mt-2 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 rounded-md font-semibold shadow-md hover:opacity-90 ${!name.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={handleSubmit}
+          disabled={!name.trim()}
         >
           Guardar Perfil
         </button>

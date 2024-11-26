@@ -1,18 +1,18 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion } from 'framer-motion';
-import { Upload, FileText, FileIcon, File } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { FaRegFileWord } from "react-icons/fa";
 import { FaRegFilePdf } from "react-icons/fa6";
-import { BsFiletypeTxt } from "react-icons/bs";
 import { GrDocumentTxt } from "react-icons/gr";
 
 interface FileUploaderProps {
   onFileUpload: (file: File) => void;
   isLoading: boolean;
+  resetFile: boolean; // Nueva prop para resetear
 }
 
-export function FileUploader({ onFileUpload, isLoading }: FileUploaderProps) {
+export function FileUploader({ onFileUpload, isLoading, resetFile}: FileUploaderProps) {
   // Estado para almacenar el nombre del archivo subido
   const [fileName, setFileName] = useState<string | null>(null);
 
@@ -38,6 +38,10 @@ export function FileUploader({ onFileUpload, isLoading }: FileUploaderProps) {
     multiple: false,
   });
 
+  useEffect(() => {
+    if (resetFile) setFileName(null);
+  }, [resetFile]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,11 +51,11 @@ export function FileUploader({ onFileUpload, isLoading }: FileUploaderProps) {
       <div
         {...getRootProps()}
         className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors h-50${isDragActive
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+          ? 'border-blue-500 bg-blue-50'
+          : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <input {...getInputProps()}/>
+        <input {...getInputProps()} />
         {!isLoading ?
           <motion.div
             initial={{ scale: 0.9 }}

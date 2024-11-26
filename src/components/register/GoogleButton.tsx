@@ -16,9 +16,9 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({
         const provider = new GoogleAuthProvider();
 
         try {
-            const result = await signInWithPopup(auth, provider);
-            
-            navigate("/profile");
+            await signInWithPopup(auth, provider);
+            (auth.currentUser?.metadata.creationTime === auth.currentUser?.metadata.lastSignInTime) ? navigate("/profile") : navigate("/");
+
         } catch (error: any) {
             console.error("Error al iniciar sesión con Google:", error.message);
         }

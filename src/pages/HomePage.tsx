@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Header } from '../components/home/Header';
 import { TextInput } from '../components/correctText/TextInput';
 import { TextOutput } from '../components/correctText/TextOutput';
@@ -7,6 +7,7 @@ import { Navigation } from '../components/home/Navigation';
 import { QuizGame } from '../components/QuizGame/QuizGame';
 import { ConceptMapGenerator } from '../components/ConceptMap/ConceptMapGenerator';
 import { correctText, summarizeText } from '../services/api';
+import { log } from 'console';
 
 type TabType = 'correct' | 'summarize' | 'quiz' | 'conceptmap';
 
@@ -20,6 +21,28 @@ export const HomePage: React.FC = () => {
   const [summarizedText, setSummarizedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
+
+  const resumenRef = useRef<HTMLDivElement>(null);
+  const quizRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  const scrollToResumen = () => {
+    if (resumenRef.current) {
+      resumenRef.current.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
+    }
+  };
+
+  const scrollToQuiz = () => {
+    if (quizRef.current) {
+      quizRef.current.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
+    }
+  };
+
+  const scrollToMap = () => {
+    if (mapRef.current) {
+      mapRef.current.scrollIntoView({ behavior: 'smooth' }); // Desplazamiento suave
+    }
+  };
 
   const handleSubmit = async () => {
     if (!inputText.trim()) return;
@@ -54,13 +77,13 @@ export const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <Navigation activeTab={activeTab} onTabChange={setActiveTab} onScrollToResumen={scrollToResumen} onScrollToQuiz={scrollToQuiz} onScrollToMap={scrollToMap}/>
         <Header />
 
         {activeTab === 'quiz' ? (
-          <QuizGame />
+          <QuizGame quizRef={quizRef}/>
         ) : activeTab === 'conceptmap' ? (
-          <ConceptMapGenerator />
+          <ConceptMapGenerator mapRef={mapRef} />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-3">
@@ -70,7 +93,7 @@ export const HomePage: React.FC = () => {
               />
             </div>
 
-            <div className="lg:col-span-9">
+            <div className="lg:col-span-9" ref={resumenRef}>
               <div className={`grid gap-8 ${hasOutput ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
                 <TextInput
                   inputText={inputText}

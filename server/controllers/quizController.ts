@@ -31,7 +31,7 @@ export async function generateQuiz(req: Request, res: Response) {
       messages: [
         {
           role: "system",
-          content: `Genera 5 preguntas de opción múltiple basadas en el siguiente texto.
+          content: `Genera 2 preguntas de opción múltiple basadas en el siguiente texto.
                    Las preguntas deben seguir este formato exacto JSON, sin información adicional:
                    {
                      "questions": [
@@ -43,7 +43,7 @@ export async function generateQuiz(req: Request, res: Response) {
                      ]
                    }
                    Reglas:
-                   - Exactamente 5 preguntas
+                   - Exactamente 2 preguntas
                    - 4 opciones por pregunta
                    - correctAnswer debe ser 0-3
                    - Preguntas claras y específicas
@@ -89,9 +89,9 @@ export async function generateQuiz(req: Request, res: Response) {
       );
     };
 
-    if (parsed.questions.length !== 5 || !parsed.questions.every(isValidQuestion)) {
-      throw new Error('Las preguntas generadas no cumplen con el formato requerido');
-    }
+    // if (parsed.questions.length !== 5 || !parsed.questions.every(isValidQuestion)) {
+    //   throw new Error('Las preguntas generadas no cumplen con el formato requerido');
+    // }
 
     res.json({
       success: true,

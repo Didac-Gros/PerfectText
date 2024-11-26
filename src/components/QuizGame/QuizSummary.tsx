@@ -9,13 +9,15 @@ interface QuizSummaryProps {
   totalQuestions: number;
   answers: { correct: boolean; time: number }[];
   onRestart: () => void;
+  onRepeat: () => void;
 }
 
 export function QuizSummary({
   score,
   totalQuestions,
   answers,
-  onRestart
+  onRestart,
+  onRepeat
 }: QuizSummaryProps) {
   const { width, height } = useWindowSize();
   const percentage = (score / totalQuestions) * 100;
@@ -79,12 +81,12 @@ export function QuizSummary({
         >
           <div className="flex items-center gap-3 mb-2">
             <Clock className="w-5 h-5 text-purple-500" />
-            <h3 className="font-semibold text-gray-700">Tiempo promedio</h3>
+            <h3 className="font-semibold text-gray-700">Tiempo empleado</h3>
           </div>
           <p className="text-3xl font-bold text-purple-600">
             {averageTime.toFixed(1)}s
           </p>
-          <p className="text-sm text-gray-500">por pregunta</p>
+          <p className="text-sm text-gray-500">Total</p>
         </motion.div>
 
         <motion.div
@@ -102,7 +104,7 @@ export function QuizSummary({
         </motion.div>
       </div>
       <div className='flex gap-2'>
-        <SummaryButton handleClick={onRestart} text='Repetir quiz' color="bg-blue-400"></SummaryButton>
+        <SummaryButton handleClick={onRepeat} text='Repetir quiz' color="bg-blue-400"></SummaryButton>
         <SummaryButton handleClick={onRestart} text='Crear nuevo quiz' color="bg-teal-400"></SummaryButton>
       </div>
 

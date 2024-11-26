@@ -13,7 +13,11 @@ import { useAuth } from '../../hooks/useAuth'
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { useNavigate } from "react-router-dom";
 
-export function QuizGame() {
+interface QuizGameProps {
+  quizRef: React.RefObject<HTMLDivElement>; // Prop para recibir el ref
+}
+
+export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
@@ -73,6 +77,13 @@ export function QuizGame() {
     setError(null);
   };
 
+  const repeatQuiz = () => {
+    setCurrentQuestion(0);
+    setScore(0);
+    setShowSummary(false);
+    setError(null);
+  };
+
   const handleFileUpload = (file: File) => {
     if (file.type === 'application/pdf') {
 
@@ -93,7 +104,7 @@ export function QuizGame() {
       console.error("Error al entrar en el login: ", (error as Error).message);
     }
   }
-
+  
   if (!hasStarted) {
     return (
       <motion.div
@@ -101,7 +112,7 @@ export function QuizGame() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w mx-auto"
       >
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="bg-white rounded-2xl shadow-lg p-8 " ref={quizRef}>
           <div className="text-center mb-8">
             <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
               <GamepadIcon className="w-12 h-12 text-white" />
@@ -135,7 +146,7 @@ export function QuizGame() {
               ></LoginPopUp>
             )}
 
-            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading}></FileUploader>
+            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading} resetFile={false}></FileUploader>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -167,16 +178,19 @@ export function QuizGame() {
         totalQuestions={questions.length}
         answers={answers}
         onRestart={restartQuiz}
+        onRepeat={repeatQuiz}
       />
     );
   }
 
-  return (
-    <QuizQuestion
-      question={questions[currentQuestion]}
-      questionNumber={currentQuestion + 1}
-      totalQuestions={questions.length}
-      onAnswer={handleAnswer}
-    />
-  );
+  if (hasStarted) {
+    return (
+      <QuizQuestion
+        question={questions[currentQuestion]}
+        questionNumber={currentQuestion + 1}
+        totalQuestions={questions.length}
+        onAnswer={handleAnswer}
+      />
+    )
+  }
 }
