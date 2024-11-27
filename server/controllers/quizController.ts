@@ -31,7 +31,7 @@ export async function generateQuiz(req: Request, res: Response) {
       messages: [
         {
           role: "system",
-          content: `Genera 2 preguntas de opción múltiple basadas en el siguiente texto.
+          content: `Genera 10 preguntas de opción múltiple basadas en el siguiente texto.
                    Las preguntas deben seguir este formato exacto JSON, sin información adicional:
                    {
                      "questions": [
@@ -43,7 +43,7 @@ export async function generateQuiz(req: Request, res: Response) {
                      ]
                    }
                    Reglas:
-                   - Exactamente 2 preguntas
+                   - Exactamente 10 preguntas
                    - 4 opciones por pregunta
                    - correctAnswer debe ser 0-3
                    - Preguntas claras y específicas

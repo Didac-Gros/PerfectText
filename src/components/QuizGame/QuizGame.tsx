@@ -12,6 +12,7 @@ import pdfToText from 'react-pdftotext'
 import { useAuth } from '../../hooks/useAuth'
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { useNavigate } from "react-router-dom";
+import Mammoth from 'mammoth';
 
 interface QuizGameProps {
   quizRef: React.RefObject<HTMLDivElement>; // Prop para recibir el ref
@@ -84,18 +85,11 @@ export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
     setError(null);
   };
 
-  const handleFileUpload = (file: File) => {
-    if (file.type === 'application/pdf') {
-
-      pdfToText(file)
-        .then(text => { setFileText(text); console.log(text); })
-        .catch(() => console.error("Failed to extract text from pdf"))
-    } else {
-      parseFileToString(file)
-        .then(text => { setFileText(text); console.log(text); })
-        .catch(() => console.error("Failed to extract text from txt"))
-    };
-  };
+  
+  const handleFileUpload = async (file: File) => {
+    const text = await parseFileToString(file);
+    setFileText(text);
+  };// 
 
   const handleLogin = () => {
     try {
@@ -104,7 +98,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
       console.error("Error al entrar en el login: ", (error as Error).message);
     }
   }
-  
+
   if (!hasStarted) {
     return (
       <motion.div

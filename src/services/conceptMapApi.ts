@@ -2,6 +2,8 @@ import { API_URL } from "../utils/constants";
 
 export async function fetchConceptMap(text: string): Promise<string> {
   try {
+    console.log("text: ", text);
+    
     const response = await fetch(`${API_URL}/conceptmap/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -12,12 +14,15 @@ export async function fetchConceptMap(text: string): Promise<string> {
       const errorData = await response.json();
       throw new Error(errorData.error || "Error al generar el mapa conceptual");
     }
+    console.log("response: ", response);
 
     const data = await response.json();
+    console.log("data: ", data);
 
     if (!data.success || !data.data) {
       throw new Error("Formato de respuesta inválido");
     }
+    console.log("data: ", data.data);
 
     return data.data;
   } catch (error) {

@@ -155,11 +155,10 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
 
   };
 
-  const handleFileUpload = (file: File) => {
-    parseFileToString(file).then((text) => {
-      setFileText(text);
-    });
-  };
+  const handleFileUpload = async (file: File) => {
+    const text = await parseFileToString(file);
+    setFileText(text);
+  };// Función para extraer texto de documentos Word
 
   const handleLogin = () => {
     try {

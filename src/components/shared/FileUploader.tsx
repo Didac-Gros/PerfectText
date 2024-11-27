@@ -33,6 +33,7 @@ export function FileUploader({ onFileUpload, isLoading, resetFile}: FileUploader
       'application/pdf': ['.pdf'],
       'application/msword': ['.doc', '.docx'],
       'text/plain': ['.txt'],
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'], // Agregado para PowerPoint
     },
     disabled: isLoading,
     multiple: false,

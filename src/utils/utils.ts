@@ -1,32 +1,14 @@
 // utils.ts
+import pdfToText from "react-pdftotext";
 import { Node } from "../types";
+import Mammoth from "mammoth";
+import JSZip from "jszip";
+
 /**
  * Convierte el contenido de un archivo en una cadena de texto.
  * @param file - El archivo a convertir.
  * @returns Una promesa que resuelve con el contenido del archivo como string.
  */
-export const parseFileToString = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    // Evento que se ejecuta cuando la lectura es exitosa
-    reader.onload = () => {
-      if (reader.result) {
-        resolve(reader.result.toString()); // Convierte el resultado en una cadena
-      } else {
-        reject(new Error("Error al leer el archivo"));
-      }
-    };
-
-    // Evento para manejar errores
-    reader.onerror = () => {
-      reject(new Error("No se pudo leer el archivo"));
-    };
-
-    // Lee el archivo como texto
-    reader.readAsText(file);
-  });
-};
 
 export const parseMarkdownToNodes = (markdown: string): Node => {
   const lines = markdown.split("\n").filter((line) => line.trim());
@@ -68,3 +50,57 @@ export const parseMarkdownToNodes = (markdown: string): Node => {
 
   return root;
 };
+
+export async function parseFileToString(file: File): Promise<string> {
+  try {
+    if (file.type === "application/pdf") {
+      return await pdfToText(file);
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      return await docxToText(file);
+    } else if (file.type === "text/plain") {
+      return await parseFileToString(file);
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    ) {
+      return await pptxToText(file);
+    } else {
+      throw new Error("Tipo de archivo no soportado");
+    }
+  } catch (error) {
+    console.error("Error procesando el archivo:", error);
+    throw error; // Propaga el error para manejarlo en el componente
+  }
+}
+
+async function docxToText(file: File) {
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await Mammoth.extractRawText({ arrayBuffer });
+  return result.value;
+}
+
+export async function pptxToText(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const zip = await JSZip.loadAsync(arrayBuffer);
+
+  let text = "";
+
+  // Recorre las diapositivas buscando el texto en los XML
+  for (const fileName of Object.keys(zip.files)) {
+    if (fileName.startsWith("ppt/slides/slide") && fileName.endsWith(".xml")) {
+      const slideXml = await zip.files[fileName].async("string");
+      const matches = slideXml.match(/<a:t[^>]*>(.*?)<\/a:t>/g); // Busca etiquetas de texto en XML
+      if (matches) {
+        const slideText = matches
+          .map((match) => match.replace(/<[^>]+>/g, ""))
+          .join(" ");
+        text += slideText + "\n";
+      }
+    }
+  }
+
+  return text.trim();
+}
