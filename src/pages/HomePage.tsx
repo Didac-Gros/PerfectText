@@ -8,6 +8,7 @@ import { QuizGame } from '../components/QuizGame/QuizGame';
 import { ConceptMapGenerator } from '../components/ConceptMap/ConceptMapGenerator';
 import { correctText, summarizeText } from '../services/api';
 import { log } from 'console';
+import StripePricingTable from './StripePricingTablePage';
 
 type TabType = 'correct' | 'summarize' | 'quiz' | 'conceptmap';
 
@@ -77,11 +78,10 @@ export const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <Navigation activeTab={activeTab} onTabChange={setActiveTab} onScrollToResumen={scrollToResumen} onScrollToQuiz={scrollToQuiz} onScrollToMap={scrollToMap}/>
+        <Navigation activeTab={activeTab} onTabChange={setActiveTab} onScrollToResumen={scrollToResumen} onScrollToQuiz={scrollToQuiz} onScrollToMap={scrollToMap} />
         <Header />
-
         {activeTab === 'quiz' ? (
-          <QuizGame quizRef={quizRef}/>
+          <QuizGame quizRef={quizRef} />
         ) : activeTab === 'conceptmap' ? (
           <ConceptMapGenerator mapRef={mapRef} />
         ) : (

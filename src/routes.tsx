@@ -3,6 +3,7 @@ import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import CustomProfilePage from "./pages/CustomProfilePage";
+import StripePricingTablePage from "./pages/StripePricingTablePage";
 
 // Configuración de las rutas
 const routes: RouteObject[] = [
@@ -21,6 +22,10 @@ const routes: RouteObject[] = [
     {
         path: "/profile",
         element: <CustomProfilePage/>,
+    },
+    {
+        path: "/pricing",
+        element: <StripePricingTablePage/>,
     },
 ];
 

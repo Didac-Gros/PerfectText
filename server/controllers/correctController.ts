@@ -25,11 +25,11 @@ export async function correctText(req: Request, res: Response) {
 
     const [correctionResponse, enhancementResponse] = await Promise.all([
       openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: correctionPrompt }],
       }),
       openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: enhancementPrompt }],
       }),
     ]);

@@ -7,6 +7,7 @@ import { generateQuiz } from './controllers/quizController';
 import { generateConceptMap } from './controllers/conceptMapController';
 import { errorHandler } from './middleware/errorHandler';
 import compression from 'compression';
+import { stripeWebhook } from './controllers/stripeWebHookController';
 
 dotenv.config();
 
@@ -27,11 +28,16 @@ const corsOptions = {
 // Middleware configuration
 app.use(cors(corsOptions));
 app.use(compression());
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/webhook') {
+    express.raw({ type: 'application/json' })(req, res, next);
+  } else {
+    express.json({ limit: '5mb' })(req, res, next);
+  }
+});
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
@@ -40,6 +46,7 @@ app.post('/api/correct', correctText);
 app.post('/api/summarize', summarizeText);
 app.post('/api/quiz/generate', generateQuiz);
 app.post('/api/conceptmap/generate', generateConceptMap);
+app.post('/api/webhook', stripeWebhook);
 
 // Error handler
 app.use(errorHandler);

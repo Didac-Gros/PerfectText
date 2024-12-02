@@ -34,22 +34,27 @@ export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
   const navigate = useNavigate();
 
   const handleGenerateQuestions = async () => {
-    if (user) {
-      setIsLoading(true);
-      setError(null);
+    try {
+      navigate("/pricing");
+    } catch (error) {
+      console.error("Error al entrar en el login: ", (error as Error).message);
+    }
+    // if (user) {
+    //   setIsLoading(true);
+    //   setError(null);
 
-      try {
-        const generatedQuestions = await fetchGenerateQuestions(`${userText} ${fileText}`);
-        setQuestions(generatedQuestions);
-        setHasStarted(true);
-        localStorage.setItem("quizText", `${userText} ${fileText}`);
+    //   try {
+    //     const generatedQuestions = await fetchGenerateQuestions(`${userText} ${fileText}`);
+    //     setQuestions(generatedQuestions);
+    //     setHasStarted(true);
+    //     localStorage.setItem("quizText", `${userText} ${fileText}`);
 
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
-      } finally {
-        setIsLoading(false);
-      }
-    } else setShowPopUp(true);
+    //   } catch (err) {
+    //     setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // } else setShowPopUp(true);
 
   };
 
@@ -85,7 +90,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
     setError(null);
   };
 
-  
+
   const handleFileUpload = async (file: File) => {
     const text = await parseFileToString(file);
     setFileText(text);
