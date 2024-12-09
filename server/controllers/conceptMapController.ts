@@ -30,7 +30,7 @@ export async function generateConceptMap(req: Request, res: Response) {
           role: "system",
           content: `Analiza el texto y crea un mapa conceptual detallado usando encabezados markdown.
                    Reglas importantes:
-                   1. Usa # para conceptos principales
+                   1. Usa # para encabezar directamente los principales conceptos extraídos del texto, sin usar títulos genéricos.
                    2. ## para subconceptos importantes
                    3. ### para detalles específicos
                    4. Mantén las etiquetas breves y concisas (máximo 5-6 palabras)
@@ -39,7 +39,9 @@ export async function generateConceptMap(req: Request, res: Response) {
                    7. Cada concepto principal debe tener 2-3 subconceptos
                    8. Evita información redundante
                    9. Usa lenguaje claro y directo
-                   10. Mantén una estructura balanceada`
+                   10. Mantén una estructura balanceada
+                   11.Asegúrate de que las etiquetas no superen 30 caracteres
+                   12.Añade subcoonceptos si es necesario para dar Información precisa, evitando redundancias y generalidades`
         },
         {
           role: "user",

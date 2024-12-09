@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { LoginPopUp } from '../shared/LoginPopUp';
 
 interface ConceptMapGeneratorProps {
-  mapRef: React.RefObject<HTMLDivElement>; // Prop para recibir el ref
+  mapRef: React.RefObject<HTMLDivElement>;
 }
 
 export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef }) => {
@@ -20,7 +20,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
   const [fileText, setFileText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [resetFile, setResetFile] = useState(false); // Estado para reiniciar el archivo
+  const [resetFile, setResetFile] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -30,103 +30,211 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
   const renderConceptMap = (data: Node) => {
     if (!svgRef.current || !containerRef.current) return;
 
-    // Clear existing SVG
+    // Limpiar SVG existente
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    // Set dimensions
+    // Dimensiones
     const width = Math.max(1200, containerRef.current.clientWidth);
     const height = 800;
-    const margin = { top: 40, right: 120, bottom: 40, left: 120 };
+    const margin = { top: 100, right: 120, bottom: 40, left: 120 };
 
-    // Configure SVG
-    const g = svg
-      .attr('width', width)
+    // Añadir fondo degradado al SVG
+    svg.append('defs')
+      .append('linearGradient')
+      .attr('id', 'svgGradient')
+      .attr('x1', '0%')
+      .attr('x2', '0%')
+      .attr('y1', '0%')
+      .attr('y2', '100%')
+      .selectAll('stop')
+      .data([
+        { offset: '0%', color: '#f0f4c3' },
+        { offset: '100%', color: '#e8f5e9' }
+      ])
+      .enter()
+      .append('stop')
+      .attr('offset', d => d.offset)
+      .attr('stop-color', d => d.color);
+
+    svg.attr('width', width)
       .attr('height', height)
+      .style('background', 'url(#svgGradient)');
+
+    // Configurar grupo principal
+    const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Create tree layout
+    // Crear layout de árbol
     const tree = d3.tree<Node>()
       .size([height - margin.top - margin.bottom, width - margin.left - margin.right])
-      .separation((a, b) => (a.parent === b.parent ? 1.2 : 1.8));
+      .separation((a, b) => (a.parent === b.parent ? 2: 3));
 
-    // Create hierarchy
-    const root = d3.hierarchy(data);
+    // Crear jerarquía
+    const root = d3.hierarchy<Node>(data);
     const treeData = tree(root);
 
-    // Create smooth curved links
+    // Escalas de colores y tamaños
+    const maxDepth = d3.max(treeData.descendants(), d => d.depth) || 1;
+
+    // Escala de colores vibrantes para los nodos
+    const colorScale = d3.scaleOrdinal(d3.schemeSet2)
+      .domain(d3.range(0, maxDepth + 1).map(String));
+
+    // Escala de tamaños de fuente
+    const fontSizeScale = d3.scaleLinear()
+      .domain([0, maxDepth])
+      .range([28, 18]); // Nodos superiores más grandes
+
+    // Escala de pesos de fuente
+    const fontWeightScale = d3.scaleLinear()
+      .domain([0, maxDepth])
+      .range([800, 400]); // Nodos superiores en negrita
+
+    // Crear enlaces curvos
     const linkGenerator = d3.linkHorizontal<any, any>()
-      .x(d => d.y * 0.8)
+      .x(d => d.y)
       .y(d => d.x);
 
-    // Add links
-    g.selectAll('.link')
+    // Añadir enlaces con colores llamativos
+    const link = g.selectAll<SVGPathElement, d3.HierarchyPointLink<Node>>('.link')
       .data(treeData.links())
       .enter()
       .append('path')
       .attr('class', 'link')
       .attr('d', linkGenerator)
       .style('fill', 'none')
-      .style('stroke', '#10b981')
-      .style('stroke-width', '1.5px')
-      .style('opacity', 0.6);
+      .style('stroke', d => colorScale(String(d.source.depth)))
+      .style('stroke-width', '2px')
+      .style('opacity', 0.7);
 
-    // Create nodes
-    const node = g.selectAll('.node')
+    // Definir gradientes radiales para los nodos
+    const defs = svg.append('defs');
+
+    treeData.descendants().forEach((d, i) => {
+      const gradient = defs.append('radialGradient')
+        .attr('id', `gradient-${i}`)
+        .attr('cx', '50%')
+        .attr('cy', '50%')
+        .attr('r', '50%');
+
+      gradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', 'white');
+
+      gradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', colorScale(String(d.depth)));
+    });
+
+    // Crear nodos
+    const node = g.selectAll<SVGGElement, d3.HierarchyPointNode<Node>>('.node')
       .data(treeData.descendants())
       .enter()
       .append('g')
       .attr('class', 'node')
-      .attr('transform', d => `translate(${d.y * 0.8},${d.x})`);
+      .attr('transform', d => `translate(${d.y},${d.x})`);
 
-    // Add circles to nodes
+    // Añadir círculos a los nodos con gradientes y tamaños según profundidad
     node.append('circle')
-      .attr('r', 4)
-      .style('fill', '#10b981')
-      .style('stroke', '#059669')
+      .attr('r', d => 12 - d.depth) // Nodos superiores más grandes
+      .style('fill', (_d, i) => `url(#gradient-${i})`)
+      .style('stroke', '#333')
       .style('stroke-width', '1.5px');
 
-    // Add text labels
+    // Añadir etiquetas de texto
     const texts = node.append('text')
-      .attr('dy', '0.31em')
-      .attr('x', d => d.children ? -8 : 8)
+      .attr('dy', '0.35em')
+      .attr('x', d => d.children ? -16 : 16)
       .style('text-anchor', d => d.children ? 'end' : 'start')
       .text(d => d.data.label)
-      .style('font-size', '12px')
-      .style('font-weight', '500')
+      .style('font-size', d => `${fontSizeScale(d.depth)}px`)
+      .style('font-weight', d => fontWeightScale(d.depth).toString())
       .style('fill', '#374151');
 
-    // Add background to text
+    // Añadir fondo a las etiquetas
     texts.each(function () {
       const text = d3.select(this);
       const bbox = (this as SVGTextElement).getBBox();
-      const padding = { x: 6, y: 3 };
+      const padding = { x: 12, y: 8 };
 
       text.insert('rect', 'text')
         .attr('x', bbox.x - padding.x)
         .attr('y', bbox.y - padding.y)
         .attr('width', bbox.width + (padding.x * 2))
         .attr('height', bbox.height + (padding.y * 2))
-        .attr('rx', 3)
-        .style('fill', 'white')
-        .style('stroke', '#e5e7eb')
+        .attr('rx', 6)
+        .style('fill', 'rgba(255, 255, 255, 0.8)')
+        .style('stroke', '#ccc')
         .style('stroke-width', '1px');
 
       text.raise();
     });
 
-    // Configure zoom
-    const zoom = d3.zoom()
-      .scaleExtent([0.3, 2])
+    // Añadir interacciones
+    node.on('mouseover', function (_event, d) {
+      d3.select(this).select('circle')
+        .transition()
+        .duration(200)
+        .attr('r', (12 - d.depth) + 4)
+        .style('stroke', '#ff5722');
+
+      d3.select(this).select('text')
+        .transition()
+        .duration(200)
+        .style('fill', '#ff5722');
+
+      link.filter((l) => l.source === d || l.target === d)
+        .transition()
+        .duration(200)
+        .style('stroke', '#ff5722');
+    })
+      .on('mouseout', function (_event, d) {
+        d3.select(this).select('circle')
+          .transition()
+          .duration(200)
+          .attr('r', 12 - d.depth)
+          .style('stroke', '#333');
+
+        d3.select(this).select('text')
+          .transition()
+          .duration(200)
+          .style('fill', '#374151');
+
+        link.filter((l) => l.source === d || l.target === d)
+          .transition()
+          .duration(200)
+          .style('stroke', l => colorScale(String(l.source.depth)));
+      });
+
+    // Obtener el bounding box del grupo 'g'
+    const gBBox = g.node()!.getBBox();
+
+    // Dimensiones del SVG
+    const svgWidth = width;
+    const svgHeight = height;
+
+    // Calcular la escala para ajustar el contenido al viewport
+    const scale = Math.min(
+      svgWidth / (gBBox.width + margin.left + margin.right),
+      svgHeight / (gBBox.height + margin.top + margin.bottom)
+    );
+
+    // Calcular la traslación para centrar el contenido
+    const x = (svgWidth - gBBox.width * scale) / 2 - gBBox.x * scale;
+    const y = (svgHeight - gBBox.height * scale) / 2 - gBBox.y * scale;
+
+    // Configurar zoom
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.5, 2.5])
       .on('zoom', (event) => {
         g.attr('transform', event.transform);
       });
 
-    svg.call(zoom as any)
-      .call(zoom.transform as any, d3.zoomIdentity
-        .translate(margin.left, margin.top)
-        .scale(0.8));
+    // Aplicar la transformación inicial
+    svg.call(zoom)
+      .call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(scale));
   };
 
   const generateConceptMap = async () => {
@@ -144,7 +252,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
 
         renderConceptMap(root);
         setUserText('');
-        setResetFile(true); // Indicar al FileUploader que reinicie el archivo
+        setResetFile(true);
       } catch (err) {
         console.error('Error generating concept map:', err);
         setError(err instanceof Error ? err.message : 'Error al generar el mapa conceptual');
@@ -152,13 +260,12 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
         setIsLoading(false);
       }
     } else setShowPopUp(true);
-
   };
 
   const handleFileUpload = async (file: File) => {
     const text = await parseFileToString(file);
     setFileText(text);
-  };// Función para extraer texto de documentos Word
+  };
 
   const handleLogin = () => {
     try {
@@ -166,7 +273,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
     } catch (error) {
       console.error("Error al entrar en el login: ", (error as Error).message);
     }
-  }
+  };
 
   return (
     <motion.div
@@ -208,8 +315,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
               ></LoginPopUp>
             )}
 
-            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading} resetFile={resetFile} // Nueva prop
-            ></FileUploader>
+            <FileUploader onFileUpload={handleFileUpload} isLoading={isLoading} resetFile={resetFile} />
 
             <motion.button
               type="submit"
@@ -247,4 +353,4 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
       </div>
     </motion.div>
   );
-}
+};

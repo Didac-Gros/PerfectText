@@ -1,23 +1,30 @@
-import React, { useState } from "react";
+// UserProfileForm.tsx (por ejemplo, en src/pages/CustomProfilePage.tsx)
+import React, { useState, ChangeEvent } from "react";
 import { RegisterInput } from "../components/register/RegisterInput";
 import { FaRegUser } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
-import { auth } from "../services/firebase"; // Tu configuración de Firebase
+import { auth } from "../services/firebase";
 import { useNavigate } from "react-router-dom";
 
-const UserProfileForm = () => {
+const UserProfileForm: React.FC = () => {
   const user = auth.currentUser;
   const [name, setName] = useState<string>(user?.displayName || "");
   const navigate = useNavigate();
   const avatars = Array.from({ length: 25 }, (_, i) =>
     `https://api.dicebear.com/6.x/pixel-art/svg?seed=user${i + 1}`
   );
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(user ? user.photoURL : avatars[0]);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(
+    user ? user.photoURL : avatars[0]
+  );
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
 
   const handleAvatarClick = (avatar: string) => {
     setSelectedAvatar(avatar);
-    setIsAvatarDropdownOpen(false); // Cierra el desplegable
+    setIsAvatarDropdownOpen(false);
+  };
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
   };
 
   const handleSubmit = async () => {
@@ -25,68 +32,133 @@ const UserProfileForm = () => {
       try {
         await updateProfile(user, {
           displayName: name,
-          photoURL: selectedAvatar,
+          photoURL: selectedAvatar || undefined,
         });
-
         navigate("/");
-
       } catch (error) {
-        console.error("Error al updatear: ", (error as Error).message);
+        console.error("Error al actualizar: ", (error as Error).message);
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500">
-      <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-lg">
-        <form className="flex items-center gap-6">
-          {/* Avatar */}
-          <div className="relative">
-            <img
-              src={selectedAvatar || avatars[0]} // Mostrar el avatar seleccionado o uno predeterminado
-              alt="Avatar seleccionado"
-              className={`w-12 h-12 rounded-full border-2 cursor-pointer ${isAvatarDropdownOpen ? "border-blue-500" : "border-gray-300"}`}
-              onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
-            />
-            {isAvatarDropdownOpen && (
-              <div className="absolute top-19 mt-2 left-0 bg-white border border-blue-500 border-2 shadow-lg rounded-lg z-10 p-3 w-80">
-                <div className="grid grid-cols-7 gap-2">
-                  {avatars.map((avatar, index) => (
-                    <img
-                      key={index}
-                      src={avatar}
-                      alt={`Avatar ${index + 1}`}
-                      className="w-12 h-12 rounded-full border-2 cursor-pointer hover:border-blue-500 "
-                      onClick={() => handleAvatarClick(avatar)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Nombre */}
-          <div className="flex-1 mt-4">
-            <RegisterInput
-              type="text"
-              placeholder="Username"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              icon={<FaRegUser className="w-4 h-4 " />} />
-          </div>
-          {/* Botón para guardar */}
-
-        </form>
-
-        <button
-          type="submit"
-          className={`mt-2 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 rounded-md font-semibold shadow-md hover:opacity-90 ${!name.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
-          onClick={handleSubmit}
-          disabled={!name.trim()}
-        >
-          Guardar Perfil
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 overflow-hidden relative">
+      {/* Fondo decorativo con gradientes y efectos de luz */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent mix-blend-overlay" />
+        <div className="absolute -top-1/3 -left-1/3 w-[60rem] h-[60rem] rounded-full bg-pink-300/30 blur-3xl opacity-70 animate-pulse-slow" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-300/20 blur-3xl opacity-50" />
       </div>
+
+      <div className="relative w-full max-w-md">
+        {/* Contenedor principal con efecto glassmorphism */}
+        <div className="backdrop-blur-xl bg-white/90 dark:bg-white/90 rounded-3xl shadow-2xl p-8 border border-white/40 transform transition duration-500 hover:scale-[1.02] hover:shadow-purple-300/50">
+          <h2 className="text-3xl font-extrabold text-gray-800 mb-4 text-center font-sans tracking-tight">
+            Personaliza tu Perfil
+          </h2>
+          <p className="text-sm text-gray-600 mb-8 text-center">
+            Elige tu avatar y un nombre de usuario que te represente.
+          </p>
+
+          <form
+            className="flex flex-col gap-8"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <div
+                  className="relative cursor-pointer group"
+                  onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
+                >
+                  <img
+                    src={selectedAvatar || avatars[0]}
+                    alt="Avatar seleccionado"
+                    className={`w-20 h-20 rounded-full border-4 
+                      ${isAvatarDropdownOpen ? "border-purple-500" : "border-gray-300"} 
+                      transition-transform duration-300 group-hover:scale-105`}
+                  />
+                  <div
+                    className={`absolute inset-0 rounded-full
+                      ${isAvatarDropdownOpen ? "ring-4 ring-purple-400/50" : ""}
+                      transition-all duration-300 pointer-events-none`}
+                  ></div>
+                </div>
+
+                {isAvatarDropdownOpen && (
+                  <div
+                    className="absolute top-[6.5rem] left-1/2 transform -translate-x-1/2
+                      bg-white border border-purple-300 rounded-xl shadow-2xl p-4 w-72 
+                      grid grid-cols-5 gap-3 animate-fade-in-down z-50"
+                    style={{ animation: "fade-in-down 0.3s ease-out forwards" }}
+                  >
+                    {avatars.map((avatar, index) => (
+                      <div key={index} className="flex justify-center items-center">
+                        <img
+                          src={avatar}
+                          alt={`Avatar ${index + 1}`}
+                          className="w-12 h-12 rounded-full border-2 border-transparent hover:border-purple-500 cursor-pointer transform hover:scale-110 transition duration-200 ease-in-out"
+                          onClick={() => handleAvatarClick(avatar)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <span className="text-xs text-gray-500 mt-2">
+                Haz click para elegir otro avatar
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <label
+                htmlFor="username"
+                className="text-sm text-gray-700 mb-2 ml-1 font-semibold"
+              >
+                Nombre de Usuario
+              </label>
+              <RegisterInput
+                type="text"
+                placeholder="Ejemplo: MiNombreGenial"
+                value={name}
+                onChange={handleNameChange}
+                icon={<FaRegUser className="w-5 h-5 text-gray-500" />}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={!name.trim()}
+              className={`mt-2 w-full py-3 rounded-md font-semibold shadow-md text-white 
+                bg-gradient-to-r from-pink-500 to-purple-500 
+                hover:opacity-90 hover:shadow-lg hover:shadow-pink-300/50 transition-all duration-300
+                ${!name.trim() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            >
+              Guardar Perfil
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fade-in-down {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.7; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
+        }
+      `}</style>
     </div>
   );
 };

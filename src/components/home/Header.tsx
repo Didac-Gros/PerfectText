@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Wand2, Sparkles } from 'lucide-react';
 import { HeaderButton } from './HeaderButton';
 
+
 export function Header() {
   return (
     <motion.div
