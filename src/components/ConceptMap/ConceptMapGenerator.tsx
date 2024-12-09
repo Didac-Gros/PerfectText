@@ -6,16 +6,15 @@ import { LoadingProgress } from '../shared/LoadingProgress';
 import { parseFileToString, parseMarkdownToNodes } from '../../utils/utils';
 import { FileUploader } from '../shared/FileUploader';
 import { fetchConceptMap } from '../../services/conceptMapApi';
-import { Node } from "../../types";
+import { Node } from "../../types/global";
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { LoginPopUp } from '../shared/LoginPopUp';
+import { User } from 'firebase/auth';
 
-interface ConceptMapGeneratorProps {
-  mapRef: React.RefObject<HTMLDivElement>;
-}
+type ConceptMapProps = { user: User | null };
 
-export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef }) => {
+export const ConceptMapGenerator: React.FC<ConceptMapProps> = ({ user }) => {
   const [userText, setUserText] = useState('');
   const [fileText, setFileText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +22,6 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
   const [resetFile, setResetFile] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -69,7 +67,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
     // Crear layout de árbol
     const tree = d3.tree<Node>()
       .size([height - margin.top - margin.bottom, width - margin.left - margin.right])
-      .separation((a, b) => (a.parent === b.parent ? 2: 3));
+      .separation((a, b) => (a.parent === b.parent ? 2 : 3));
 
     // Crear jerarquía
     const root = d3.hierarchy<Node>(data);
@@ -281,7 +279,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ mapRef
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4"
     >
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8" ref={mapRef}>
+      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
         <div className="text-center mb-8">
           <div className="inline-block p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mb-4">
             <Map className="w-12 h-12 text-white" />

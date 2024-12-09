@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { QuizQuestion } from './QuizQuestion';
 import { QuizSummary } from './QuizSummary';
-import { Question } from '../../types';
+import { Question } from '../../types/global';
 import { GamepadIcon, Send } from 'lucide-react';
 import { fetchGenerateQuestions } from '../../services/quizApi';
 import { LoadingProgress } from '../shared/LoadingProgress';
@@ -11,13 +11,8 @@ import { parseFileToString } from '../../utils/utils';
 import { useAuth } from '../../hooks/useAuth'
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { useNavigate } from "react-router-dom";
-import Mammoth from 'mammoth';
 
-interface QuizGameProps {
-  quizRef: React.RefObject<HTMLDivElement>; // Prop para recibir el ref
-}
-
-export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
+export const QuizGame = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
@@ -103,7 +98,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({ quizRef }) => {
         animate={{ opacity: 1, y: 0 }}
         className="max-w mx-auto"
       >
-        <div className="bg-white rounded-2xl shadow-lg p-8 " ref={quizRef}>
+        <div className="bg-white rounded-2xl shadow-lg p-8 ">
           <div className="text-center mb-8">
             <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
               <GamepadIcon className="w-12 h-12 text-white" />

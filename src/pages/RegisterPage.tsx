@@ -8,6 +8,8 @@ import { HiOutlineMail } from "react-icons/hi";
 import { GoogleButton } from "../components/register/GoogleButton";
 import SubmitButton from "../components/register/SubmitButton";
 import { FaRegUser } from "react-icons/fa";
+import { addUserToFirestore } from "../services/firestore";
+import { UserSubscription, User } from "../types/global";
 
 export const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState<string>("");
@@ -65,6 +67,15 @@ export const RegisterPage: React.FC = () => {
 
                 await sendEmailVerification(userCredential.user);
                 setIsVerificationSent(true);
+
+                const newUser: User = {
+                    uid: userCredential.user.uid,
+                    name: name,
+                    email: email,
+                    subscription: UserSubscription.FREE,
+                    tokens: UserSubscription.TOKENSFREE as number,
+                };
+                await addUserToFirestore(newUser);
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -147,7 +158,7 @@ export const RegisterPage: React.FC = () => {
                     <RegisterInput
                         type="text"
                         placeholder="Username"
-                        value={email}
+                        value={name}
                         onChange={(e) => setName(e.target.value)}
                         icon={<FaRegUser className="w-5 h-4" />}
                     />

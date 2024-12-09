@@ -1,6 +1,6 @@
   // utils.ts
 import pdfToText from "react-pdftotext";
-import { Node } from "../types";
+import { Node } from "../types/global";
 import Mammoth from "mammoth";
 import JSZip from "jszip";
 

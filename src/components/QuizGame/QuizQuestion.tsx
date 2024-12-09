@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, CheckCircle2, XCircle } from 'lucide-react';
-import { Question } from '../../types';
+import { Question } from '../../types/global';
 
 interface QuizQuestionProps {
   question: Question;

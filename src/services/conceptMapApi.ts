@@ -1,38 +1,19 @@
-import { API_URL } from "../utils/constants";
+import { fetchAPI } from './fetchApi'; // Importar la función reutilizable fetchAPI
 
 export async function fetchConceptMap(text: string): Promise<string> {
+  if (!text?.trim()) {
+    throw new Error('No se ha proporcionado ningún texto');
+  }
+
   try {
-    console.log("text: ", text);
-    
-    const response = await fetch(`${API_URL}/conceptmap/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text }),
-    });
+    const response = await fetchAPI<{ success: boolean; data: string }>('conceptmap/generate', { text });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Error al generar el mapa conceptual");
+    if (!response.success || !response.data) {
+      throw new Error('Formato de respuesta inválido al generar el mapa conceptual');
     }
-    console.log("response: ", response);
 
-    const data = await response.json();
-    console.log("data: ", data);
-
-    if (!data.success || !data.data) {
-      throw new Error("Formato de respuesta inválido");
-    }
-    console.log("data: ", data.data);
-
-    return data.data;
+    return response.data;
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      throw new Error(
-        "No se pudo conectar al servidor. Verifica que el servidor esté ejecutándose."
-      );
-    }
-    throw new Error(
-      error instanceof Error ? error.message : "Error al procesar el texto"
-    );
+    throw new Error(error instanceof Error ? error.message : 'Error inesperado al generar el mapa conceptual');
   }
 }

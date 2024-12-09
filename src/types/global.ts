@@ -24,3 +24,20 @@ export interface Node {
   label: string;
   children?: Node[];
 }
+
+export interface User {
+  uid: string;
+  name: string;
+  email: string;
+  subscription: UserSubscription;
+  tokens: number;
+}
+
+export enum UserSubscription {
+  FREE = "free",
+  STANDARD = "standard",
+  PREMIUM = "premium",
+
+  TOKENSFREE = 1000000,
+  TOKENSSTANDARD = 10000000,
+}

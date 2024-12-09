@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Wand2, FileText, GamepadIcon, Map, Home, BookOpen } from 'lucide-react'; // Agregamos el icono BookOpen
+import { Wand2, FileText, GamepadIcon, Map, Home } from 'lucide-react'; // Agregamos el icono BookOpen
 import { User } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../hooks/useAuth';
@@ -12,14 +12,11 @@ type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap';
 interface NavigationProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
-  onScrollToResumen: () => void; 
-  onScrollToQuiz: () => void; 
-  onScrollToMap: () => void;
 }
 
-export function Navigation({ activeTab, onTabChange, onScrollToResumen, onScrollToQuiz, onScrollToMap }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange }: NavigationProps) {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -31,17 +28,14 @@ export function Navigation({ activeTab, onTabChange, onScrollToResumen, onScroll
 
   const scrollToResum = (name: TabType) => {
     onTabChange(name);
-    onScrollToResumen();
   };
 
   const scrollToQuiz = () => {
     onTabChange('quiz');
-    onScrollToQuiz();
   };
 
   const scrollToMap = () => {
     onTabChange('conceptmap');
-    onScrollToMap();
   };
 
   return (

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Languages, ChevronDown, ChevronUp } from "lucide-react";
-import { Language } from "../../types";
+import { Language } from "../../types/global";
 import { useState, useRef, useEffect } from "react";
 
 interface LanguageSelectorProps {
