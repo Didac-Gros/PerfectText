@@ -1,33 +1,68 @@
 import React, { createContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../services/firebase"; // Configuración de Firebase
+import { findUserByEmail, updateUserTokens } from "../services/firestore"; // Importar la función
 import { ReactNode } from "react";
+import { User as MyUser } from "../types/global";
 
 interface AuthContextProps {
-  user: User | null;
-  loading: boolean;
-  logout: () => Promise<void>; // Añadimos la función logout
+  user: User | null; // Usuario autenticado de Firebase
+  userStore: MyUser | null; // Datos adicionales del usuario en Firestore
+  loading: boolean; // Estado de carga
+  logout: () => Promise<void>; // Función para cerrar sesión
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
+  userStore: null,
   loading: true,
   logout: async () => { },
 });
-
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  
+  const [user, setUser] = useState<User | null>(null); // Usuario autenticado
+  const [userStore, setuserStore] = useState<MyUser | null>(null); // Usuario de Firestore
+  const [loading, setLoading] = useState<boolean>(true); // Estado de carga
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // Establece el usuario actual
-      setLoading(false); // Cambia el estado de carga a false
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setLoading(true); // Inicia el estado de carga
+
+      if (currentUser) {
+        setUser(currentUser); // Establece el usuario autenticado
+
+        try {
+          // Busca al usuario en Firestore
+          const firestoreUserData = await findUserByEmail(currentUser.email!);
+
+          if (firestoreUserData) {
+            // Tipar los datos al modelo de `User`
+            const formattedUser: MyUser = {
+              uid: currentUser.uid,
+              name: firestoreUserData.name,
+              email: firestoreUserData.email,
+              subscription: firestoreUserData.subscription,
+              tokens: firestoreUserData.tokens,
+            };
+
+            setuserStore(formattedUser); // Actualiza el estado con los datos del usuario de Firestore
+          } else {
+            setuserStore(null); // Si no se encuentra el usuario, establece null
+          }
+        } catch (error) {
+          console.error("Error al obtener el usuario de Firestore:", error);
+          setuserStore(null); // Si ocurre un error, limpia el estado de Firestore
+        }
+      } else {
+        setUser(null);
+        setuserStore(null); // Limpia los datos si no hay un usuario autenticado
+      }
+
+      setLoading(false); // Finaliza el estado de carga
     });
 
     return () => unsubscribe(); // Limpia el listener cuando el componente se desmonta
@@ -36,14 +71,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth); // Cierra la sesión en Firebase
-      setUser(null); // Limpia el estado del usuario en el contexto
+      setUser(null); // Limpia el estado del usuario autenticado
+      setuserStore(null); // Limpia el estado del usuario de Firestore
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, userStore, loading, logout }}>
       {loading ? <p>Cargando...</p> : children}
     </AuthContext.Provider>
   );

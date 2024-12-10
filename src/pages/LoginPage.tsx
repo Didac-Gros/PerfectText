@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FcGoogle } from 'react-icons/fc'; // Icono de Google (de react-icons)
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase"; // Configuración de Firebase

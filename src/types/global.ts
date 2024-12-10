@@ -34,9 +34,9 @@ export interface User {
 }
 
 export enum UserSubscription {
-  FREE = "free",
-  STANDARD = "standard",
-  PREMIUM = "premium",
+  FREE = "Gratuito",
+  STANDARD = "Estándar",
+  PREMIUM = "Premium",
 
   TOKENSFREE = 1000000,
   TOKENSSTANDARD = 10000000,

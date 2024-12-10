@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from "firebase/auth";
 import { auth } from "../../services/firebase";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
@@ -19,18 +19,28 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({
 
         try {
             await signInWithPopup(auth, provider);
-            const userExists = await findUserByEmail(auth.currentUser!.email!);
-            if (!userExists) {
-                const newUser: User = {
-                    uid: auth.currentUser!.uid,
-                    name: auth.currentUser!.displayName!,
-                    email: auth.currentUser!.email!,
-                    subscription: UserSubscription.FREE,
-                    tokens: UserSubscription.TOKENSFREE as number,
-                };
-                await addUserToFirestore(newUser);
-                navigate("/profile");
-            } else navigate("/");
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    console.log("Usuario de Google:", user);
+                    const userExists = await findUserByEmail(user.email!);
+                    if (!userExists) {
+                        const newUser: User = {
+                            uid: user.uid,
+                            name: user.displayName!,
+                            email: user.email!,
+                            subscription: UserSubscription.FREE,
+                            tokens: UserSubscription.TOKENSFREE as number,
+                        };
+                        await addUserToFirestore(newUser);
+                        console.log("Usuario de firestore:", newUser);
+                        navigate("/profile");
+                    } else {
+                        navigate("/");
+                    }
+
+                    unsubscribe(); // Limpia el listener
+                }
+            });
 
         } catch (error: any) {
             console.error("Error al iniciar sesión con Google:", error.message);

@@ -35,9 +35,9 @@ export function ProfileNavigation({ photoURL, name }: ProfileNavigationProps) {
         <img
           src={photoURL ? photoURL : ""}
           alt={`Avatar del usuario ${name}`}
-          className="w-8 h-8 rounded-full border-2 border-blue-400 cursor-pointer "
+          className="w-10 h-10 rounded-full border-2 border-blue-400 cursor-pointer "
         />
-        <span className="text-sm font-medium">{`Bienvenido, ${name}`} </span>
+        <span className="text-base font-medium">{name} </span>
       </MenuButton>
 
       <MenuItems className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-12">

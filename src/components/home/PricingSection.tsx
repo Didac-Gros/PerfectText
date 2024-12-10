@@ -2,6 +2,14 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Crown, Check, Star } from 'lucide-react';
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'stripe-pricing-table': any;
+    }
+  }
+}
+
 export function PricingSection() {
   useEffect(() => {
     const script = document.createElement('script');

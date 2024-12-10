@@ -6,7 +6,7 @@ import { updateProfile } from "firebase/auth";
 import { auth } from "../services/firebase";
 import { useNavigate } from "react-router-dom";
 
-const UserProfileForm: React.FC = () => {
+export const CustomProfilePage: React.FC = () => {
   const user = auth.currentUser;
   const [name, setName] = useState<string>(user?.displayName || "");
   const navigate = useNavigate();
@@ -162,5 +162,3 @@ const UserProfileForm: React.FC = () => {
     </div>
   );
 };
-
-export default UserProfileForm;
