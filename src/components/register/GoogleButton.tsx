@@ -31,7 +31,6 @@ export const GoogleButton: React.FC<GoogleButtonProps> = ({
                 await addUserToFirestore(newUser);
                 navigate("/profile");
             } else navigate("/");
-            // (auth.currentUser?.metadata.creationTime === auth.currentUser?.metadata.lastSignInTime) ? navigate("/profile") 
 
         } catch (error: any) {
             console.error("Error al iniciar sesión con Google:", error.message);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { X, Send } from 'lucide-react';
-import { LanguageSelector } from './LanguageSelector';
+import { LanguageSelector } from '../shared/LanguageSelector';
 import { LoadingProgress } from '../shared/LoadingProgress';
 
 type TabType = 'correct' | 'summarize';

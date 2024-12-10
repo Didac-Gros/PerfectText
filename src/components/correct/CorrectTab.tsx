@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { TextInput } from './TextInput';
-import { TextOutput } from './TextOutput';
-import { OptimizationModes } from './OptimizationModes';
+import { TextInput } from './TextInputCorrect';
+import { TextOutput } from './TextOutputCorrect';
+import { OptimizationModes } from '../shared/OptimizationModes';
 import { correctText } from '../../services/correctText';
 import { User } from 'firebase/auth';
 import { LoginPopUp } from '../shared/LoginPopUp';

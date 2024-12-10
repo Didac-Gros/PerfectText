@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { TextInput } from './TextInput';
-import { TextOutput } from './TextOutput';
-import { OptimizationModes } from './OptimizationModes';
+import { TextInput } from './TextInputSum';
+import { TextOutput } from './TextOutputSum';
+import { OptimizationModes } from '../shared/OptimizationModes';
 import { summarizeText } from '../../services/summarizeText';
 import { User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';

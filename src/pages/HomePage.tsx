@@ -4,8 +4,8 @@ import { PricingSection } from '../components/home/PricingSection'; // Importaci
 import { Navigation } from '../components/home/Navigation';
 import { QuizGame } from '../components/QuizGame/QuizGame';
 import { ConceptMapGenerator } from '../components/ConceptMap/ConceptMapGenerator';
-import { SummarizeTab } from '../components/correct-summarise/SummarizeTab';
-import { CorrectTab } from '../components/correct-summarise/CorrectTab';
+import { SummarizeTab } from '../components/summarize/SummarizeTab';
+import { CorrectTab } from '../components/correct/CorrectTab';
 import { useAuth } from '../hooks/useAuth';
 
 type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap';
