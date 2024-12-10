@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth } from "../services/firebase"; // Archivo de configuración de Firebase
-import { RegisterInput } from "../components/register/RegisterInput"; // Importa el nuevo componente
+import { RegisterInput } from "../components/register/RegisterInput";
 import { FaArrowLeftLong, FaRegEye } from "react-icons/fa6";
 import { HiOutlineMail } from "react-icons/hi";
 import { GoogleButton } from "../components/register/GoogleButton";
@@ -22,13 +22,11 @@ export const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
 
     const validateEmail = (email: string): boolean => {
-        // Expresión regular para validar el correo
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
     const validatePassword = (password: string): boolean => {
-        // Al menos 8 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial
         const passwordRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
@@ -101,19 +99,18 @@ export const RegisterPage: React.FC = () => {
         }
     };
 
-
     if (isVerificationSent) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 text-center">
-                    <h2 className="text-2xl font-bold text-gray-800">Correo enviado</h2>
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-pink-500">
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
+                    <h2 className="text-3xl font-extrabold text-gray-800">Correo enviado</h2>
                     <p className="text-gray-600">
                         Se ha enviado un correo de verificación a <strong>{email}</strong>.
                         Por favor, verifica tu correo antes de continuar.
                     </p>
                     <button
-                        onClick={() => navigate("/login")} // Redirigir al login después de la verificación
-                        className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+                        onClick={() => navigate("/login")}
+                        className="mt-4 bg-pink-500 text-white py-2 px-4 rounded-lg hover:bg-pink-600"
                     >
                         Ir al Login
                     </button>
@@ -122,16 +119,19 @@ export const RegisterPage: React.FC = () => {
         );
     }
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-                <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-gray-800 mb-5">
-                    <FaArrowLeftLong color="blue" size={"15px"} />
-                    <a href="#" className="text-blue-500 hover:underline text-sm " onClick={handleHome}>
-                        Volver a la home
-                    </a>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-pink-500">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+                <div className="flex items-center gap-2 mb-5">
+                    <FaArrowLeftLong
+                        color="blue"
+                        size="20px"
+                        className="cursor-pointer hover:text-pink-600"
+                        onClick={handleHome}
+                    />
+                    <span className="text-gray-800 font-semibold">Volver a la home</span>
                 </div>
                 <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800">
+                    <h2 className="text-3xl font-extrabold text-gray-800">
                         Bienvenido a Perfect Text
                     </h2>
                     <p className="text-gray-600">Continuemos su viaje de aprendizaje.</p>
@@ -157,7 +157,7 @@ export const RegisterPage: React.FC = () => {
                     />
                     <RegisterInput
                         type="text"
-                        placeholder="Username"
+                        placeholder="Nombre de usuario"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         icon={<FaRegUser className="w-5 h-4" />}
@@ -187,7 +187,7 @@ export const RegisterPage: React.FC = () => {
                 <div className="mt-6 text-center">
                     <p className="text-gray-600">
                         ¿Ya tiene cuenta?{" "}
-                        <a href="#" className="text-blue-500 hover:underline" onClick={handleLogin}>
+                        <a href="#" className="text-pink-500 font-bold hover:underline" onClick={handleLogin}>
                             Inicia sesión
                         </a>
                     </p>

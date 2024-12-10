@@ -70,18 +70,17 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-pink-500">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-gray-800 mb-5">
-        <FaArrowLeftLong color="blue" size={"15px"}/>
-        <a href="#" className="text-blue-500 hover:underline text-sm " onClick={handleHome}>
-              Volver a la home
-            </a>
+          <FaArrowLeftLong color="blue" size={"15px"} />
+          <a href="#" className="text-blue-500 hover:underline text-sm " onClick={handleHome}>
+            Volver a la home
+          </a>
         </div>
 
-
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Bienvenido de nuevo</h2>
+          <h2 className="text-3xl font-extrabold text-gray-800">Bienvenido de nuevo</h2>
           <p className="text-gray-600">Continuemos su viaje de aprendizaje.</p>
         </div>
 
@@ -89,13 +88,11 @@ export const LoginPage: React.FC = () => {
           text="Iniciar sesión con Google">
         </GoogleButton>
 
-
         <div className="flex items-center justify-center my-4">
           <div className="flex-grow border-t border-gray-300"></div>
           <span className="relative bg-white px-4 text-gray-500">o continuar con</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
-
 
         <form onSubmit={(e) => e.preventDefault()}>
           <RegisterInput
@@ -129,12 +126,12 @@ export const LoginPage: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             ¿No tiene cuenta?{" "}
-            <a href="#" className="text-blue-500 hover:underline" onClick={handleRegister}>
+            <a href="#" className="text-pink-500 font-bold hover:underline" onClick={handleRegister}>
               Inscríbase
             </a>
           </p>
         </div>
       </div>
-    </div >
+    </div>
   );
 };

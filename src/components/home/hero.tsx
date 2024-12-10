@@ -134,9 +134,8 @@ export function Hero() {
         </motion.div>
 
         {/* Stats section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mt-24 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-24 text-center">
           {[
-            { value: "99%", label: "Precisión" },
             { value: "50K+", label: "Estudiantes" },
             { value: "1M+", label: "Documentos" },
             { value: "4.9/5", label: "Valoración" }
