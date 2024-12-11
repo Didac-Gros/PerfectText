@@ -68,12 +68,7 @@ export async function parseFileToString(file: File): Promise<string> {
       throw new Error("Tipo de archivo no soportado");
     }
 
-    console.log("Texto original:", text);
     const optimizedText = optimizeText(text);
-    console.log("Texto optimizado:", optimizedText);
-    console.log("Reducción de tokens:", text.length - optimizedText.length);
-
-    // Log para ver la cantidad de tokens enviados
     console.log("Tokens enviados a la API:", optimizedText.length);
 
     return optimizedText;

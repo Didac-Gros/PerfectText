@@ -12,9 +12,12 @@ import { useNavigate } from 'react-router-dom';
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { User } from 'firebase/auth';
 
-type ConceptMapProps = { user: User | null };
+interface ConceptMapGeneratorProps {
+  removeTokens: (tokens: number) => void;
+  user: User | null;
+}
 
-export const ConceptMapGenerator: React.FC<ConceptMapProps> = ({ user }) => {
+export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ user, removeTokens }) => {
   const [userText, setUserText] = useState('');
   const [fileText, setFileText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -241,8 +244,9 @@ export const ConceptMapGenerator: React.FC<ConceptMapProps> = ({ user }) => {
       setError(null);
 
       try {
+        removeTokens(userText.length + fileText.length);
         const response = await fetchConceptMap(`${userText} ${fileText}`);
-
+        
         const root = parseMarkdownToNodes(response);
         if (!root.children?.length) {
           throw new Error('No se pudieron generar conceptos del texto proporcionado');

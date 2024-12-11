@@ -12,9 +12,10 @@ type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap';
 type CorrectTabProps = {
     onTabChange: (tab: TabType) => void;
     user: User | null;
+    removeTokens: (tokens: number) => void;
 };
 
-export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user }) => {
+export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user, removeTokens }) => {
     const [inputText, setInputText] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState('es');
     const [selectedMode, setSelectedMode] = useState('general');
@@ -34,6 +35,7 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user }) => 
 
             setIsLoading(true);
             setError(undefined);
+            removeTokens(inputText.length);
 
             try {
                 const { corrected, enhanced } = await correctText(inputText, selectedLanguage, selectedMode);

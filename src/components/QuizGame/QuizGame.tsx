@@ -11,10 +11,12 @@ import { parseFileToString } from '../../utils/utils';
 import { useAuth } from '../../hooks/useAuth'
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { useNavigate } from "react-router-dom";
-import { log } from 'node:console';
-import { updateUserTokens } from '../../services/firestore';
 
-export const QuizGame = () => {
+interface QuizGameProps {
+  removeTokens: (tokens: number) => void;
+}
+
+export const QuizGame:React.FC<QuizGameProps> = ({removeTokens}) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
@@ -33,16 +35,14 @@ export const QuizGame = () => {
     if (user) {
       setIsLoading(true);
       setError(null);
-      console.log("fileText: ", fileText.length);
-      console.log("userText: ", userText.length);
 
       try {
         const generatedQuestions = await fetchGenerateQuestions(`${userText} ${fileText}`);
         setQuestions(generatedQuestions);
         setHasStarted(true);
 
-        await updateUserTokens(userText.length + fileText.length);
-
+        // await updateUserTokens(userText.length + fileText.length);
+        removeTokens(userText.length + fileText.length);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
       } finally {

@@ -3,7 +3,7 @@ import { Wand2, FileText, GamepadIcon, Map, Home } from 'lucide-react'; // Agreg
 import { User as UserIcon } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { useNavigate } from "react-router-dom";
-import { ProfileNavigation } from './SettingsNavigation';
+import { ProfileNavigation } from './ProfileNavigation';
 import Icon from '@mdi/react';
 import { mdiEmoticonWink } from '@mdi/js';
 import { useAuth } from '../../hooks/useAuth';
@@ -16,9 +16,10 @@ interface NavigationProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   user: User | null;
+  tokens: number;
 }
 
-export function Navigation({ activeTab, onTabChange, user }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationProps) {
   const navigate = useNavigate();
   const { userStore } = useAuth();
   const [isHovering, setIsHovering] = useState(false); // Estado para manejar el hover
@@ -46,7 +47,6 @@ export function Navigation({ activeTab, onTabChange, user }: NavigationProps) {
   return (
     <nav className="mb-6">
       <div className="bg-white w-full shadow-md py-4 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
-        {/* Logo y nombre */}
         <div className="flex items-center gap-0 whitespace-nowrap">
           <Icon
             path={mdiEmoticonWink}
@@ -57,7 +57,6 @@ export function Navigation({ activeTab, onTabChange, user }: NavigationProps) {
           <span className="text-2xl font-bold text- -700">PerfectText</span> {/* Texto más grande */}
         </div>
 
-        {/* Botones de navegación y usuario */}
         <div className="flex items-center justify-end gap-6 w-full">
           <div className="inline-flex flex-wrap gap-4 items-center">
             {!user && (
@@ -74,7 +73,6 @@ export function Navigation({ activeTab, onTabChange, user }: NavigationProps) {
                 <span className="text-base font-medium">Inicio</span> {/* Texto más grande */}
               </motion.button>
             )}
-
 
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -127,7 +125,7 @@ export function Navigation({ activeTab, onTabChange, user }: NavigationProps) {
               <Map className="w-6 h-6" />
               <span className="text-base font-medium">Mapa Conceptual</span>
             </motion.button>
-            {user && (
+            {/* {user && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -150,31 +148,58 @@ export function Navigation({ activeTab, onTabChange, user }: NavigationProps) {
                       transform: "translateX(-50%)", // Ajusta su posición para que esté perfectamente centrado
                     }}
                   >
-                    Tokens restantes: {userStore?.tokens || 0}
+                    Tokens restantes: {tokens}
                   </div>
                 )}
               </motion.button>
+            )} */}
+
+
+
+            {user ? (
+              <ProfileNavigation
+                photoURL={user.photoURL}
+                name={user.displayName}
+                tokens={tokens}
+              ></ProfileNavigation>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/login")}
+                className="flex items-center px-5 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+              >
+                <span className="text-base font-medium">Iniciar sesión</span>
+              </motion.button>
             )}
 
-          </div>
-
-          {!user ?
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleLogin()}
-              className="flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+              onMouseEnter={() => setIsHovering(true)} // Activar hover
+              onMouseLeave={() => setIsHovering(false)} // Desactivar hover
+              onClick={() => onTabChange('plans')}
+              className={`flex items-center space-x-3  px-3 py-3 rounded-lg transition-colors ${activeTab === 'plans'
+                ? 'bg-yellow-500 text-white'
+                : 'text-gray-600 bg-yellow-400 hover:bg-yellow-300'
+                }`}
             >
-              <UserIcon className="w-6 h-6" /> {/* Icono más grande */}
-              <span className="text-base font-medium">Iniciar sesión</span> {/* Texto más grande */}
-            </motion.button>
+              <LuCrown className="w-5 h-5" />
 
-            :
-            <ProfileNavigation
-              photoURL={user.photoURL}
-              name={user.displayName}
-            ></ProfileNavigation>
-          }
+              {isHovering && (
+                <div
+                  className="absolute top-full mt-2 p-3 bg-gray-800 text-white text-sm rounded-md shadow-lg z-10"
+                  style={{
+                    left: "80%", // Coloca el tooltip en el centro del botón
+                    transform: "translateX(-80%)", // Ajusta su posición para que esté perfectamente centrado
+                  }}
+                >
+                  Plan gratuito
+                </div>
+              )}
+
+            </motion.button>
+          </div>
         </div>
       </div>
       <div className="pt-20"></div> {/* Espaciado adicional para evitar que el contenido se corte */}

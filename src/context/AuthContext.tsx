@@ -1,9 +1,9 @@
 import React, { createContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../services/firebase"; // Configuración de Firebase
-import { findUserByEmail, updateUserTokens } from "../services/firestore"; // Importar la función
+import { addUserToFirestore, findUserByEmail, updateUserTokens } from "../services/firestore"; // Importar la función
 import { ReactNode } from "react";
-import { User as MyUser } from "../types/global";
+import { User as MyUser, UserSubscription } from "../types/global";
 
 interface AuthContextProps {
   user: User | null; // Usuario autenticado de Firebase
@@ -38,7 +38,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           // Busca al usuario en Firestore
           const firestoreUserData = await findUserByEmail(currentUser.email!);
-
           if (firestoreUserData) {
             // Tipar los datos al modelo de `User`
             const formattedUser: MyUser = {
@@ -51,7 +50,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             setuserStore(formattedUser); // Actualiza el estado con los datos del usuario de Firestore
           } else {
-            setuserStore(null); // Si no se encuentra el usuario, establece null
+            const formattedUser: MyUser = {
+              uid: currentUser.uid,
+              name: currentUser.displayName!,
+              email: currentUser.email!,
+              subscription: UserSubscription.FREE,
+              tokens: UserSubscription.TOKENSFREE as number,
+            };
+            await addUserToFirestore(formattedUser); // Agrega al usuario en Firestore
+            setuserStore(formattedUser); // Si no se encuentra el usuario, establece null
           }
         } catch (error) {
           console.error("Error al obtener el usuario de Firestore:", error);
