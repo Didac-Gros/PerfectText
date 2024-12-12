@@ -42,11 +42,11 @@ export const CustomProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 overflow-hidden relative">
-      {/* Fondo decorativo con gradientes y efectos de luz */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-6">
+{/* Fondo decorativo con gradientes y efectos de luz */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent mix-blend-overlay" />
-        <div className="absolute -top-1/3 -left-1/3 w-[60rem] h-[60rem] rounded-full bg-pink-300/30 blur-3xl opacity-70 animate-pulse-slow" />
+      <div className="absolute -top-1/3 -left-1/3 w-[60rem] h-[60rem] rounded-full bg-blue-300/30 blur-3xl opacity-50" />
+      <div className="absolute bottom-0 right-0 w-[40rem] h-[40rem] rounded-full bg-blue-800/30 blur-3xl opacity-50" />
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-300/20 blur-3xl opacity-50" />
       </div>
 

@@ -101,7 +101,7 @@ export const RegisterPage: React.FC = () => {
 
     if (isVerificationSent) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-pink-500">
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-6">
                 <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
                     <h2 className="text-3xl font-extrabold text-gray-800">Correo enviado</h2>
                     <p className="text-gray-600">
@@ -119,7 +119,7 @@ export const RegisterPage: React.FC = () => {
         );
     }
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-pink-500">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-6">
             <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
                 <div className="flex items-center gap-2 mb-5">
                     <FaArrowLeftLong

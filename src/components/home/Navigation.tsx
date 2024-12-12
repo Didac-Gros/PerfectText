@@ -64,10 +64,12 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onTabChange('home')} // Botón para ir al tab Home
-                className={`flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors ${activeTab === 'home'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
+                  activeTab === 'home'
+                    ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+                
               >
                 <Home className="w-6 h-6" /> {/* Iconos más grandes */}
                 <span className="text-base font-medium">Inicio</span> {/* Texto más grande */}
@@ -78,10 +80,11 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToResum('correct')}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors ${activeTab === 'correct'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-                }`}
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
+                activeTab === 'correct'
+                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
               <Wand2 className="w-6 h-6" />
               <span className="text-base font-medium">Corrección</span>
@@ -91,10 +94,11 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToResum('summarize')}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors ${activeTab === 'summarize'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-                }`}
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
+                activeTab === 'summarize'
+                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
               <FileText className="w-6 h-6" />
               <span className="text-base font-medium">Resumen</span>
@@ -104,10 +108,11 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToQuiz()}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors ${activeTab === 'quiz'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-                }`}
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
+                activeTab === 'quiz'
+                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
               <GamepadIcon className="w-6 h-6" />
               <span className="text-base font-medium">Quiz</span>
@@ -117,10 +122,11 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToMap()}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors ${activeTab === 'conceptmap'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-                }`}
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
+                activeTab === 'conceptmap'
+                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
               <Map className="w-6 h-6" />
               <span className="text-base font-medium">Mapa Conceptual</span>
@@ -179,19 +185,22 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               onMouseEnter={() => setIsHovering(true)} // Activar hover
               onMouseLeave={() => setIsHovering(false)} // Desactivar hover
               onClick={() => onTabChange('plans')}
-              className={`flex items-center space-x-3  px-3 py-3 rounded-lg transition-colors ${activeTab === 'plans'
-                ? 'bg-yellow-500 text-white'
-                : 'text-gray-600 bg-yellow-400 hover:bg-yellow-300'
-                }`}
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'plans'
+                ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg'
+                : 'bg-gray-100 text-gray-600 hover:from-gray-200 hover:to-gray-300'
+              }`}
+              
             >
               <LuCrown className="w-5 h-5" />
+              
 
               {isHovering && (
                 <div
-                  className="absolute top-full mt-2 p-3 bg-gray-800 text-white text-sm rounded-md shadow-lg z-10"
-                  style={{
-                    left: "80%", // Coloca el tooltip en el centro del botón
-                    transform: "translateX(-80%)", // Ajusta su posición para que esté perfectamente centrado
+                className="absolute top-full mt-2 p-3 bg-gray-100 text-gray-600 text-sm rounded-md shadow-lg z-10 font-bold text-base tracking-wide"
+                style={{
+                    left: "50%", // Coloca el tooltip en el centro del botón
+                    transform: "translateX(-80%)",
+                    whiteSpace: "nowrap", // Ajusta su posición para que esté perfectamente centrado
                   }}
                 >
                   Plan gratuito
