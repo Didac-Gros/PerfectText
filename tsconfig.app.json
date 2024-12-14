@@ -20,5 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "server/index.ts"]
+  "include": ["src", "server/index.ts", "global.d.ts"] 
+
 }
