@@ -13,9 +13,11 @@ type SummarizeTabProps = {
     onTabChange: (tab: TabType) => void;
     user: User | null;
     removeTokens: (tokens: number) => void;
+    userTokens: number | null;
+    setShowPopUpTokens: (show: boolean) => void;
 };
 
-export const SummarizeTab: React.FC<SummarizeTabProps> = ({ onTabChange, user, removeTokens }) => {
+export const SummarizeTab: React.FC<SummarizeTabProps> = ({ onTabChange, user, removeTokens, userTokens, setShowPopUpTokens }) => {
     const [inputText, setInputText] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState('es');
     const [selectedMode, setSelectedMode] = useState('general');
@@ -31,7 +33,7 @@ export const SummarizeTab: React.FC<SummarizeTabProps> = ({ onTabChange, user, r
     const handleSubmit = async () => {
         if (!user) {
             setShowPopUp(true);
-        } else {
+        } else if(userTokens === null || userTokens >= inputText.length) {
             if (!inputText.trim()) return;
 
             setIsLoading(true);
@@ -51,6 +53,8 @@ export const SummarizeTab: React.FC<SummarizeTabProps> = ({ onTabChange, user, r
             } finally {
                 setIsLoading(false);
             }
+        } else {
+            setShowPopUpTokens(true);
         }
 
     };

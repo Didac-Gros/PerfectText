@@ -7,7 +7,6 @@ import { parseFileToString, parseMarkdownToNodes } from '../../utils/utils';
 import { FileUploader } from '../shared/FileUploader';
 import { fetchConceptMap } from '../../services/conceptMapApi';
 import { Node } from "../../types/global";
-import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { User } from 'firebase/auth';
@@ -15,9 +14,11 @@ import { User } from 'firebase/auth';
 interface ConceptMapGeneratorProps {
   removeTokens: (tokens: number) => void;
   user: User | null;
+  userTokens: number | null;
+  setShowPopUpTokens: (show: boolean) => void;
 }
 
-export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ user, removeTokens }) => {
+export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ user, removeTokens, userTokens, setShowPopUpTokens}) => {
   const [userText, setUserText] = useState('');
   const [fileText, setFileText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -240,27 +241,30 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({ user, 
 
   const generateConceptMap = async () => {
     if (user) {
-      setIsLoading(true);
-      setError(null);
+      if (userTokens === null || userTokens >= userText.length + fileText.length) {
+        setIsLoading(true);
+        setError(null);
 
-      try {
-        removeTokens(userText.length + fileText.length);
-        const response = await fetchConceptMap(`${userText} ${fileText}`);
-        
-        const root = parseMarkdownToNodes(response);
-        if (!root.children?.length) {
-          throw new Error('No se pudieron generar conceptos del texto proporcionado');
+        try {
+          removeTokens(userText.length + fileText.length);
+          const response = await fetchConceptMap(`${userText} ${fileText}`);
+
+          const root = parseMarkdownToNodes(response);
+          if (!root.children?.length) {
+            throw new Error('No se pudieron generar conceptos del texto proporcionado');
+          }
+
+          renderConceptMap(root);
+          setUserText('');
+          setResetFile(true);
+        } catch (err) {
+          console.error('Error generating concept map:', err);
+          setError(err instanceof Error ? err.message : 'Error al generar el mapa conceptual');
+        } finally {
+          setIsLoading(false);
         }
+      } else setShowPopUpTokens(true);
 
-        renderConceptMap(root);
-        setUserText('');
-        setResetFile(true);
-      } catch (err) {
-        console.error('Error generating concept map:', err);
-        setError(err instanceof Error ? err.message : 'Error al generar el mapa conceptual');
-      } finally {
-        setIsLoading(false);
-      }
     } else setShowPopUp(true);
   };
 

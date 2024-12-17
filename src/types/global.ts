@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface Language {
   code: string;
   name: string;
@@ -29,15 +31,19 @@ export interface User {
   uid: string;
   name: string;
   email: string;
+  expirationDate: Timestamp;
+  customerId: string | null;
   subscription: UserSubscription;
-  tokens: number;
+  tokens: number | null;
 }
 
 export enum UserSubscription {
   FREE = "Gratuito",
-  STANDARD = "Estándar",
-  PREMIUM = "Premium",
+  PRO = "Estándar",
+  ELITE = "Premium",
 
   TOKENSFREE = 1000000,
-  TOKENSSTANDARD = 10000000,
+  TOKENSPRO = 10000000,
 }
+
+export type TabType = "home" | "correct" | "summarize" | "quiz" | "conceptmap" | "plans";

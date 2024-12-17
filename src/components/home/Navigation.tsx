@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
 import { Wand2, FileText, GamepadIcon, Map, Home } from 'lucide-react'; // Agregamos el icono BookOpen
-import { User as UserIcon } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { useNavigate } from "react-router-dom";
 import { ProfileNavigation } from './ProfileNavigation';
 import Icon from '@mdi/react';
 import { mdiEmoticonWink } from '@mdi/js';
-import { useAuth } from '../../hooks/useAuth';
+import { User as MyUser } from '../../types/global';
 import { LuCrown } from "react-icons/lu";
 import { useState } from 'react';
+import { formatTokens } from '../../utils/utils';
 
 type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap' | 'plans';
 
@@ -16,12 +16,12 @@ interface NavigationProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   user: User | null;
+  userStore: MyUser | null;
   tokens: number;
 }
 
-export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, user, tokens, userStore, }: NavigationProps) {
   const navigate = useNavigate();
-  const { userStore } = useAuth();
   const [isHovering, setIsHovering] = useState(false); // Estado para manejar el hover
 
   const handleLogin = async () => {
@@ -64,12 +64,11 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onTabChange('home')} // Botón para ir al tab Home
-                className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
-                  activeTab === 'home'
+                className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'home'
                     ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
                     : 'text-gray-600 hover:text-gray-800'
-                }`}
-                
+                  }`}
+
               >
                 <Home className="w-6 h-6" /> {/* Iconos más grandes */}
                 <span className="text-base font-medium">Inicio</span> {/* Texto más grande */}
@@ -80,11 +79,10 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToResum('correct')}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
-                activeTab === 'correct'
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'correct'
                   ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-800'
-              }`}
+                }`}
             >
               <Wand2 className="w-6 h-6" />
               <span className="text-base font-medium">Corrección</span>
@@ -94,11 +92,10 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToResum('summarize')}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
-                activeTab === 'summarize'
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'summarize'
                   ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-800'
-              }`}
+                }`}
             >
               <FileText className="w-6 h-6" />
               <span className="text-base font-medium">Resumen</span>
@@ -108,11 +105,10 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToQuiz()}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
-                activeTab === 'quiz'
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'quiz'
                   ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-800'
-              }`}
+                }`}
             >
               <GamepadIcon className="w-6 h-6" />
               <span className="text-base font-medium">Quiz</span>
@@ -122,57 +118,25 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToMap()}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
-                activeTab === 'conceptmap'
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'conceptmap'
                   ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-800'
-              }`}
+                }`}
             >
               <Map className="w-6 h-6" />
               <span className="text-base font-medium">Mapa Conceptual</span>
             </motion.button>
-            {/* {user && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onMouseEnter={() => setIsHovering(true)} // Activar hover
-                onMouseLeave={() => setIsHovering(false)} // Desactivar hover
-                onClick={() => onTabChange('plans')}
-                className={`flex items-center space-x-3 px-5 py-3 rounded-lg transition-colors ${activeTab === 'plans'
-                  ? 'bg-yellow-500 text-white'
-                  : 'text-gray-600 bg-yellow-400 hover:bg-yellow-300'
-                  }`}
-              >
-                <LuCrown className="w-6 h-6" />
-                <span className="text-base font-medium">{userStore?.subscription}</span>
-
-                {isHovering && (
-                  <div
-                    className="absolute top-full mt-2 w-64 p-3 bg-gray-800 text-white text-sm rounded-md shadow-lg z-10"
-                    style={{
-                      left: "50%", // Coloca el tooltip en el centro del botón
-                      transform: "translateX(-50%)", // Ajusta su posición para que esté perfectamente centrado
-                    }}
-                  >
-                    Tokens restantes: {tokens}
-                  </div>
-                )}
-              </motion.button>
-            )} */}
-
-
-
             {user ? (
               <ProfileNavigation
                 photoURL={user.photoURL}
                 name={user.displayName}
-                tokens={tokens}
+                tokens={formatTokens(tokens)}
               ></ProfileNavigation>
             ) : (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/login")}
+                onClick={handleLogin}
                 className="flex items-center px-5 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
               >
                 <span className="text-base font-medium">Iniciar sesión</span>
@@ -188,22 +152,22 @@ export function Navigation({ activeTab, onTabChange, user, tokens }: NavigationP
               className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'plans'
                 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg'
                 : 'bg-gray-100 text-gray-600 hover:from-gray-200 hover:to-gray-300'
-              }`}
-              
+                }`}
+
             >
               <LuCrown className="w-5 h-5" />
-              
 
-              {isHovering && (
+
+              {isHovering && user && (
                 <div
-                className="absolute top-full mt-2 p-3 bg-gray-100 text-gray-600 text-sm rounded-md shadow-lg z-10 font-bold text-base tracking-wide"
-                style={{
+                  className="absolute top-full mt-2 p-3 bg-gray-100 text-gray-600 text-sm rounded-md shadow-lg z-10 font-bold text-base tracking-wide"
+                  style={{
                     left: "50%", // Coloca el tooltip en el centro del botón
-                    transform: "translateX(-80%)",
+                    transform: "translateX(-90%)",
                     whiteSpace: "nowrap", // Ajusta su posición para que esté perfectamente centrado
                   }}
                 >
-                  Plan gratuito
+                  Actualizar o cancelar plan
                 </div>
               )}
 

@@ -3,7 +3,7 @@ import { auth } from "../../services/firebase";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { User, UserSubscription } from "../../types/global";
-import { addUserToFirestore, findUserByEmail } from "../../services/firestore";
+import { findUserByEmail } from "../../services/firestore";
 
 interface GoogleButtonProps {
     text: string;

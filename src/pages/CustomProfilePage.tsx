@@ -14,7 +14,7 @@ export const CustomProfilePage: React.FC = () => {
     `https://api.dicebear.com/6.x/pixel-art/svg?seed=user${i + 1}`
   );
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(
-    user ? user.photoURL : avatars[0]
+    avatars[0]
   );
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
 
@@ -43,10 +43,10 @@ export const CustomProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-6">
-{/* Fondo decorativo con gradientes y efectos de luz */}
+      {/* Fondo decorativo con gradientes y efectos de luz */}
       <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute -top-1/3 -left-1/3 w-[60rem] h-[60rem] rounded-full bg-blue-300/30 blur-3xl opacity-50" />
-      <div className="absolute bottom-0 right-0 w-[40rem] h-[40rem] rounded-full bg-blue-800/30 blur-3xl opacity-50" />
+        <div className="absolute -top-1/3 -left-1/3 w-[60rem] h-[60rem] rounded-full bg-blue-300/30 blur-3xl opacity-50" />
+        <div className="absolute bottom-0 right-0 w-[40rem] h-[40rem] rounded-full bg-blue-800/30 blur-3xl opacity-50" />
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-300/20 blur-3xl opacity-50" />
       </div>
 

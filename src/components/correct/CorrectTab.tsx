@@ -13,9 +13,11 @@ type CorrectTabProps = {
     onTabChange: (tab: TabType) => void;
     user: User | null;
     removeTokens: (tokens: number) => void;
+    userTokens: number | null;
+    setShowPopUpTokens: (show: boolean) => void;
 };
 
-export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user, removeTokens }) => {
+export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user, removeTokens, userTokens, setShowPopUpTokens }) => {
     const [inputText, setInputText] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState('es');
     const [selectedMode, setSelectedMode] = useState('general');
@@ -30,13 +32,17 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user, remov
     const handleSubmit = async () => {
         if (!user) {
             setShowPopUp(true);
-        } else {
+        } else if (userTokens === null || userTokens >= inputText.length) {
             if (!inputText.trim()) return;
+            console.log("userTokens: ", userTokens);
+            console.log("inputText: ", inputText.length);
 
             setIsLoading(true);
             setError(undefined);
             removeTokens(inputText.length);
-
+            if (userTokens !== null) {
+                userTokens -= inputText.length;
+            }
             try {
                 const { corrected, enhanced } = await correctText(inputText, selectedLanguage, selectedMode);
                 setCorrectedText(corrected);
@@ -51,8 +57,9 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({ onTabChange, user, remov
             } finally {
                 setIsLoading(false);
             }
+        } else {
+            setShowPopUpTokens(true);
         }
-
     };
 
     const handleLogin = () => {

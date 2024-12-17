@@ -14,9 +14,12 @@ import { useNavigate } from "react-router-dom";
 
 interface QuizGameProps {
   removeTokens: (tokens: number) => void;
+  userTokens: number | null;
+  setShowPopUpTokens: (show: boolean) => void;
+
 }
 
-export const QuizGame:React.FC<QuizGameProps> = ({removeTokens}) => {
+export const QuizGame: React.FC<QuizGameProps> = ({ removeTokens, userTokens, setShowPopUpTokens }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
@@ -33,21 +36,22 @@ export const QuizGame:React.FC<QuizGameProps> = ({removeTokens}) => {
 
   const handleGenerateQuestions = async () => {
     if (user) {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const generatedQuestions = await fetchGenerateQuestions(`${userText} ${fileText}`);
-        setQuestions(generatedQuestions);
-        setHasStarted(true);
-
-        // await updateUserTokens(userText.length + fileText.length);
+      if (userTokens === null || userTokens >= userText.length + fileText.length) {
+        setIsLoading(true);
+        setError(null);
         removeTokens(userText.length + fileText.length);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
-      } finally {
-        setIsLoading(false);
-      }
+
+        try {
+          const generatedQuestions = await fetchGenerateQuestions(`${userText} ${fileText}`);
+          setQuestions(generatedQuestions);
+          setHasStarted(true);
+
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Error al generar las preguntas');
+        } finally {
+          setIsLoading(false);
+        }
+      } else setShowPopUpTokens(true);
     } else setShowPopUp(true);
   };
 
@@ -103,15 +107,15 @@ export const QuizGame:React.FC<QuizGameProps> = ({removeTokens}) => {
         animate={{ opacity: 1, y: 0 }}
         className="max-w mx-auto"
       >
-        <div className="bg-white rounded-2xl shadow-lg p-8 ">
+        <div className="bg-white rounded-2xl shadow-lg p-5 ">
           <div className="text-center mb-8">
-            <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
-              <GamepadIcon className="w-12 h-12 text-white" />
+            <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-2">
+              <GamepadIcon className="w-9 h-9 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">
               ¡Crea tu propio Quiz!
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-base text-gray-600 mb-6">
               Introduce un texto y/o un archivo y generaremos preguntas automáticamente
             </p>
 

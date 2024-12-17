@@ -1,9 +1,10 @@
 import React, { createContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../services/firebase"; // Configuración de Firebase
-import { addUserToFirestore, findUserByEmail, updateUserTokens } from "../services/firestore"; // Importar la función
+import { addUserToFirestore, findUserByEmail } from "../services/firestore"; // Importar la función
 import { ReactNode } from "react";
 import { User as MyUser, UserSubscription } from "../types/global";
+import { Timestamp } from "firebase/firestore";
 
 interface AuthContextProps {
   user: User | null; // Usuario autenticado de Firebase
@@ -38,10 +39,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           // Busca al usuario en Firestore
           const firestoreUserData = await findUserByEmail(currentUser.email!);
+          const oneMonthFromNow = new Date();
+          oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
           if (firestoreUserData) {
             // Tipar los datos al modelo de `User`
             const formattedUser: MyUser = {
               uid: currentUser.uid,
+              customerId: firestoreUserData.customerId,
+              expirationDate: Timestamp.fromDate(oneMonthFromNow),
               name: firestoreUserData.name,
               email: firestoreUserData.email,
               subscription: firestoreUserData.subscription,
@@ -52,6 +57,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           } else {
             const formattedUser: MyUser = {
               uid: currentUser.uid,
+              customerId: null,
+              expirationDate: Timestamp.fromDate(oneMonthFromNow),
               name: currentUser.displayName!,
               email: currentUser.email!,
               subscription: UserSubscription.FREE,

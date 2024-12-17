@@ -1,8 +1,24 @@
 import { motion } from 'framer-motion';
-import { Sparkles, BookOpen, Brain, FileText, ArrowRight, Zap } from 'lucide-react';
+import { BookOpen, Brain, FileText, ArrowRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { TabType } from '../../types/global';
 
-export function Hero() {
+interface HeroProps {
+  onTabChange: (tab: TabType) => void;
+
+}
+
+export function Hero({ onTabChange }: HeroProps): JSX.Element {
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      navigate("/login")
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
   return (
     <div className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white">
       {/* Animated background elements */}
@@ -45,8 +61,8 @@ export function Hero() {
                 Estudia más inteligente
               </span>
             </motion.div>
-            
-            
+
+
 
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -70,26 +86,24 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap justify-center gap-4 mb-16">
-            <Link to="/correct">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLogin}
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+            >
+              Empezar gratis
+              <ArrowRight className="w-5 h-5" />
+            </motion.button>
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-              >
-                Empezar gratis
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-            </Link>
-            
-            <Link to="/premium">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                onClick={() => onTabChange('plans')}
                 className="px-8 py-4 bg-white text-gray-700 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 Ver planes Premium
               </motion.button>
-            </Link>
           </div>
 
           {/* Feature cards */}

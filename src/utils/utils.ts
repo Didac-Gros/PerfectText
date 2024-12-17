@@ -193,3 +193,13 @@ function optimizeText(text: string): string {
   // Limpieza final
   return optimizedText.replace(/\s+/g, ' ').trim();
 }
+
+export function formatTokens(num: number): string {
+  if (num < 1000) return num.toString(); // Si el número es menor a 1000, devuélvelo sin formatear
+
+  const units = ["", "K", "M", "B", "T"]; // K=Mil, M=Millón, B=Billón, T=Trillón
+  const unitIndex = Math.floor(Math.log10(num) / 3); // Determina la unidad
+  const scaledNumber = num / Math.pow(1000, unitIndex); // Escala el número al rango adecuado
+
+  return `${scaledNumber.toFixed(1)}${units[unitIndex]}`; // Devuelve el número formateado con la unidad
+}

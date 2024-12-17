@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 import { LanguageSelector } from '../shared/LanguageSelector';
@@ -38,11 +37,10 @@ export function TextInput({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onTabChange('correct')}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
-            activeTab === 'correct'
-              ? 'bg-blue-500 text-white shadow-md'
-              : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-          }`}
+          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${activeTab === 'correct'
+            ? 'bg-blue-500 text-white shadow-md'
+            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+            }`}
         >
           Corregir texto
         </motion.button>
@@ -50,11 +48,10 @@ export function TextInput({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onTabChange('summarize')}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
-            activeTab === 'summarize'
-              ? 'bg-blue-500 text-white shadow-md'
-              : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-          }`}
+          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${activeTab === 'summarize'
+            ? 'bg-blue-500 text-white shadow-md'
+            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+            }`}
         >
           Resumir texto
         </motion.button>
@@ -74,7 +71,7 @@ export function TextInput({
           placeholder={`Escribe o pega tu texto aquí para ${activeTab === 'correct' ? 'corregirlo' : 'resumirlo'}...`}
           className="w-full h-48 p-4 rounded-xl bg-gray-50 focus:bg-white border-2 border-gray-100 focus:border-blue-500 outline-none transition-colors resize-none"
         />
-        
+
         {inputText && (
           <motion.button
             initial={{ opacity: 0 }}
@@ -94,16 +91,15 @@ export function TextInput({
         whileTap={{ scale: 0.98 }}
         onClick={onSubmit}
         disabled={!inputText.trim() || isLoading}
-        className={`w-full py-2 px-6 rounded-xl font-medium transition-all duration-200 flex flex-col items-center justify-center gap-2 ${
-          !inputText.trim() || isLoading
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-blue-500 text-white shadow-md hover:bg-blue-600'
-        }`}
+        className={`w-full py-2 px-6 rounded-xl font-medium transition-all duration-200 flex flex-col items-center justify-center gap-2 ${!inputText.trim() || isLoading
+          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          : 'bg-blue-500 text-white shadow-md hover:bg-blue-600'
+          }`}
       >
         {isLoading ? (
-          <LoadingProgress 
-            isLoading={isLoading} 
-            text={activeTab === 'correct' ? 'Corrigiendo texto' : 'Resumiendo texto'} 
+          <LoadingProgress
+            isLoading={isLoading}
+            text={activeTab === 'correct' ? 'Corrigiendo texto' : 'Resumiendo texto'}
           />
         ) : (
           <div className="flex items-center gap-2">

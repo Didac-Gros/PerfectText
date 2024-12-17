@@ -7,7 +7,7 @@ import { UserIcon, ArrowRightOnRectangleIcon as LogoutIcon } from '@heroicons/re
 interface ProfileNavigationProps {
   photoURL: string | null;
   name: string | null;
-  tokens: number;
+  tokens: string;
 }
 
 export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationProps) {
@@ -21,7 +21,7 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
-  };  
+  };
 
   const handleCustomize = async () => {
     try {
@@ -29,10 +29,6 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
     } catch (error) {
       console.error("Error al personalizar perfil:", error);
     }
-  };
-
-  const formatTokens = (num: number) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
   return (
@@ -43,16 +39,16 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
             src={photoURL || ""}
             alt="Avatar"
             className="w-10 h-10 rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all"
-            />
+          />
           <div className="flex flex-col items-start">
-          <span
-    className="text-lg font-bold text-gray-800 hover:text-black transition-all leading-none"
-    style={{
-      paddingBottom: "2px",
-    }}
-  >
-    {name}
-  </span>
+            <span
+              className="text-lg font-bold text-gray-800 hover:text-black transition-all leading-none"
+              style={{
+                paddingBottom: "2px",
+              }}
+            >
+              {name}
+            </span>
             <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
               {/* Ícono de moneda */}
               <svg
@@ -69,16 +65,16 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
                   </radialGradient>
                 </defs>
                 <circle cx="12" cy="12" r="10" fill="url(#coinGradient)" stroke="#F5D665FF" strokeWidth="1.5" />
-                
+
                 {/* Bordes texturizados */}
                 <circle cx="12" cy="12" r="9" fill="none" stroke="#DAA520" strokeWidth="0.5" strokeDasharray="2,2" />
-                
+
                 {/* Detalle del brillo */}
                 <path
                   d="M12 4C13.5 4 15.5 5 16 6.5C16.5 8 14.5 10 13 9C11.5 8 11 6 12 4Z"
                   fill="rgba(255, 255, 255, 0.5)"
                 />
-                
+
                 {/* Estrella central */}
                 <path
                   d="M12 7L13.4 10.2L17 10.7L14.5 13L15.4 16.5L12 14.7L8.6 16.5L9.5 13L7 10.7L10.6 10.2L12 7Z"
@@ -87,7 +83,7 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
                   strokeWidth="0.5"
                 />
               </svg>
-              <span className="font-bold text-gray-500">{formatTokens(tokens)}</span>
+              <span className="font-bold text-gray-500">{tokens === null ? "Ilimitados" : tokens}</span>
             </div>
           </div>
         </div>

@@ -73,7 +73,7 @@ export const RegisterPage: React.FC = () => {
                     subscription: UserSubscription.FREE,
                     tokens: UserSubscription.TOKENSFREE as number,
                 };
-                await addUserToFirestore(newUser);
+                // await addUserToFirestore(newUser);
             } catch (err: any) {
                 setError(err.message);
             } finally {
