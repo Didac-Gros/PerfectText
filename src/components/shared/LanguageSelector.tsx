@@ -2,32 +2,35 @@ import { motion } from "framer-motion";
 import { Languages, ChevronDown, ChevronUp } from "lucide-react";
 import { Language } from "../../types/global";
 import { useState, useRef, useEffect } from "react";
+import cataloniaFlag from "../../assets/Flag_of_Catalonia.svg";
+
 
 interface LanguageSelectorProps {
   selectedLanguage: string;
   onLanguageChange: (language: string) => void;
 }
 
+// Ejemplo utilizando banderas en formato SVG desde un CDN fiable
 const mainLanguages: Language[] = [
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "ca", name: "Català", flag: "🏴" },
+  { code: "es", name: "Español", flag: "https://flagcdn.com/es.svg" },
+  { code: "en", name: "English", flag: "https://flagcdn.com/gb.svg" },
+  { code: "ca", name: "Català", flag: cataloniaFlag },
+  { code: "fr", name: "Français", flag: "https://flagcdn.com/fr.svg" },
+  { code: "de", name: "Deutsch", flag: "https://flagcdn.com/de.svg" },
 ];
 
 const additionalLanguages: Language[] = [
-  { code: "zh", name: "中文 (Chino)", flag: "🇨🇳" },
-  { code: "hi", name: "हिन्दी (Hindi)", flag: "🇮🇳" },
-  { code: "ar", name: "العربية (Árabe)", flag: "🇸🇦" },
-  { code: "bn", name: "বাংলা (Bengalí)", flag: "🇧🇩" },
-  { code: "pt", name: "Português", flag: "🇵🇹" },
-  { code: "ru", name: "Русский (Ruso)", flag: "🇷🇺" },
-  { code: "ja", name: "日本語 (Japonés)", flag: "🇯🇵" },
-  { code: "tr", name: "Türkçe (Turco)", flag: "🇹🇷" },
-  { code: "ko", name: "한국어 (Coreano)", flag: "🇰🇷" },
-  { code: "vi", name: "Tiếng Việt (Vietnamita)", flag: "🇻🇳" },
-  { code: "it", name: "Italiano", flag: "🇮🇹" },
+  { code: "it", name: "Italiano", flag: "https://flagcdn.com/it.svg" },
+  { code: "zh", name: "中文 (Chino)", flag: "https://flagcdn.com/cn.svg" },
+  { code: "hi", name: "हिन्दी (Hindi)", flag: "https://flagcdn.com/in.svg" },
+  { code: "ar", name: "العربية (Árabe)", flag: "https://flagcdn.com/sa.svg" },
+  { code: "bn", name: "বাংলা (Bengalí)", flag: "https://flagcdn.com/bd.svg" },
+  { code: "pt", name: "Português", flag: "https://flagcdn.com/pt.svg" },
+  { code: "ru", name: "Русский (Ruso)", flag: "https://flagcdn.com/ru.svg" },
+  { code: "ja", name: "日本語 (Japonés)", flag: "https://flagcdn.com/jp.svg" },
+  { code: "tr", name: "Türkçe (Turco)", flag: "https://flagcdn.com/tr.svg" },
+  { code: "ko", name: "한국어 (Coreano)", flag: "https://flagcdn.com/kr.svg" },
+  { code: "vi", name: "Tiếng Việt (Vietnamita)", flag: "https://flagcdn.com/vn.svg" },
 ];
 
 export function LanguageSelector({
@@ -76,7 +79,11 @@ export function LanguageSelector({
                 : "bg-gray-50 text-gray-700 hover:bg-gray-100"
             }`}
           >
-            <span className="text-lg">{lang.flag}</span>
+            <img
+              src={lang.flag}
+              alt={`${lang.name} flag`}
+              className="w-6 h-4 object-contain"
+            />
             <span className="text-sm font-medium">{lang.name}</span>
           </motion.button>
         ))}
@@ -97,7 +104,11 @@ export function LanguageSelector({
         >
           {selectedAdditionalLang ? (
             <>
-              <span className="text-lg">{selectedAdditionalLang.flag}</span>
+              <img
+                src={selectedAdditionalLang.flag}
+                alt={`${selectedAdditionalLang.name} flag`}
+                className="w-6 h-4 object-contain"
+              />
               <span className="text-sm font-medium">
                 {selectedAdditionalLang.name}
               </span>
@@ -142,7 +153,11 @@ export function LanguageSelector({
                   }}
                   className="flex items-center space-x-2 px-3 py-2 w-full text-left hover:bg-gray-50"
                 >
-                  <span className="text-lg">{lang.flag}</span>
+                  <img
+                    src={lang.flag}
+                    alt={`${lang.name} flag`}
+                    className="w-6 h-4 object-contain"
+                  />
                   <span className="text-sm font-medium">{lang.name}</span>
                 </motion.button>
               ))}
