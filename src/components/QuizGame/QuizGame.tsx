@@ -162,6 +162,8 @@ export const QuizGame: React.FC<QuizGameProps> = ({ removeTokens, userTokens, se
             </motion.button>
           </div>
         </div>
+        <div className="pb-20"></div>
+
       </motion.div>
     );
   }

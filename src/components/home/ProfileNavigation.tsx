@@ -8,9 +8,10 @@ interface ProfileNavigationProps {
   photoURL: string | null;
   name: string | null;
   tokens: string;
+  fromMobile: boolean;
 }
 
-export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationProps) {
+export function ProfileNavigation({ photoURL, name, tokens, fromMobile }: ProfileNavigationProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -38,11 +39,11 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
           <img
             src={photoURL || ""}
             alt="Avatar"
-            className="w-10 h-10 rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all"
+            className={`${fromMobile ? 'w-9 h-9' : 'w-10 h-10'} rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all`}
           />
           <div className="flex flex-col items-start">
             <span
-              className="text-lg font-bold text-gray-800 hover:text-black transition-all leading-none"
+              className={`${fromMobile ? 'text-sm' : 'text-lg'} text-lg font-bold text-gray-800 hover:text-black transition-all leading-none`}
               style={{
                 paddingBottom: "2px",
               }}
@@ -53,18 +54,32 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
               {/* Ícono de moneda */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
+                className={`${fromMobile ? 'w-4 h-4' : 'w-5 h-5'} `}
                 viewBox="0 0 24 24"
                 fill="none"
               >
                 {/* Fondo de la moneda con gradiente */}
                 <defs>
-                  <radialGradient id="coinGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                  <radialGradient
+                    id={`coinGradient-${fromMobile ? 'mobile' : 'desktop'}`}
+                    cx="50%"
+                    cy="50%"
+                    r="50%"
+                    fx="50%"
+                    fy="50%"
+                  >
                     <stop offset="0%" stopColor="#252FE2FF" />
                     <stop offset="100%" stopColor="#37B4DAFF" />
                   </radialGradient>
                 </defs>
-                <circle cx="12" cy="12" r="10" fill="url(#coinGradient)" stroke="#F5D665FF" strokeWidth="1.5" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill={`url(#coinGradient-${fromMobile ? 'mobile' : 'desktop'})`}
+                  stroke="#F5D665FF"
+                  strokeWidth="1.5"
+                />
 
                 {/* Bordes texturizados */}
                 <circle cx="12" cy="12" r="9" fill="none" stroke="#DAA520" strokeWidth="0.5" strokeDasharray="2,2" />
@@ -83,8 +98,11 @@ export function ProfileNavigation({ photoURL, name, tokens }: ProfileNavigationP
                   strokeWidth="0.5"
                 />
               </svg>
-              <span className="font-bold text-gray-500">{tokens === null ? "Ilimitados" : tokens}</span>
+              <span className={`${fromMobile ? 'text-xs' : 'text-sm'} font-bold text-gray-500`}>
+                {tokens === null ? 'Ilimitados' : tokens}
+              </span>
             </div>
+
           </div>
         </div>
       </MenuButton>

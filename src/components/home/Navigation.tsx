@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Wand2, FileText, GamepadIcon, Map, Home } from 'lucide-react'; // Agregamos el icono BookOpen
+import { Wand2, FileText, GamepadIcon, Map, Home } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { useNavigate } from "react-router-dom";
 import { ProfileNavigation } from './ProfileNavigation';
@@ -9,6 +9,8 @@ import { User as MyUser } from '../../types/global';
 import { LuCrown } from "react-icons/lu";
 import { useState } from 'react';
 import { formatTokens } from '../../utils/utils';
+import { FaRegUser } from "react-icons/fa";
+import { FiMenu, FiX } from "react-icons/fi";
 
 type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap' | 'plans';
 
@@ -20,9 +22,10 @@ interface NavigationProps {
   tokens: number;
 }
 
-export function Navigation({ activeTab, onTabChange, user, tokens, userStore, }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, user, tokens, }: NavigationProps) {
   const navigate = useNavigate();
-  const [isHovering, setIsHovering] = useState(false); // Estado para manejar el hover
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú móvil
+  const [isHovering, setIsHovering] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -32,117 +35,214 @@ export function Navigation({ activeTab, onTabChange, user, tokens, userStore, }:
     }
   };
 
-  const scrollToResum = (name: TabType) => {
-    onTabChange(name);
-  };
-
-  const scrollToQuiz = () => {
-    onTabChange('quiz');
-  };
-
-  const scrollToMap = () => {
-    onTabChange('conceptmap');
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
     <nav className="mb-6">
       <div className="bg-white w-full shadow-md py-4 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
-        <div className="flex items-center gap-0 whitespace-nowrap">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
           <Icon
             path={mdiEmoticonWink}
-            size={1.75} // Ajusta el tamaño según sea necesario
-            className="text-Black-700" // Usa la clase de Tailwind para el color
+            size={1.5}
+            className="text-black-700"
             title="Logo"
           />
-          <span className="text-2xl font-bold text- -700">PerfectText</span> {/* Texto más grande */}
-        </div>
-
-        <div className="flex items-center justify-end gap-6 w-full">
-          <div className="inline-flex flex-wrap gap-4 items-center">
-            {!user && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => onTabChange('home')} // Botón para ir al tab Home
-                className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'home'
-                    ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
-                    : 'text-gray-600 hover:text-gray-800'
-                  }`}
-
-              >
-                <Home className="w-6 h-6" /> {/* Iconos más grandes */}
-                <span className="text-base font-medium">Inicio</span> {/* Texto más grande */}
-              </motion.button>
-            )}
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollToResum('correct')}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'correct'
-                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:text-gray-800'
-                }`}
-            >
-              <Wand2 className="w-6 h-6" />
-              <span className="text-base font-medium">Corrección</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollToResum('summarize')}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'summarize'
-                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:text-gray-800'
-                }`}
-            >
-              <FileText className="w-6 h-6" />
-              <span className="text-base font-medium">Resumen</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollToQuiz()}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'quiz'
-                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:text-gray-800'
-                }`}
-            >
-              <GamepadIcon className="w-6 h-6" />
-              <span className="text-base font-medium">Quiz</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => scrollToMap()}
-              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'conceptmap'
-                  ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:text-gray-800'
-                }`}
-            >
-              <Map className="w-6 h-6" />
-              <span className="text-base font-medium">Mapa Conceptual</span>
-            </motion.button>
+          <span className="text-xl font-bold text-black-700">PerfectText</span>
+          <div className='md:hidden fixed right-0'>
             {user ? (
               <ProfileNavigation
                 photoURL={user.photoURL}
                 name={user.displayName}
                 tokens={formatTokens(tokens)}
-              ></ProfileNavigation>
+                fromMobile
+              />
             ) : (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLogin}
-                className="flex items-center px-5 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+                className="flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 text-gray-600 hover:text-gray-800"
               >
-                <span className="text-base font-medium">Iniciar sesión</span>
+                <FaRegUser className="w-5 h-5" />
+                <span className="hidden md:block text-base font-medium">Iniciar sesión</span>
               </motion.button>
             )}
+          </div>
 
+        </div>
+
+        {/* Botón del menú móvil */}
+        {/* <button className="md:hidden" onClick={toggleMenu}>
+          {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+        </button> */}
+
+        <div className="fixed bottom-0 left-0 right-0 bg-white py-3 shadow-md flex justify-around items-center z-50 md:hidden">
+          {!user && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onTabChange('home')}
+              className={`flex flex-col items-center ${activeTab === 'home'
+                ? 'text-blue-600'
+                : 'text-gray-600 hover:text-gray-800'
+                }`}
+            >
+              <Home className="w-6 h-6" />
+              <span className="text-xs">Inicio</span>
+            </motion.button>
+          )}
+
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('correct')}
+            className={`flex flex-col items-center ${activeTab === 'correct'
+              ? 'text-blue-600'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <Wand2 className="w-6 h-6" />
+            <span className="text-xs">Corrección</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('summarize')}
+            className={`flex flex-col items-center ${activeTab === 'summarize'
+              ? 'text-blue-600'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <FileText className="w-6 h-6" />
+            <span className="text-xs">Resumen</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('quiz')}
+            className={`flex flex-col items-center ${activeTab === 'quiz'
+              ? 'text-blue-600'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <GamepadIcon className="w-6 h-6" />
+            <span className="text-xs">Quiz</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('conceptmap')}
+            className={`flex flex-col items-center ${activeTab === 'conceptmap'
+              ? 'text-blue-600'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <Map className="w-6 h-6" />
+            <span className="text-xs">Mapa</span>
+          </motion.button>
+        </div>
+
+
+        {/* Menú principal */}
+        <div
+          className={`flex flex-col md:flex-row items-center gap-4 absolute md:static bg-white w-full md:w-auto transition-transform duration-300 ${isMenuOpen ? 'top-16 left-0 p-4 shadow-lg' : 'hidden md:flex'
+            }`}
+        >
+          {!user && (
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onTabChange('home')}
+              className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'home'
+                ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-800'
+                }`}
+            >
+              <Home className="w-6 h-6" />
+              <span className="hidden md:block text-base font-medium">Inicio</span>
+            </motion.button>
+          )}
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('correct')}
+            className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'correct'
+              ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <Wand2 className="w-6 h-6" />
+            <span className="hidden md:block text-base font-medium">Corrección</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('summarize')}
+            className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'summarize'
+              ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <FileText className="w-6 h-6" />
+            <span className="hidden md:block text-base font-medium">Resumen</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('quiz')}
+            className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'quiz'
+              ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <GamepadIcon className="w-6 h-6" />
+            <span className="hidden md:block text-base font-medium">Quiz</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onTabChange('conceptmap')}
+            className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${activeTab === 'conceptmap'
+              ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg'
+              : 'text-gray-600 hover:text-gray-800'
+              }`}
+          >
+            <Map className="w-6 h-6" />
+            <span className="hidden md:block text-base font-medium">Mapa Conceptual</span>
+          </motion.button>
+
+          {user ? (
+            <ProfileNavigation
+              photoURL={user.photoURL}
+              name={user.displayName}
+              tokens={formatTokens(tokens)}
+              fromMobile={false}
+            />
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLogin}
+              className="flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 text-gray-600 hover:text-gray-800"
+            >
+              <FaRegUser className="w-5 h-5" />
+              <span className="hidden md:block text-base font-medium">Iniciar sesión</span>
+            </motion.button>
+          )}
+
+          {user && (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -156,7 +256,6 @@ export function Navigation({ activeTab, onTabChange, user, tokens, userStore, }:
 
             >
               <LuCrown className="w-5 h-5" />
-
 
               {isHovering && user && (
                 <div
@@ -172,10 +271,10 @@ export function Navigation({ activeTab, onTabChange, user, tokens, userStore, }:
               )}
 
             </motion.button>
-          </div>
+          )}
         </div>
       </div>
       <div className="pt-20"></div> {/* Espaciado adicional para evitar que el contenido se corte */}
-    </nav >
+    </nav>
   );
 }
