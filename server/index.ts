@@ -17,11 +17,11 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const app = express();
-const allowedOrigins = ["https://perfecttext.ai/"];
+// const allowedOrigins = ["https://perfecttext.ai/"];
 
 // Security and performance configuration
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
