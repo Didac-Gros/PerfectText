@@ -1,6 +1,6 @@
 import { ErrorResponse } from '../types/global';
 
-const API_URL = 'https://perfecttext.onrender.com';
+const API_URL = 'https://perfecttext.onrender.com/api';
 const API_TIMEOUT = 60000; // Increased to 60 seconds
 
 interface APIRequest {
