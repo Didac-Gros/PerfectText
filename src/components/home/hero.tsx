@@ -3,6 +3,8 @@ import { BookOpen, Brain, FileText, ArrowRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { TabType } from '../../types/global';
+import { useState } from 'react';
+import { LoginPopUp } from '../shared/LoginPopUp';
 
 interface HeroProps {
   onTabChange: (tab: TabType) => void;
@@ -11,6 +13,7 @@ interface HeroProps {
 
 export function Hero({ onTabChange }: HeroProps): JSX.Element {
   const navigate = useNavigate();
+  const [showPopUp, setShowPopUp] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -62,8 +65,6 @@ export function Hero({ onTabChange }: HeroProps): JSX.Element {
               </span>
             </motion.div>
 
-
-
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -96,15 +97,22 @@ export function Hero({ onTabChange }: HeroProps): JSX.Element {
               <ArrowRight className="w-5 h-5" />
             </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => onTabChange('plans')}
-                className="px-8 py-4 bg-white text-gray-700 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                Ver planes Premium
-              </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowPopUp(true)}
+              className="px-8 py-4 bg-white text-gray-700 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              Ver planes Premium
+            </motion.button>
           </div>
+
+          {showPopUp && (
+            <LoginPopUp
+              onClose={() => setShowPopUp(false)}
+              onLogin={handleLogin}
+            ></LoginPopUp>
+          )}
 
           {/* Feature cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">

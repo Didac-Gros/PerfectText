@@ -35,7 +35,7 @@ export function PricingSection() {
             <Crown className="w-5 h-5 text-blue-500 mr-2" />
             <span className="text-blue-800 font-medium">Planes Premium</span>
           </div>
-          
+
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Potencia tu aprendizaje
           </h2>
@@ -44,26 +44,12 @@ export function PricingSection() {
           </p>
         </motion.div>
 
-        <div className="relative">
-          {/* Decorative elements */}
-          <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full blur-2xl opacity-50" />
-          <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full blur-2xl opacity-50" />
-
-          {/* Stripe Pricing Table */}
-          <div className="relative bg-white rounded-2xl shadow-xl p-8">
-            <stripe-pricing-table
-              pricing-table-id="prctbl_1QRBjOKIdUQC1kmZrYJVBP0Q"
-              publishable-key="pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI">
-            </stripe-pricing-table>
-          </div>
-        </div>
-
         {/* Features grid */}
         <div className="mt-24">
           <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
             Todo lo que necesitas para destacar
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {

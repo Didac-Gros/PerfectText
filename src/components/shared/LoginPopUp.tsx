@@ -32,7 +32,7 @@ export function LoginPopUp({ onClose, onLogin }: RegisterInputProps) {
                     ¡Atención!
                 </h2>
                 <p className="text-gray-600 mb-6 text-center">
-                    Para generar un quiz, primero debes iniciar sesión o registrarte.
+                    Para usar esta opción, primero debes iniciar sesión o registrarte.
                 </p>
                 <button
                     onClick={onLogin}

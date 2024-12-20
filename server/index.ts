@@ -17,10 +17,11 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const app = express();
+const allowedOrigins = ["https://perfecttext.ai/"];
 
 // Security and performance configuration
 const corsOptions = {
-  origin: '*',
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -51,11 +52,11 @@ app.post('/api/webhook', stripeWebhook);
 // Error handler
 app.use(errorHandler);
 
-const PORT = 3000;
-const HOST = 'localhost';
+const PORT = process.env.PORT;
+const HOST = '0.0.0.0'; // '0.0.0.0' escucha en todas las interfaces
 
-app.listen(PORT, HOST, () => {
-  console.log(`✨ Server running at http://${HOST}:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`✨ Server running at http://:${PORT}`);
 }).on('error', (error: NodeJS.ErrnoException) => {
   if (error.code === 'EADDRINUSE') {
     console.error(`⚠️ Port ${PORT} is already in use`);

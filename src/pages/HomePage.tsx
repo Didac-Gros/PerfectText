@@ -12,6 +12,7 @@ import { TabType } from '../types/global';
 import { StripePricingTable } from '../components/shared/StripePricingTable';
 import { TokensPopUp } from '../components/shared/TokensPopUp';
 import { useNavigate } from 'react-router-dom';
+import { LoginPopUp } from '../components/shared/LoginPopUp';
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -65,8 +66,14 @@ export const HomePage: React.FC = () => {
 
         {activeTab === 'conceptmap' &&
           <ConceptMapGenerator user={user} removeTokens={removeTokens} userTokens={userStore?.tokens ?? 0} setShowPopUpTokens={setShowPopUp} />}
-        
-        {activeTab === 'plans' && <StripePricingTable />}
+
+        {user && activeTab === 'plans' && <StripePricingTable />}
+        {!user && activeTab === 'plans' && <LoginPopUp
+          onClose={() => setActiveTab('home')}
+          onLogin={handleLogin}
+        ></LoginPopUp>}
+
+        {/* {activeTab === 'plans' && <StripePricingTable />} */}
       </div>
     </div>
   );
