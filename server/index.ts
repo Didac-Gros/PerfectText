@@ -42,6 +42,10 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+app.get('/', (req, res) => {
+  res.send('Servidor activo');
+});
+
 // API endpoints
 app.post('/api/correct', correctText);
 app.post('/api/summarize', summarizeText);
