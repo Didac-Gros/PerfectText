@@ -1,8 +1,9 @@
-  // utils.ts
+// utils.ts
 import pdfToText from "react-pdftotext";
 import { Node } from "../types/global";
 import Mammoth from "mammoth";
 import JSZip from "jszip";
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Convierte el contenido de un archivo en una cadena de texto y optimiza para reducir tokens.
@@ -92,10 +93,7 @@ export async function pptxToText(file: File): Promise<string> {
 
   // Recorre las diapositivas buscando el texto en los XML
   for (const fileName of Object.keys(zip.files)) {
-    if (
-      fileName.startsWith("ppt/slides/slide") &&
-      fileName.endsWith(".xml")
-    ) {
+    if (fileName.startsWith("ppt/slides/slide") && fileName.endsWith(".xml")) {
       const slideXml = await zip.files[fileName].async("string");
       const matches = slideXml.match(/<a:t[^>]*>(.*?)<\/a:t>/g); // Busca etiquetas de texto en XML
       if (matches) {
@@ -117,47 +115,231 @@ async function parseTextFile(file: File): Promise<string> {
 
 function optimizeText(text: string): string {
   // Eliminar espacios y saltos de línea innecesarios
-  text = text.replace(/\s+/g, ' ').replace(/\n{2,}/g, '\n').trim();
+  text = text
+    .replace(/\s+/g, " ")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
 
   // Dividir el texto en oraciones
   const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
 
   // Lista ampliada de stopwords en español
   const stopWords = [
-    "a", "acá", "ahí", "al", "algo", "algunas", "algunos", "allá", "allí",
-    "ambos", "ante", "antes", "aquel", "aquellas", "aquellos", "aqui", "arriba",
-    "asi", "atras", "bajo", "bastante", "bien", "cada", "casi", "cierta",
-    "ciertas", "cierto", "ciertos", "como", "con", "conseguimos", "conseguir",
-    "consigo", "consigue", "consiguen", "consigues", "cual", "cuando", "de",
-    "del", "demas", "demasiada", "demasiadas", "demasiado", "demasiados",
-    "dentro", "desde", "donde", "dos", "el", "ella", "ellas", "ellos", "empleais",
-    "emplean", "emplear", "empleas", "empleo", "en", "encima", "entonces", "entre",
-    "era", "eramos", "eran", "eras", "eres", "es", "esa", "esas", "ese", "eso",
-    "esos", "esta", "estaba", "estado", "estais", "estamos", "estan", "estar",
-    "estará", "estas", "este", "esto", "estos", "estoy", "fin", "fue", "fueron",
-    "fui", "fuimos", "gueno", "ha", "hace", "haceis", "hacemos", "hacen", "hacer",
-    "haces", "hago", "incluso", "intenta", "intentais", "intentamos", "intentan",
-    "intentar", "intentas", "intento", "ir", "junto", "juntos", "la", "largo",
-    "las", "lo", "los", "mientras", "mio", "misma", "mismas", "mismo", "mismos",
-    "modo", "mucha", "muchas", "muchísima", "muchísimas", "muchísimo", "muchísimos",
-    "mucho", "muchos", "muy", "nos", "nosotras", "nosotros", "otra", "otras",
-    "otro", "otros", "para", "pero", "poco", "por", "porque", "primero", "puede",
-    "pueden", "puedo", "quien", "sabe", "sabes", "sabeis", "sabemos", "saben",
-    "ser", "si", "siendo", "sin", "sobre", "sois", "solamente", "solo", "somos",
-    "soy", "su", "sus", "también", "teneis", "tenemos", "tener", "tengo", "tiempo",
-    "tiene", "tienen", "toda", "todas", "todo", "todos", "tras", "tu", "tus",
-    "ultimo", "un", "una", "unas", "uno", "unos", "usa", "usais", "usamos",
-    "usan", "usar", "usas", "uso", "va", "vais", "vamos", "van", "vaya", "verdad",
-    "verdadera", "verdadero", "vosotras", "vosotros", "voy", "yo"
+    "a",
+    "acá",
+    "ahí",
+    "al",
+    "algo",
+    "algunas",
+    "algunos",
+    "allá",
+    "allí",
+    "ambos",
+    "ante",
+    "antes",
+    "aquel",
+    "aquellas",
+    "aquellos",
+    "aqui",
+    "arriba",
+    "asi",
+    "atras",
+    "bajo",
+    "bastante",
+    "bien",
+    "cada",
+    "casi",
+    "cierta",
+    "ciertas",
+    "cierto",
+    "ciertos",
+    "como",
+    "con",
+    "conseguimos",
+    "conseguir",
+    "consigo",
+    "consigue",
+    "consiguen",
+    "consigues",
+    "cual",
+    "cuando",
+    "de",
+    "del",
+    "demas",
+    "demasiada",
+    "demasiadas",
+    "demasiado",
+    "demasiados",
+    "dentro",
+    "desde",
+    "donde",
+    "dos",
+    "el",
+    "ella",
+    "ellas",
+    "ellos",
+    "empleais",
+    "emplean",
+    "emplear",
+    "empleas",
+    "empleo",
+    "en",
+    "encima",
+    "entonces",
+    "entre",
+    "era",
+    "eramos",
+    "eran",
+    "eras",
+    "eres",
+    "es",
+    "esa",
+    "esas",
+    "ese",
+    "eso",
+    "esos",
+    "esta",
+    "estaba",
+    "estado",
+    "estais",
+    "estamos",
+    "estan",
+    "estar",
+    "estará",
+    "estas",
+    "este",
+    "esto",
+    "estos",
+    "estoy",
+    "fin",
+    "fue",
+    "fueron",
+    "fui",
+    "fuimos",
+    "gueno",
+    "ha",
+    "hace",
+    "haceis",
+    "hacemos",
+    "hacen",
+    "hacer",
+    "haces",
+    "hago",
+    "incluso",
+    "intenta",
+    "intentais",
+    "intentamos",
+    "intentan",
+    "intentar",
+    "intentas",
+    "intento",
+    "ir",
+    "junto",
+    "juntos",
+    "la",
+    "largo",
+    "las",
+    "lo",
+    "los",
+    "mientras",
+    "mio",
+    "misma",
+    "mismas",
+    "mismo",
+    "mismos",
+    "modo",
+    "mucha",
+    "muchas",
+    "muchísima",
+    "muchísimas",
+    "muchísimo",
+    "muchísimos",
+    "mucho",
+    "muchos",
+    "muy",
+    "nos",
+    "nosotras",
+    "nosotros",
+    "otra",
+    "otras",
+    "otro",
+    "otros",
+    "para",
+    "pero",
+    "poco",
+    "por",
+    "porque",
+    "primero",
+    "puede",
+    "pueden",
+    "puedo",
+    "quien",
+    "sabe",
+    "sabes",
+    "sabeis",
+    "sabemos",
+    "saben",
+    "ser",
+    "si",
+    "siendo",
+    "sin",
+    "sobre",
+    "sois",
+    "solamente",
+    "solo",
+    "somos",
+    "soy",
+    "su",
+    "sus",
+    "también",
+    "teneis",
+    "tenemos",
+    "tener",
+    "tengo",
+    "tiempo",
+    "tiene",
+    "tienen",
+    "toda",
+    "todas",
+    "todo",
+    "todos",
+    "tras",
+    "tu",
+    "tus",
+    "ultimo",
+    "un",
+    "una",
+    "unas",
+    "uno",
+    "unos",
+    "usa",
+    "usais",
+    "usamos",
+    "usan",
+    "usar",
+    "usas",
+    "uso",
+    "va",
+    "vais",
+    "vamos",
+    "van",
+    "vaya",
+    "verdad",
+    "verdadera",
+    "verdadero",
+    "vosotras",
+    "vosotros",
+    "voy",
+    "yo",
   ];
 
   // Calcular la frecuencia de las palabras significativas
   const wordFreq: { [word: string]: number } = {};
   const wordPattern = /[a-zA-ZÀ-ÿ]+/g;
 
-  sentences.forEach(sentence => {
+  sentences.forEach((sentence) => {
     const words = sentence.match(wordPattern) || [];
-    words.forEach(word => {
+    words.forEach((word) => {
       const lowerWord = word.toLowerCase();
       if (!stopWords.includes(lowerWord)) {
         wordFreq[lowerWord] = (wordFreq[lowerWord] || 0) + 1;
@@ -166,10 +348,10 @@ function optimizeText(text: string): string {
   });
 
   // Calcular la puntuación de cada oración
-  const sentenceScores = sentences.map(sentence => {
+  const sentenceScores = sentences.map((sentence) => {
     const words = sentence.match(wordPattern) || [];
     let score = 0;
-    words.forEach(word => {
+    words.forEach((word) => {
       const lowerWord = word.toLowerCase();
       if (wordFreq[lowerWord]) {
         score += wordFreq[lowerWord];
@@ -185,13 +367,13 @@ function optimizeText(text: string): string {
   const numSentencesToKeep = Math.ceil(sentenceScores.length * 0.3);
   const selectedSentences = sentenceScores
     .slice(0, numSentencesToKeep)
-    .map(s => s.sentence.trim());
+    .map((s) => s.sentence.trim());
 
   // Reconstruir el texto optimizado
-  const optimizedText = selectedSentences.join(' ');
+  const optimizedText = selectedSentences.join(" ");
 
   // Limpieza final
-  return optimizedText.replace(/\s+/g, ' ').trim();
+  return optimizedText.replace(/\s+/g, " ").trim();
 }
 
 export function formatTokens(num: number): string {
@@ -203,3 +385,7 @@ export function formatTokens(num: number): string {
 
   return `${scaledNumber.toFixed(1)}${units[unitIndex]}`; // Devuelve el número formateado con la unidad
 }
+
+export function generateUUID(): string {
+  return uuidv4();
+};

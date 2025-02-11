@@ -1,8 +1,13 @@
-import { motion } from 'framer-motion';
-import { Trophy, Clock, Target, RotateCcw } from 'lucide-react';
-import ReactConfetti from 'react-confetti';
-import { useWindowSize } from '../../hooks/useWindowSize';
-import { SummaryButton } from './SummaryButton';
+import { motion } from "framer-motion";
+import { Trophy, Clock, Target, RotateCcw } from "lucide-react";
+import ReactConfetti from "react-confetti";
+import { useWindowSize } from "../../hooks/useWindowSize";
+import { SummaryButton } from "./SummaryButton";
+import { fetchUserReview } from "../../services/userReview";
+import { Question } from "../../types/global";
+import { QuizReview } from "./QuizReview";
+import { useEffect, useRef, useState } from "react";
+import { addQuizToFirestore } from "../../services/firestore";
 
 interface QuizSummaryProps {
   score: number;
@@ -10,6 +15,8 @@ interface QuizSummaryProps {
   answers: { correct: boolean; time: number }[];
   onRestart: () => void;
   onRepeat: () => void;
+  userText: string;
+  questions: Question[];
 }
 
 export function QuizSummary({
@@ -17,19 +24,84 @@ export function QuizSummary({
   totalQuestions,
   answers,
   onRestart,
-  onRepeat
+  onRepeat,
+  userText,
+  questions,
 }: QuizSummaryProps) {
   const { width, height } = useWindowSize();
   const percentage = (score / totalQuestions) * 100;
-  const averageTime = answers.reduce((acc, curr) => acc + curr.time, 0) / answers.length;
-  const streak = Math.max(...answers.reduce((acc, curr) => {
-    if (curr.correct) {
-      acc.push((acc[acc.length - 1] || 0) + 1);
-    } else {
-      acc.push(0);
+  const averageTime =
+    answers.reduce((acc, curr) => acc + curr.time, 0) / answers.length;
+  const streak = Math.max(
+    ...answers.reduce((acc, curr) => {
+      if (curr.correct) {
+        acc.push((acc[acc.length - 1] || 0) + 1);
+      } else {
+        acc.push(0);
+      }
+      return acc;
+    }, [] as number[])
+  );
+  const [answered, setAnswered] = useState(false);
+  const hasSaved = useRef(false);
+
+  useEffect(() => {
+    if (!hasSaved.current) {
+      hasSaved.current = true;
+      addQuizToFirestore(questions)
+        .then(() => {
+          console.log("Quiz guardado con éxito");
+        })
+        .catch((error) => console.error("Error al guardar el quiz:", error));
     }
-    return acc;
-  }, [] as number[]));
+  }, []);
+
+  const doFineTuning = (liked: boolean) => {
+    setAnswered(true);
+    if (liked) {
+      const fineTuning = [
+        {
+          role: "system",
+          content:
+            "Eres un asistente que genera preguntas basadas en un texto.",
+        },
+        { role: "user", content: "El texto es " + userText },
+        {
+          role: "assistant",
+          content:
+            "Las preguntas son: " +
+            "1. " +
+            questions[0].question +
+            "2. " +
+            questions[1].question +
+            "3. " +
+            questions[2].question +
+            "4. " +
+            questions[3].question +
+            "5. " +
+            questions[4].question +
+            "6. " +
+            questions[5].question +
+            "7. " +
+            questions[6].question +
+            "8. " +
+            questions[7].question +
+            "9. " +
+            questions[8].question +
+            "10. " +
+            questions[9].question,
+        },
+      ];
+
+      fetchUserReview(fineTuning)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  };
 
   return (
     <motion.div
@@ -37,7 +109,9 @@ export function QuizSummary({
       animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-2xl shadow-lg p-8"
     >
-      {percentage >= 70 && <ReactConfetti width={width} height={height} recycle={false} />}
+      {percentage >= 70 && (
+        <ReactConfetti width={width} height={height} recycle={false} />
+      )}
 
       <div className="text-center mb-8">
         <motion.div
@@ -67,7 +141,9 @@ export function QuizSummary({
             <Target className="w-5 h-5 text-blue-500" />
             <h3 className="font-semibold text-gray-700">Precisión</h3>
           </div>
-          <p className="text-3xl font-bold text-blue-600">{percentage.toFixed(1)}%</p>
+          <p className="text-3xl font-bold text-blue-600">
+            {percentage.toFixed(1)}%
+          </p>
           <p className="text-sm text-gray-500">
             {score} de {totalQuestions} correctas
           </p>
@@ -103,12 +179,26 @@ export function QuizSummary({
           <p className="text-sm text-gray-500">respuestas correctas seguidas</p>
         </motion.div>
       </div>
-      <div className='flex gap-2'>
-        <SummaryButton handleClick={onRepeat} text='Repetir quiz' color="bg-blue-400"></SummaryButton>
-        <SummaryButton handleClick={onRestart} text='Crear nuevo quiz' color="bg-teal-400"></SummaryButton>
+      <div className="flex gap-2">
+        <SummaryButton
+          handleClick={onRepeat}
+          text="Repetir quiz"
+          color="bg-blue-400"
+        ></SummaryButton>
+        <SummaryButton
+          handleClick={onRestart}
+          text="Crear nuevo quiz"
+          color="bg-teal-400"
+        ></SummaryButton>
       </div>
-
-
+      {!answered && (
+        <div className="flex items-center justify-center bg-transparent">
+          <QuizReview
+            handleReview={doFineTuning}
+            title="¿Qué te ha parecido el quiz?"
+          ></QuizReview>
+        </div>
+      )}
     </motion.div>
   );
 }

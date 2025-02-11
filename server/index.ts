@@ -5,6 +5,7 @@ import { summarizeText } from './controllers/summarizeController';
 import { correctText, } from './controllers/correctController';
 import { generateQuiz } from './controllers/quizController';
 import { generateConceptMap } from './controllers/conceptMapController';
+import { saveDatasetHandler } from './controllers/userReviewController';
 import { errorHandler } from './middleware/errorHandler';
 import compression from 'compression';
 import { stripeWebhook } from './controllers/stripeWebHookController';
@@ -46,12 +47,14 @@ app.get('/', (req, res) => {
   res.send('Servidor activo');
 });
 
+
 // API endpoints
 app.post('/api/correct', correctText);
 app.post('/api/summarize', summarizeText);
 app.post('/api/quiz/generate', generateQuiz);
 app.post('/api/conceptmap/generate', generateConceptMap);
 app.post('/api/webhook', stripeWebhook);
+app.post('/api/quiz/user-review', saveDatasetHandler);
 
 // Error handler
 app.use(errorHandler);

@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import OpenAI from 'openai';
-import * as dotenv from 'dotenv';
+import { Request, Response } from "express";
+import OpenAI from "openai";
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
@@ -19,7 +19,12 @@ export async function correctText(req: Request, res: Response) {
       });
     }
 
-    const correctionPrompt = `Por favor, corrige cualquier error gramatical, ortográfico o de puntuación en el siguiente texto en ${language}, manteniendo el significado original.Devuélveme únicamente el texto corregido, sin ningún comentario adicional: "${text}"`;
+    const correctionPrompt = `Rol: Actúa como un corrector automático de textos en cualquier idioma. 
+    Tu tarea es corregir exclusivamente errores gramaticales y ortográficos sin modificar el estilo, la claridad ni la estructura del texto original. 
+    No agregues comentarios, explicaciones ni anotaciones. 
+    Devuelve únicamente el texto corregido, sin puntuaciones adicionales ni cambios en la redacción.  
+    Por favor, corrige cualquier error gramatical, ortográfico o de puntuación en el siguiente texto en ${language}, manteniendo el significado original. 
+    Devuélveme únicamente el texto corregido, sin ningún comentario adicional: "${text}"`;
 
     const enhancementPrompt = `Por favor, mejora el siguiente texto en ${language}, haciéndolo más profesional y elocuente, manteniendo la misma idea pero con un lenguaje más refinado y un estilo ${mode}: "${text}"`;
 

@@ -4,9 +4,11 @@ import { API_URL, API_URL_LOCAL } from '../utils/constants';
 const API_TIMEOUT = 60000; // Increased to 60 seconds
 
 interface APIRequest {
-  text: string;
+  text?: string;
   language?: string;
   mode?: string;
+  messages?: { role: string; content: string }[];
+
 }
 
 export async function fetchAPI<T>(endpoint: string, data: APIRequest): Promise<T> {

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Menu, MenuButton, MenuItems } from '@headlessui/react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../hooks/useAuth';
 import { useNavigate } from "react-router-dom";
 import { UserIcon, ArrowRightOnRectangleIcon as LogoutIcon } from '@heroicons/react/24/outline';
 

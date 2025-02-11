@@ -21,6 +21,13 @@ export interface Question {
   correctAnswer: number;
 }
 
+export interface Quiz {
+  id: string;
+  questions: Question[];
+  createdAt: Timestamp;
+}
+
+
 export interface Node {
   id: string;
   label: string;

@@ -1,5 +1,5 @@
 // src/services/firestore.ts
-import { User } from "../types/global";
+import { Question, Quiz, User } from "../types/global";
 import { db, auth } from "../services/firebase";
 import {
   getDocs,
@@ -11,14 +11,17 @@ import {
   updateDoc,
   setDoc,
   Timestamp,
+  addDoc,
+  orderBy,
 } from "firebase/firestore";
 import { User as MyUser, UserSubscription } from "../types/global"; // Importa tu interfaz
+import { generateUUID } from "../utils/utils";
+import { v4 as uuidv4 } from "uuid";
 
 export const addUserToFirestore = async (user: User): Promise<void> => {
   try {
     // Referencia al documento del usuario en Firestore (usando el UID como ID del documento)
     const userDocRef = doc(db, "users", user.uid);
-
 
     // Establecer los datos del usuario en el documento
     await setDoc(userDocRef, {
@@ -200,5 +203,51 @@ export const getSubscriptionProductId = async (
   } catch (error) {
     console.error("Error al buscar el usuario:", error);
     throw new Error("No se pudo buscar el usuario.");
+  }
+};
+
+export const addQuizToFirestore = async (
+  questions: Question[]
+): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("El usuario no está autenticado.");
+    }
+
+    const quizzId = uuidv4();
+    const quizzDocRef = doc(db, "quizzes", quizzId);
+
+    await setDoc(quizzDocRef, {
+      id: quizzId,
+      userId: user.uid,
+      questions: questions,
+      createdAt: Timestamp.fromDate(new Date()),
+    });
+  } catch (error) {
+    console.error("Error al agregar el quiz:", error);
+  }
+};
+
+export const getUserQuizzes = async (userID: string): Promise<Quiz[]>   => {
+  try {
+    const quizzesRef = collection(db, "quizzes"); // Asegúrate de que "quizz" es el nombre correcto en Firestore
+    const q = query(
+      quizzesRef,
+      where("userId", "==", userID),
+      orderBy("createdAt", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+    const quizzes = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      questions: doc.get("questions"),
+      createdAt: doc.get("createdAt")
+    }));
+
+    return quizzes;
+  } catch (error) {
+    console.error("Error obteniendo los quizzes del usuario:", error);
+    return [];
   }
 };
