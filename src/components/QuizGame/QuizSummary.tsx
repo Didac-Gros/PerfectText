@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trophy, Clock, Target, RotateCcw } from "lucide-react";
+import { Trophy, Clock, Target } from "lucide-react";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { SummaryButton } from "./SummaryButton";
@@ -17,6 +17,7 @@ interface QuizSummaryProps {
   onRepeat: () => void;
   userText: string;
   questions: Question[];
+  comeFromRecent: boolean;
 }
 
 export function QuizSummary({
@@ -27,6 +28,7 @@ export function QuizSummary({
   onRepeat,
   userText,
   questions,
+  comeFromRecent
 }: QuizSummaryProps) {
   const { width, height } = useWindowSize();
   const percentage = (score / totalQuestions) * 100;
@@ -46,15 +48,16 @@ export function QuizSummary({
   const hasSaved = useRef(false);
 
   useEffect(() => {
-    if (!hasSaved.current) {
+    // modificar comefromrecent
+    if (!hasSaved.current && !comeFromRecent) {
       hasSaved.current = true;
-      addQuizToFirestore(questions)
+      addQuizToFirestore(questions, answers, score)
         .then(() => {
           console.log("Quiz guardado con éxito");
         })
         .catch((error) => console.error("Error al guardar el quiz:", error));
     }
-  }, []);
+  }, [userText]);
 
   const doFineTuning = (liked: boolean) => {
     setAnswered(true);

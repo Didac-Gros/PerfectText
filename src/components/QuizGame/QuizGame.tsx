@@ -32,6 +32,8 @@ export const QuizGame: React.FC<QuizGameProps> = ({
     []
   );
   const [hasStarted, setHasStarted] = useState(false);
+  const [comeFromRecent, setComeFromRecent] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const [userText, setUserText] = useState("");
   const [fileText, setFileText] = useState("");
   const [questionsText, setQuestionsText] = useState("");
@@ -43,6 +45,17 @@ export const QuizGame: React.FC<QuizGameProps> = ({
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user) {
+      const loadQuizzes = async () => {
+        const userQuizzes = await getUserQuizzes(user.uid);
+        setQuizzes(userQuizzes);
+      };
+
+      loadQuizzes();
+    }
+  }, [user]);
+
   const handleGenerateQuestions = async () => {
     if (user) {
       if (
@@ -51,12 +64,18 @@ export const QuizGame: React.FC<QuizGameProps> = ({
       ) {
         setIsLoading(true);
         setError(null);
-        removeTokens(userText.length + fileText.length);
-        setQuestionsText(`${userText} ${fileText}`);
+        let content = ""
+        if (file) {
+          content = await parseFileToString(file);
+          setFileText(content);
+        }
+
+        removeTokens(userText.length + content.length);
+        setQuestionsText(`${userText} ${content}`);
 
         try {
           const generatedQuestions = await fetchGenerateQuestions(
-            `${userText} ${fileText}`
+            `${userText} ${content}`
           );
           setQuestions(generatedQuestions);
           setHasStarted(true);
@@ -81,6 +100,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
+      setComeFromRecent(false);
       setShowSummary(true);
     }
   };
@@ -105,9 +125,8 @@ export const QuizGame: React.FC<QuizGameProps> = ({
   };
 
   const handleFileUpload = async (file: File) => {
-    const text = await parseFileToString(file);
-    setFileText(text);
-  }; //
+    setFile(file);
+  };
 
   const handleLogin = () => {
     try {
@@ -117,16 +136,14 @@ export const QuizGame: React.FC<QuizGameProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      const loadQuizzes = async () => {
-        const userQuizzes = await getUserQuizzes(user.uid);
-        setQuizzes(userQuizzes);
-      };
-
-      loadQuizzes();
-    }
-  }, [user]);
+  const handleRecentQuizz = (quiz: Quiz) => {
+    setAnswers(quiz.answers);
+    setQuestions(quiz.questions);
+    setScore(quiz.score);
+    setComeFromRecent(true);
+    setHasStarted(true);
+    setShowSummary(true);
+  };
   if (!hasStarted) {
     return (
       <motion.div
@@ -135,7 +152,10 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         className="max-w-7xl mx-auto px-4"
       >
         <div className="flex gap-6">
-          <RecentQuizzes quizzes={quizzes} />
+          <RecentQuizzes
+            quizzes={quizzes}
+            handleRecentQuiz={handleRecentQuizz}
+          />
           <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 mb-8 ">
             <div className="text-center mb-8">
               <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-2">
@@ -179,9 +199,9 @@ export const QuizGame: React.FC<QuizGameProps> = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleGenerateQuestions}
-                disabled={isLoading || (!userText.trim() && !fileText.trim())}
+                disabled={isLoading || (!userText.trim() && !file)}
                 className={`px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${
-                  isLoading || (!userText.trim() && !fileText.trim())
+                  isLoading || (!userText.trim() && !file)
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}
@@ -217,6 +237,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         onRepeat={repeatQuiz}
         userText={questionsText}
         questions={questions}
+        comeFromRecent = {comeFromRecent}
       />
     );
   }

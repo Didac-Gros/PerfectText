@@ -25,8 +25,9 @@ export interface Quiz {
   id: string;
   questions: Question[];
   createdAt: Timestamp;
+  score: number;
+  answers: { correct: boolean; time: number }[];
 }
-
 
 export interface Node {
   id: string;
@@ -53,4 +54,10 @@ export enum UserSubscription {
   TOKENSPRO = 10000000,
 }
 
-export type TabType = "home" | "correct" | "summarize" | "quiz" | "conceptmap" | "plans";
+export type TabType =
+  | "home"
+  | "correct"
+  | "summarize"
+  | "quiz"
+  | "conceptmap"
+  | "plans";

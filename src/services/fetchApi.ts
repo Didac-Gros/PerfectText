@@ -16,7 +16,7 @@ export async function fetchAPI<T>(endpoint: string, data: APIRequest): Promise<T
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-    const response = await fetch(`${API_URL}/${endpoint}`, {
+    const response = await fetch(`${API_URL_LOCAL}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -207,8 +207,7 @@ export const getSubscriptionProductId = async (
 };
 
 export const addQuizToFirestore = async (
-  questions: Question[]
-): Promise<void> => {
+questions: Question[], answers: { correct: boolean; time: number; }[], score: number): Promise<void> => {
   try {
     const user = auth.currentUser;
     if (!user) {
@@ -223,6 +222,8 @@ export const addQuizToFirestore = async (
       userId: user.uid,
       questions: questions,
       createdAt: Timestamp.fromDate(new Date()),
+      score: score,
+      answers: answers
     });
   } catch (error) {
     console.error("Error al agregar el quiz:", error);
@@ -242,7 +243,9 @@ export const getUserQuizzes = async (userID: string): Promise<Quiz[]>   => {
     const quizzes = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       questions: doc.get("questions"),
-      createdAt: doc.get("createdAt")
+      createdAt: doc.get("createdAt"),
+      score: doc.get("score"),
+      answers: doc.get("answers")
     }));
 
     return quizzes;
