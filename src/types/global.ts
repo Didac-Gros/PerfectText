@@ -27,6 +27,8 @@ export interface Quiz {
   createdAt: Timestamp;
   score: number;
   answers: { correct: boolean; time: number }[];
+  titleFile: string;
+  rated: boolean;
 }
 
 export interface Node {

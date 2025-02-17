@@ -3,7 +3,41 @@ import pdfToText from "react-pdftotext";
 import { Node } from "../types/global";
 import Mammoth from "mammoth";
 import JSZip from "jszip";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+
+export const timeAgo = (date: Date): string => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  const secondsInMinute = 60;
+  const secondsInHour = 60 * secondsInMinute;
+  const secondsInDay = 24 * secondsInHour;
+  const secondsInWeek = 7 * secondsInDay;
+  const secondsInMonth = 30 * secondsInDay;
+  const secondsInYear = 365 * secondsInDay;
+
+  if (diffInSeconds < secondsInMinute) {
+    return `hace ${diffInSeconds} segundos`;
+  } else if (diffInSeconds < secondsInHour) {
+    const minutes = Math.floor(diffInSeconds / secondsInMinute);
+    return `hace ${minutes} minuto${minutes > 1 ? "s" : ""}`;
+  } else if (diffInSeconds < secondsInDay) {
+    const hours = Math.floor(diffInSeconds / secondsInHour);
+    return `hace ${hours} hora${hours > 1 ? "s" : ""}`;
+  } else if (diffInSeconds < secondsInWeek) {
+    const days = Math.floor(diffInSeconds / secondsInDay);
+    return `hace ${days} día${days > 1 ? "s" : ""}`;
+  } else if (diffInSeconds < secondsInMonth) {
+    const weeks = Math.floor(diffInSeconds / secondsInWeek);
+    return `hace ${weeks} semana${weeks > 1 ? "s" : ""}`;
+  } else if (diffInSeconds < secondsInYear) {
+    const months = Math.floor(diffInSeconds / secondsInMonth);
+    return `hace ${months} mes${months > 1 ? "es" : ""}`;
+  } else {
+    const years = Math.floor(diffInSeconds / secondsInYear);
+    return `hace ${years} año${years > 1 ? "s" : ""}`;
+  }
+};
 
 /**
  * Convierte el contenido de un archivo en una cadena de texto y optimiza para reducir tokens.
@@ -48,7 +82,9 @@ export const parseMarkdownToNodes = (markdown: string): Node => {
   return root;
 };
 
-export async function parseFileToString(file: File): Promise<string> {
+export async function parseFileToString(
+  file: File
+): Promise<{ title: string; text: string }> {
   try {
     let text = "";
     if (file.type === "application/pdf") {
@@ -72,7 +108,7 @@ export async function parseFileToString(file: File): Promise<string> {
     const optimizedText = optimizeText(text);
     console.log("Tokens enviados a la API:", optimizedText.length);
 
-    return optimizedText;
+    return { title: file.name, text: optimizedText };
   } catch (error) {
     console.error("Error procesando el archivo:", error);
     throw error; // Propaga el error para manejarlo en el componente
@@ -388,4 +424,4 @@ export function formatTokens(num: number): string {
 
 export function generateUUID(): string {
   return uuidv4();
-};
+}

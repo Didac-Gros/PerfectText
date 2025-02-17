@@ -34,7 +34,7 @@ export const RecentQuizzes: React.FC<RecentQuizzesProps> = ({
                 <BookCheck className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-800">Quiz 1</h4>
+                <h4 className="text-sm font-medium text-gray-800">{quiz.titleFile}</h4>
                 <p className="text-xs text-gray-500">
                   {quiz.createdAt.toDate().toLocaleDateString()}
                 </p>

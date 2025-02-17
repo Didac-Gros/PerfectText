@@ -207,7 +207,11 @@ export const getSubscriptionProductId = async (
 };
 
 export const addQuizToFirestore = async (
-questions: Question[], answers: { correct: boolean; time: number; }[], score: number): Promise<void> => {
+  questions: Question[],
+  answers: { correct: boolean; time: number }[],
+  score: number,
+  titleFile: string
+): Promise<string> => {
   try {
     const user = auth.currentUser;
     if (!user) {
@@ -223,14 +227,19 @@ questions: Question[], answers: { correct: boolean; time: number; }[], score: nu
       questions: questions,
       createdAt: Timestamp.fromDate(new Date()),
       score: score,
-      answers: answers
+      answers: answers,
+      titleFile: titleFile,
+      rated: false,
     });
+
+    return quizzId;
   } catch (error) {
     console.error("Error al agregar el quiz:", error);
+    return "";
   }
 };
 
-export const getUserQuizzes = async (userID: string): Promise<Quiz[]>   => {
+export const getUserQuizzes = async (userID: string): Promise<Quiz[]> => {
   try {
     const quizzesRef = collection(db, "quizzes"); // Asegúrate de que "quizz" es el nombre correcto en Firestore
     const q = query(
@@ -245,12 +254,28 @@ export const getUserQuizzes = async (userID: string): Promise<Quiz[]>   => {
       questions: doc.get("questions"),
       createdAt: doc.get("createdAt"),
       score: doc.get("score"),
-      answers: doc.get("answers")
+      answers: doc.get("answers"),
+      titleFile: doc.get("titleFile"),
+      rated: doc.get("rated"),
     }));
 
     return quizzes;
   } catch (error) {
     console.error("Error obteniendo los quizzes del usuario:", error);
     return [];
+  }
+};
+
+export const updateFirestoreField = async (
+  quizzId: string,
+): Promise<void> => {
+  try {
+    const docRef = doc(db, "quizzes", quizzId);
+    await updateDoc(docRef, { ["rated"]: true });
+    console.log(
+      `Campo rated actualizado con éxito`
+    );
+  } catch (error) {
+    console.error("Error actualizando el documento:", error);
   }
 };

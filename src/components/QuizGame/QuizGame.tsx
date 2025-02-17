@@ -36,6 +36,10 @@ export const QuizGame: React.FC<QuizGameProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [userText, setUserText] = useState("");
   const [fileText, setFileText] = useState("");
+  const [titleFile, setTitleFile] = useState("Quiz");
+  const [quizzId, setQuizzId] = useState("");
+  const [quizRated, setQuizRated] = useState(false);
+  const [dateQuiz, setDateQuiz] = useState<Date>(new Date());
   const [questionsText, setQuestionsText] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -64,10 +68,12 @@ export const QuizGame: React.FC<QuizGameProps> = ({
       ) {
         setIsLoading(true);
         setError(null);
-        let content = ""
+        let content = "";
+        let title = "";
         if (file) {
-          content = await parseFileToString(file);
+          ({ title: title, text: content } = await parseFileToString(file));
           setFileText(content);
+          setTitleFile(title)
         }
 
         removeTokens(userText.length + content.length);
@@ -141,6 +147,10 @@ export const QuizGame: React.FC<QuizGameProps> = ({
     setQuestions(quiz.questions);
     setScore(quiz.score);
     setComeFromRecent(true);
+    setTitleFile(quiz.titleFile)
+    setDateQuiz(quiz.createdAt.toDate())
+    setQuizRated(quiz.rated)
+    setQuizzId(quiz.id)
     setHasStarted(true);
     setShowSummary(true);
   };
@@ -237,7 +247,11 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         onRepeat={repeatQuiz}
         userText={questionsText}
         questions={questions}
-        comeFromRecent = {comeFromRecent}
+        comeFromRecent={comeFromRecent}
+        titleFile={titleFile}
+        quizDate={dateQuiz}
+        quizRated={quizRated}
+        quizzId={quizzId}
       />
     );
   }

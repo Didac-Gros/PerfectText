@@ -4,10 +4,14 @@ import ReactConfetti from "react-confetti";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { SummaryButton } from "./SummaryButton";
 import { fetchUserReview } from "../../services/userReview";
-import { Question } from "../../types/global";
+import { Question, Quiz } from "../../types/global";
 import { QuizReview } from "./QuizReview";
 import { useEffect, useRef, useState } from "react";
-import { addQuizToFirestore } from "../../services/firestore";
+import {
+  addQuizToFirestore,
+  updateFirestoreField,
+} from "../../services/firestore";
+import { timeAgo } from "../../utils/utils";
 
 interface QuizSummaryProps {
   score: number;
@@ -18,6 +22,10 @@ interface QuizSummaryProps {
   userText: string;
   questions: Question[];
   comeFromRecent: boolean;
+  titleFile: string;
+  quizDate: Date;
+  quizRated: boolean;
+  quizzId: string;
 }
 
 export function QuizSummary({
@@ -28,7 +36,11 @@ export function QuizSummary({
   onRepeat,
   userText,
   questions,
-  comeFromRecent
+  comeFromRecent,
+  titleFile,
+  quizDate,
+  quizRated,
+  quizzId,
 }: QuizSummaryProps) {
   const { width, height } = useWindowSize();
   const percentage = (score / totalQuestions) * 100;
@@ -45,22 +57,28 @@ export function QuizSummary({
     }, [] as number[])
   );
   const [answered, setAnswered] = useState(false);
+  const [quizzIdState, setQuizIdState] = useState(quizzId);
   const hasSaved = useRef(false);
 
   useEffect(() => {
     // modificar comefromrecent
     if (!hasSaved.current && !comeFromRecent) {
       hasSaved.current = true;
-      addQuizToFirestore(questions, answers, score)
-        .then(() => {
-          console.log("Quiz guardado con éxito");
+      addQuizToFirestore(questions, answers, score, titleFile)
+        .then((quizzId: string) => {
+          setQuizIdState(quizzId);
         })
         .catch((error) => console.error("Error al guardar el quiz:", error));
     }
   }, [userText]);
 
-  const doFineTuning = (liked: boolean) => {
-    setAnswered(true);
+  const doFineTuning = async (liked: boolean) => {
+    updateFirestoreField(quizzIdState)
+      .then(() => {
+        setAnswered(true);
+      })
+      .catch((error) => console.error("Error al guardar el quiz:", error));
+
     if (liked) {
       const fineTuning = [
         {
@@ -126,10 +144,12 @@ export function QuizSummary({
         </motion.div>
 
         <h2 className="text-3xl font-bold text-gray-800 mb-2">
-          ¡Quiz completado!
+          {comeFromRecent ? titleFile : "¡Quiz completado!"}
         </h2>
         <p className="text-gray-600">
-          Has completado el quiz. ¡Veamos tus resultados!
+          {comeFromRecent
+            ? "Completaste este quiz " + timeAgo(quizDate)
+            : "Has completado el quiz. ¡Veamos tus resultados!"}
         </p>
       </div>
 
@@ -194,7 +214,7 @@ export function QuizSummary({
           color="bg-teal-400"
         ></SummaryButton>
       </div>
-      {!answered && (
+      {!answered && !quizRated && (
         <div className="flex items-center justify-center bg-transparent">
           <QuizReview
             handleReview={doFineTuning}
