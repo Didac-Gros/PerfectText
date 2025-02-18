@@ -4,14 +4,13 @@ import ReactConfetti from "react-confetti";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { SummaryButton } from "./SummaryButton";
 import { fetchUserReview } from "../../services/userReview";
-import { Question, Quiz } from "../../types/global";
+import { Question } from "../../types/global";
 import { QuizReview } from "./QuizReview";
 import { useEffect, useRef, useState } from "react";
-import {
-  addQuizToFirestore,
-  updateFirestoreField,
-} from "../../services/firestore";
+import { addQuizToFirestore } from "../../services/firestore/quizRepository";
 import { timeAgo } from "../../utils/utils";
+import { CiEdit } from "react-icons/ci";
+import { updateFirestoreField } from "../../services/firestore";
 
 interface QuizSummaryProps {
   score: number;
@@ -57,11 +56,12 @@ export function QuizSummary({
     }, [] as number[])
   );
   const [answered, setAnswered] = useState(false);
+  const [quizzTitle, setQuizzTitle] = useState(titleFile);
+  const [isEditing, setIsEditing] = useState(false);
   const [quizzIdState, setQuizIdState] = useState(quizzId);
   const hasSaved = useRef(false);
 
   useEffect(() => {
-    // modificar comefromrecent
     if (!hasSaved.current && !comeFromRecent) {
       hasSaved.current = true;
       addQuizToFirestore(questions, answers, score, titleFile)
@@ -73,7 +73,7 @@ export function QuizSummary({
   }, [userText]);
 
   const doFineTuning = async (liked: boolean) => {
-    updateFirestoreField(quizzIdState)
+    updateFirestoreField("quizzes", quizzIdState, "rated", true)
       .then(() => {
         setAnswered(true);
       })
@@ -124,6 +124,14 @@ export function QuizSummary({
     }
   };
 
+  const handleSave = () => {
+    updateFirestoreField("quizzes", quizzIdState, "titleFile", quizzTitle)
+      .then(() => {
+        setIsEditing(false);
+      })
+      .catch((error) => console.error("Error al guardar el quiz:", error));
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -143,9 +151,31 @@ export function QuizSummary({
           <Trophy className="w-12 h-12 text-white" />
         </motion.div>
 
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
-          {comeFromRecent ? titleFile : "¡Quiz completado!"}
-        </h2>
+        <div className="flex items-center gap-2 justify-center mb-2">
+          {!isEditing && (
+            <h2 className="text-3xl font-bold text-gray-800">
+              {comeFromRecent ? quizzTitle : "¡Quiz completado!"}
+            </h2>
+          )}
+
+          {isEditing && (
+            <input
+              type="text"
+              value={quizzTitle}
+              onChange={(e) => setQuizzTitle(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              autoFocus
+              className="border-b-2 border-blue-500 outline-none text-lg font-semibold w-48"
+            />
+          )}
+          {comeFromRecent && (
+            <button onClick={() => setIsEditing(true)}>
+              <CiEdit className="size-7 text-gray-500 hover:text-blue-500 mt-1" />
+            </button>
+          )}
+        </div>
+
         <p className="text-gray-600">
           {comeFromRecent
             ? "Completaste este quiz " + timeAgo(quizDate)

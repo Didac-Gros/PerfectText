@@ -12,7 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { LoginPopUp } from "../shared/LoginPopUp";
 import { useNavigate } from "react-router-dom";
 import { RecentQuizzes } from "./RecentQuizzes";
-import { getUserQuizzes } from "../../services/firestore";
+import { getUserQuizzes } from "../../services/firestore/quizRepository";
 
 interface QuizGameProps {
   removeTokens: (tokens: number) => void;
@@ -73,7 +73,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         if (file) {
           ({ title: title, text: content } = await parseFileToString(file));
           setFileText(content);
-          setTitleFile(title)
+          setTitleFile(title);
         }
 
         removeTokens(userText.length + content.length);
@@ -147,13 +147,14 @@ export const QuizGame: React.FC<QuizGameProps> = ({
     setQuestions(quiz.questions);
     setScore(quiz.score);
     setComeFromRecent(true);
-    setTitleFile(quiz.titleFile)
-    setDateQuiz(quiz.createdAt.toDate())
-    setQuizRated(quiz.rated)
-    setQuizzId(quiz.id)
+    setTitleFile(quiz.titleFile);
+    setDateQuiz(quiz.createdAt.toDate());
+    setQuizRated(quiz.rated);
+    setQuizzId(quiz.id);
     setHasStarted(true);
     setShowSummary(true);
   };
+
   if (!hasStarted) {
     return (
       <motion.div
@@ -161,17 +162,17 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="max-w-7xl mx-auto px-4"
       >
-        <div className="flex gap-6">
+        <div className="flex gap-6 mb-8">
           <RecentQuizzes
             quizzes={quizzes}
             handleRecentQuiz={handleRecentQuizz}
           />
-          <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 mb-8 ">
-            <div className="text-center mb-8">
-              <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-2">
-                <GamepadIcon className="w-9 h-9 text-white" />
+          <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 pt-5">
+            <div className="text-center">
+              <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-1">
+                <GamepadIcon className="size-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 ¡Crea tu propio Quiz!
               </h2>
               <p className="text-gray-600 mb-6">
@@ -179,7 +180,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
                 automáticamente
               </p>
 
-              <div className="mb-6">
+              <div className="mb-4">
                 <textarea
                   value={userText}
                   onChange={(e) => setUserText(e.target.value)}

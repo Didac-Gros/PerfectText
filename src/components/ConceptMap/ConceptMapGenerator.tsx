@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Send, Map, AlertCircle, ThumbsUp, ThumbsDown } from "lucide-react";
 import * as d3 from "d3";
@@ -6,13 +6,21 @@ import { LoadingProgress } from "../shared/LoadingProgress";
 import { parseFileToString, parseMarkdownToNodes } from "../../utils/utils";
 import { FileUploader } from "../shared/FileUploader";
 import { fetchConceptMap } from "../../services/conceptMapApi";
-import { Node } from "../../types/global";
+import { ConceptMap, Node } from "../../types/global";
 import { useNavigate } from "react-router-dom";
 import { LoginPopUp } from "../shared/LoginPopUp";
 import { User } from "firebase/auth";
 import { QuizReview } from "../QuizGame/QuizReview";
 import { fetchUserReview } from "../../services/userReview";
 import { log } from "node:console";
+import {
+  addConceptMapToFirestore,
+  getUserConceptMaps,
+} from "../../services/firestore/conceptMapRepository";
+import { RecentMaps } from "./RecentMaps";
+import { CiEdit } from "react-icons/ci";
+import { updateFirestoreField } from "../../services/firestore";
+import { v4 as uuidv4 } from "uuid";
 
 interface ConceptMapGeneratorProps {
   removeTokens: (tokens: number) => void;
@@ -29,6 +37,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
 }) => {
   const [userText, setUserText] = useState("");
   const [fileText, setFileText] = useState("");
+  const [fileTitle, setFileTitle] = useState("Mapa");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [markdown, setMarkdown] = useState("");
@@ -37,8 +46,22 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const navigate = useNavigate();
-
   const [showPopup, setShowPopup] = useState(false);
+  const [maps, setMaps] = useState<ConceptMap[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isMap, setIsMap] = useState(false);
+  const [mapId, setMapId] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      const loadMaps = async () => {
+        const userMaps = await getUserConceptMaps(user.uid);
+        setMaps(userMaps);
+      };
+
+      loadMaps();
+    }
+  }, [user]);
 
   const doFineTuning = (liked: boolean) => {
     if (liked) {
@@ -323,8 +346,20 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
           }
           setTimeout(() => setShowPopup(true), 10000);
           renderConceptMap(root);
+          const mapId = uuidv4();
+
+          addConceptMapToFirestore(mapId, root, fileTitle)
+            .then(() => {
+              setMapId(mapId);
+            })
+            .catch((error) =>
+              console.error("Error al guardar el quiz:", error)
+            );
+          svgRef.current?.scrollIntoView({ behavior: "smooth" });
+
           setUserText("");
           setResetFile(true);
+          setIsMap(true);
         } catch (err) {
           console.error("Error generating concept map:", err);
           setError(
@@ -340,8 +375,12 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
   };
 
   const handleFileUpload = async (file: File) => {
-    const text = await parseFileToString(file);
-    setFileText(text);
+    let content = "";
+    let title = "";
+    ({ title: title, text: content } = await parseFileToString(file));
+
+    setFileText(content);
+    setFileTitle(title);
   };
 
   const handleLogin = () => {
@@ -352,18 +391,37 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
     }
   };
 
+  const handleRecentMap = (map: ConceptMap) => {
+    renderConceptMap(map.root);
+    setUserText("");
+    setResetFile(true);
+    setIsMap(true);
+    setFileTitle(map.mapTitle);
+    setMapId(map.id);
+    containerRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSave = () => {
+    updateFirestoreField("maps", mapId, "mapTitle", fileTitle)
+      .then(() => {
+        setIsEditing(false);
+      })
+      .catch((error) => console.error("Error al guardar el quiz:", error));
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4"
     >
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-        <div className="text-center mb-8">
-          <div className="inline-block p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mb-4">
-            <Map className="w-12 h-12 text-white" />
+      <div className="flex gap-6 mb-8">
+        <RecentMaps maps={maps} handleRecentMap={handleRecentMap} />
+        <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 pt-5 text-center">
+          <div className="inline-block p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mb-1">
+            <Map className="size-8 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Generador de Mapas Conceptuales
           </h2>
           <p className="text-gray-600 mb-6">
@@ -376,7 +434,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
               e.preventDefault();
               generateConceptMap();
             }}
-            className="mb-6"
+            className="mb-8"
           >
             <textarea
               value={userText}
@@ -436,9 +494,32 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
         ref={containerRef}
         className="bg-white rounded-2xl shadow-lg p-8 overflow-x-auto"
       >
-        <div className="text-sm text-gray-500 mb-4 text-center">
+        <div className="text-sm text-gray-500 text-center mb-8">
           Puedes hacer zoom con la rueda del ratón y arrastrar para mover el
           mapa
+        </div>
+
+        <div className="flex items-center gap-2 justify-center mb-2">
+          {isMap && !isEditing && (
+            <h2 className="text-3xl font-bold text-gray-800">{fileTitle}</h2>
+          )}
+
+          {isEditing && (
+            <input
+              type="text"
+              value={fileTitle}
+              onChange={(e) => setFileTitle(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              autoFocus
+              className="border-b-2 border-blue-500 outline-none text-lg font-semibold w-48"
+            />
+          )}
+          {isMap && (
+            <button onClick={() => setIsEditing(true)}>
+              <CiEdit className="size-7 text-gray-500 hover:text-blue-500 mt-1" />
+            </button>
+          )}
         </div>
         <svg
           ref={svgRef}
@@ -450,7 +531,10 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
-            <QuizReview handleReview={doFineTuning} title="¿Qué te ha parecido el mapa conceptual?"></QuizReview>
+            <QuizReview
+              handleReview={doFineTuning}
+              title="¿Qué te ha parecido el mapa conceptual?"
+            ></QuizReview>
           </div>
         </div>
       )}

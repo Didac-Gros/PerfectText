@@ -31,6 +31,13 @@ export interface Quiz {
   rated: boolean;
 }
 
+export interface ConceptMap{
+  id: string;
+  createdAt: Timestamp;
+  mapTitle: string;
+  root: Node;
+}
+
 export interface Node {
   id: string;
   label: string;

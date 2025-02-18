@@ -46,7 +46,7 @@ export function FileUploader({ onFileUpload, isLoading, resetFile }: FileUploade
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full mb-4"
+      className="w-full mb-4 mt-3"
     >
       <div
         {...getRootProps()}
