@@ -26,7 +26,7 @@ const VideoPlayer: React.FC = () => {
     <div className="w-full h-[550px] overflow-hidden rounded-lg shadow-lg mb-6">
       {showCover && (
         <img
-          src="/videos/portada.png"
+          src="/portada.png"
           alt="Portada del video promocional"
           className="w-full h-full object-cover"
           onClick={handleCover}
@@ -40,7 +40,7 @@ const VideoPlayer: React.FC = () => {
         ref={videoRef}
         onEnded={handleVideoEnd}
       >
-        <source src="/videos/video_promocion.mov" type="video/mp4" />
+        <source src="/video_promocion.mov" type="video/mp4" />
         Tu navegador no soporta el video.
       </video>
     </div>
