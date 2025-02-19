@@ -38,7 +38,7 @@ export const HomePage: React.FC = () => {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-[93rem] mx-auto px-4 py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -105,12 +105,6 @@ export const HomePage: React.FC = () => {
           )}
 
           {user && activeTab === "plans" && <StripePricingTable />}
-          {!user && activeTab === "plans" && (
-            <LoginPopUp
-              onClose={() => setActiveTab("home")}
-              onLogin={handleLogin}
-            ></LoginPopUp>
-          )}
 
           {/* {activeTab === 'plans' && <StripePricingTable />} */}
         </div>

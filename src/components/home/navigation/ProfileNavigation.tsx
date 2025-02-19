@@ -9,20 +9,12 @@ interface ProfileNavigationProps {
   name: string | null;
   tokens: string;
   fromMobile: boolean;
+  handleLogout: () => void;
 }
 
-export function ProfileNavigation({ photoURL, name, tokens, fromMobile }: ProfileNavigationProps) {
+export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLogout }: ProfileNavigationProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      console.log("Sesión cerrada correctamente");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
 
   const handleCustomize = async () => {
     try {
@@ -126,7 +118,7 @@ export function ProfileNavigation({ photoURL, name, tokens, fromMobile }: Profil
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => handleLogout()}
+          onClick={handleLogout}
           className="flex items-center w-full space-x-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-gray-100 hover:text-gray-900"
         >
           <LogoutIcon className="w-5 h-5 text-gray-700 group-hover:text-gray-900" />

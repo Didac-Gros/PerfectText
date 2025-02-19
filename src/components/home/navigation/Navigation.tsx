@@ -1,17 +1,24 @@
-import { Wand2, FileText, GamepadIcon, Map, Home } from 'lucide-react';
-import { User } from 'firebase/auth';
+import { Wand2, FileText, GamepadIcon, Map, Home } from "lucide-react";
+import { User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { ProfileNavigation } from './ProfileNavigation';
-import Icon from '@mdi/react';
-import { mdiEmoticonWink } from '@mdi/js';
-import { User as MyUser } from '../../../types/global';
-import { formatTokens } from '../../../utils/utils';
-import { NavigationButton } from './NavigationButton';
-import { PlansButton } from './PlansButton';
-import { MobileButton } from './MobileButton';
-import { LoginButton } from './LoginButton';
+import { ProfileNavigation } from "./ProfileNavigation";
+import Icon from "@mdi/react";
+import { mdiEmoticonWink } from "@mdi/js";
+import { User as MyUser } from "../../../types/global";
+import { formatTokens } from "../../../utils/utils";
+import { NavigationButton } from "./NavigationButton";
+import { PlansButton } from "./PlansButton";
+import { MobileButton } from "./MobileButton";
+import { LoginButton } from "./LoginButton";
+import { useAuth } from "../../../hooks/useAuth";
 
-type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap' | 'plans';
+type TabType =
+  | "home"
+  | "correct"
+  | "summarize"
+  | "quiz"
+  | "conceptmap"
+  | "plans";
 
 interface NavigationProps {
   activeTab: TabType;
@@ -21,14 +28,29 @@ interface NavigationProps {
   tokens: number;
 }
 
-export function Navigation({ activeTab, onTabChange, user, tokens, }: NavigationProps) {
+export function Navigation({
+  activeTab,
+  onTabChange,
+  user,
+  tokens,
+}: NavigationProps) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogin = async () => {
     try {
       navigate("/login");
     } catch (error) {
       console.error("Error al entrar en login:", (error as Error).message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onTabChange("home");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
     }
   };
 
@@ -44,13 +66,14 @@ export function Navigation({ activeTab, onTabChange, user, tokens, }: Navigation
             title="Logo"
           />
           <span className="text-xl font-bold text-black-700">PerfectText</span>
-          <div className='md:hidden fixed right-0'>
+          <div className="md:hidden fixed right-0">
             {user ? (
               <ProfileNavigation
                 photoURL={user.photoURL}
                 name={user.displayName}
                 tokens={formatTokens(tokens)}
                 fromMobile
+                handleLogout={handleLogout}
               />
             ) : (
               <LoginButton handleLogin={handleLogin}></LoginButton>
@@ -62,93 +85,87 @@ export function Navigation({ activeTab, onTabChange, user, tokens, }: Navigation
         <div className="fixed bottom-0 left-0 right-0 bg-white py-3 shadow-md flex justify-around items-center z-50 md:hidden">
           {!user && (
             <MobileButton
-              onClick={() => onTabChange('home')}
-              isActive={activeTab === 'home'}
-              text='Inicio'
+              onClick={() => onTabChange("home")}
+              isActive={activeTab === "home"}
+              text="Inicio"
             >
               <Home className="w-6 h-6" />
             </MobileButton>
           )}
 
           <MobileButton
-            onClick={() => onTabChange('correct')}
-            isActive={activeTab === 'correct'}
-            text='Corrección'
+            onClick={() => onTabChange("correct")}
+            isActive={activeTab === "correct"}
+            text="Corrección"
           >
             <Wand2 className="w-6 h-6" />
           </MobileButton>
 
-
           <MobileButton
-            onClick={() => onTabChange('summarize')}
-            isActive={activeTab === 'summarize'}
-            text='Resumen'
+            onClick={() => onTabChange("summarize")}
+            isActive={activeTab === "summarize"}
+            text="Resumen"
           >
             <FileText className="w-6 h-6" />
           </MobileButton>
 
-
           <MobileButton
-            onClick={() => onTabChange('quiz')}
-            isActive={activeTab === 'quiz'}
-            text='Quiz'
+            onClick={() => onTabChange("quiz")}
+            isActive={activeTab === "quiz"}
+            text="Quiz"
           >
             <GamepadIcon className="w-6 h-6" />
           </MobileButton>
 
           <MobileButton
-            onClick={() => onTabChange('conceptmap')}
-            isActive={activeTab === 'conceptmap'}
-            text='Mapa'
+            onClick={() => onTabChange("conceptmap")}
+            isActive={activeTab === "conceptmap"}
+            text="Mapa"
           >
             <Map className="w-6 h-6" />
           </MobileButton>
         </div>
 
-
         {/* Navegación para ordenador */}
-        <div
-          className="hidden md:flex flex-col md:flex-row items-center gap-4 absolute md:static bg-white w-full md:w-auto transition-transform duration-300 "
-        >
+        <div className="hidden md:flex flex-col md:flex-row items-center gap-4 absolute md:static bg-white w-full md:w-auto transition-transform duration-300 ">
           {!user && (
             <NavigationButton
-              onClick={() => onTabChange('home')}
-              isActive={activeTab === 'home'}
-              text='Inicio'
+              onClick={() => onTabChange("home")}
+              isActive={activeTab === "home"}
+              text="Inicio"
             >
               <Home className="w-6 h-6" />
             </NavigationButton>
-
           )}
 
           <NavigationButton
-            onClick={() => onTabChange('correct')}
-            isActive={activeTab === 'correct'}
-            text='Corrección'
+            onClick={() => onTabChange("correct")}
+            isActive={activeTab === "correct"}
+            text="Corrección"
           >
             <Wand2 className="w-6 h-6" />
           </NavigationButton>
 
           <NavigationButton
-            onClick={() => onTabChange('summarize')}
-            isActive={activeTab === 'summarize'}
-            text='Resumen'
+            onClick={() => onTabChange("summarize")}
+            isActive={activeTab === "summarize"}
+            text="Resumen"
           >
             <FileText className="w-6 h-6" />
           </NavigationButton>
 
           <NavigationButton
-            onClick={() => onTabChange('quiz')}
-            isActive={activeTab === 'quiz'}
-            text='Quiz'
+            onClick={() => onTabChange("quiz")}
+            isActive={activeTab === "quiz"}
+            text="Quiz"
           >
             <GamepadIcon className="w-6 h-6" />
           </NavigationButton>
 
           <NavigationButton
-            onClick={() => onTabChange('conceptmap')}
-            isActive={activeTab === 'conceptmap'}
-            text='Mapa Conceptual'
+            onClick={() => onTabChange("conceptmap")}
+            isActive={activeTab === "conceptmap"}
+            text="Mapa Conceptual"
           >
             <Map className="w-6 h-6" />
           </NavigationButton>
@@ -159,17 +176,22 @@ export function Navigation({ activeTab, onTabChange, user, tokens, }: Navigation
               name={user.displayName}
               tokens={formatTokens(tokens)}
               fromMobile={false}
+              handleLogout={handleLogout}
             />
           ) : (
-            <LoginButton handleLogin={handleLogin} ></LoginButton>
+            <LoginButton handleLogin={handleLogin}></LoginButton>
           )}
 
           {user && (
-            <PlansButton isActiveTab={activeTab === 'plans'} onTabChange={() => onTabChange('plans')} ></PlansButton>
+            <PlansButton
+              isActiveTab={activeTab === "plans"}
+              onTabChange={() => onTabChange("plans")}
+            ></PlansButton>
           )}
         </div>
       </div>
-      <div className="pt-20"></div> {/* Espaciado adicional para evitar que el contenido se corte */}
+      <div className="pt-20"></div>{" "}
+      {/* Espaciado adicional para evitar que el contenido se corte */}
     </nav>
   );
 }
