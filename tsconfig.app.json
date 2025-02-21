@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "server/index.ts", "global.d.ts"] 
+  "include": ["src", "server/index.ts", "global.d.ts", "src/components/home/VideoPlayer.tsx"] 
 
 }

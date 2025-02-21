@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, Map, AlertCircle, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Send, Map, AlertCircle } from "lucide-react";
 import * as d3 from "d3";
 import { LoadingProgress } from "../shared/LoadingProgress";
 import { parseFileToString, parseMarkdownToNodes } from "../../utils/utils";
@@ -12,7 +12,6 @@ import { LoginPopUp } from "../shared/LoginPopUp";
 import { User } from "firebase/auth";
 import { QuizReview } from "../QuizGame/QuizReview";
 import { fetchUserReview } from "../../services/userReview";
-import { log } from "node:console";
 import {
   addConceptMapToFirestore,
   getUserConceptMaps,
@@ -413,10 +412,12 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-7xl mx-auto px-4"
+      className="max-w-full mx-auto px-4"
     >
       <div className="flex gap-6 mb-8">
-        <RecentMaps maps={maps} handleRecentMap={handleRecentMap} />
+        <div className="hidden md:block">
+          <RecentMaps maps={maps} handleRecentMap={handleRecentMap} />
+        </div>
         <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 pt-5 text-center">
           <div className="inline-block p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mb-1">
             <Map className="size-8 text-white" />

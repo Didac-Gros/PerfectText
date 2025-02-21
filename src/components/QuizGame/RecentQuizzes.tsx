@@ -13,7 +13,7 @@ export const RecentQuizzes: React.FC<RecentQuizzesProps> = ({
   handleRecentQuiz,
 }) => {
   return (
-    <div className="w-72 bg-white rounded-2xl shadow-lg p-5 overflow-y-auto border border-gray-200">
+    <div className="h-full w-72 bg-white rounded-2xl shadow-lg p-5 border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-700 mb-4">
         Quizzes Recientes
       </h3>
@@ -21,7 +21,7 @@ export const RecentQuizzes: React.FC<RecentQuizzesProps> = ({
       {quizzes.length === 0 ? (
         <p className="text-sm text-gray-500">No hay quizzes recientes</p>
       ) : (
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-3 max-h-[35rem] overflow-y-auto pr-2">
           {quizzes.map((quiz) => (
             <motion.div
               key={quiz.id}
@@ -34,7 +34,9 @@ export const RecentQuizzes: React.FC<RecentQuizzesProps> = ({
                 <BookCheck className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-800">{quiz.titleFile}</h4>
+                <h4 className="text-sm font-medium text-gray-800">
+                  {quiz.titleFile}
+                </h4>
                 <p className="text-xs text-gray-500">
                   {quiz.createdAt.toDate().toLocaleDateString()}
                 </p>

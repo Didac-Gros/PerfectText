@@ -23,24 +23,47 @@ const VideoPlayer: React.FC = () => {
     videoRef.current?.play(); // Mostrar la portada nuevamente cuando termine el video
   };
   return (
-    <div className="w-full h-[550px] overflow-hidden rounded-lg shadow-lg mb-6">
+    <div className="w-full h-[450px] overflow-hidden rounded-lg shadow-lg mb-6">
       {showCover && (
-        <img
-          src="/portada.png"
-          alt="Portada del video promocional"
-          className="w-full h-full object-cover"
-          onClick={handleCover}
-        />
+        <div>
+          <img
+            src="/img/portada_mobile.png"
+            alt="Portada del video promocional"
+            className="w-full h-full object-cover sm:hidden"
+            onClick={handleCover}
+          />
+          <img
+            src="/img/portada_pc.png"
+            alt="Portada del video promocional sm:block hidden"
+            className="w-full h-full object-cover"
+            onClick={handleCover}
+          />
+        </div>
       )}
+
       <video
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover  sm:block hidden"
         controls
         muted
         playsInline
         ref={videoRef}
         onEnded={handleVideoEnd}
+        autoPlay
       >
-        <source src="/video_promocion.mov" type="video/mp4" />
+        <source src="/videos/video_pc.mov" type="video/mp4" />
+        Tu navegador no soporta el video.
+      </video>
+
+      <video
+        className="w-full h-full object-cover sm:hidden"
+        controls
+        muted
+        playsInline
+        ref={videoRef}
+        onEnded={handleVideoEnd}
+        autoPlay
+      >
+        <source src="/videos/video_mobile.mov" type="video/mp4" />
         Tu navegador no soporta el video.
       </video>
     </div>

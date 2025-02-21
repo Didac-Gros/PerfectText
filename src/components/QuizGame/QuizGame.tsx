@@ -163,10 +163,13 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         className="max-w-7xl mx-auto px-4"
       >
         <div className="flex gap-6 mb-8">
-          <RecentQuizzes
-            quizzes={quizzes}
-            handleRecentQuiz={handleRecentQuizz}
-          />
+          <div className="md:block hidden">
+            <RecentQuizzes
+              quizzes={quizzes}
+              handleRecentQuiz={handleRecentQuizz}
+            />
+          </div>
+
           <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 pt-5">
             <div className="text-center">
               <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-1">

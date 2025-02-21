@@ -12,8 +12,6 @@ import { TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { useNavigate } from "react-router-dom";
-import { LoginPopUp } from "../components/shared/LoginPopUp";
-import { RecentQuizzes } from "../components/QuizGame/RecentQuizzes";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -29,16 +27,9 @@ export const HomePage: React.FC = () => {
     setTokens(tokens! - tokensToRemove);
   };
 
-  const handleLogin = () => {
-    try {
-      navigate("/login");
-    } catch (error) {
-      console.error("Error al entrar en el login: ", (error as Error).message);
-    }
-  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-[93rem] mx-auto px-4 py-6">
+      <div className="max-w-[98rem] mx-auto px-4 sm:py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}

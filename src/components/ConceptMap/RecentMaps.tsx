@@ -13,7 +13,7 @@ export const RecentMaps: React.FC<RecentMapProps> = ({
   handleRecentMap,
 }) => {
   return (
-    <div className="w-72 bg-white rounded-2xl shadow-lg p-5 overflow-y-auto border border-gray-200">
+    <div className="h-full w-72 bg-white rounded-2xl shadow-lg p-5 overflow-y-auto border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-700 mb-4">
         Mapas Recientes
       </h3>
@@ -21,7 +21,7 @@ export const RecentMaps: React.FC<RecentMapProps> = ({
       {maps.length === 0 ? (
         <p className="text-sm text-gray-500">No hay mapas recientes</p>
       ) : (
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-3 max-h-[35rem] overflow-y-auto pr-2">
           {maps.map((map) => (
             <motion.div
               key={map.id}

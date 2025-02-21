@@ -31,10 +31,11 @@ export function PricingSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center justify-center p-2 bg-blue-50 rounded-full mb-4">
+          {/* <div className="inline-flex items-center justify-center p-2 bg-blue-50 rounded-full mb-4">
             <Crown className="w-5 h-5 text-blue-500 mr-2" />
             <span className="text-blue-800 font-medium">Planes Premium</span>
-          </div>
+            
+          </div> */}
 
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Potencia tu aprendizaje

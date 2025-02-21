@@ -32,7 +32,7 @@ export function Hero({ onTabChange }: HeroProps): JSX.Element {
         <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
       </div>
 
-      <div className="relative max-w-[88rem] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+      <div className="relative max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8 sm:pt-8 pt-4  pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
