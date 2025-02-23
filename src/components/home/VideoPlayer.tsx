@@ -25,24 +25,24 @@ const VideoPlayer: React.FC = () => {
   return (
     <div className="w-full h-[450px] overflow-hidden rounded-lg shadow-lg mb-6">
       {showCover && (
-        <div>
+        <div className="w-full h-[450px] overflow-hidden rounded-lg shadow-lg ">
           <img
             src="/img/portada_mobile.png"
             alt="Portada del video promocional"
-            className="w-full h-full object-cover sm:hidden"
+            className="w-full h-full object-cover md:hidden"
             onClick={handleCover}
           />
           <img
             src="/img/portada_pc.png"
-            alt="Portada del video promocional sm:block hidden"
-            className="w-full h-full object-cover"
+            alt="Portada del video promocional md:block hidden"
+            className="w-full h-full object-cover "
             onClick={handleCover}
           />
         </div>
       )}
 
       <video
-        className="w-full h-full object-cover  sm:block hidden"
+        className="w-full h-full object-cover  md:block hidden"
         controls
         muted
         playsInline
@@ -55,7 +55,7 @@ const VideoPlayer: React.FC = () => {
       </video>
 
       <video
-        className="w-full h-full object-cover sm:hidden"
+        className="w-full h-full object-cover md:hidden"
         controls
         muted
         playsInline

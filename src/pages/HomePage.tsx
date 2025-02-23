@@ -29,7 +29,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-[98rem] mx-auto px-4 sm:py-6">
+      <div className="max-w-[98rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
