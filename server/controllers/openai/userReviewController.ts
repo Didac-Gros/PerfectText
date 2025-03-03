@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { saveDataset, Message } from "../services/datasetService";
+import { saveDataset, Message } from "../../services/datasetService";
 
 /**
  * Maneja la petición para guardar mensajes en JSONL.

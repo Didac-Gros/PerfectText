@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { TextInput } from './TextInputCorrect';
 import { TextOutput } from './TextOutputCorrect';
 import { OptimizationModes } from '../shared/OptimizationModes';
-import { correctText } from '../../services/correctText';
+import { correctText } from '../../services/openai/correctText';
 import { User } from 'firebase/auth';
 import { LoginPopUp } from '../shared/LoginPopUp';
 import { useNavigate } from 'react-router-dom';
-
-type TabType = 'home' | 'correct' | 'summarize' | 'quiz' | 'conceptmap';
+import { TabType } from '../../types/global';
 
 type CorrectTabProps = {
   onTabChange: (tab: TabType) => void;
@@ -25,7 +24,7 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
   setShowPopUpTokens,
 }) => {
   const [inputText, setInputText] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('es');
+  const [selectedLanguage, setSelectedLanguage] = useState('ES');
   const [selectedMode, setSelectedMode] = useState('general');
   const [correctedText, setCorrectedText] = useState('');
   const [enhancedText, setEnhancedText] = useState('');
@@ -105,12 +104,12 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
             <TextInput
               inputText={inputText}
               selectedLanguage={selectedLanguage}
-              isLoading={isLoading}
+              isLoading={isLoading} 
               onTextChange={setInputText}
               onLanguageChange={setSelectedLanguage}
               onSubmit={handleSubmit}
               activeTab="correct"
-              onTabChange={() => onTabChange('summarize')}
+              onTabChange={() => onTabChange('traductor')}
             />
             {hasOutput && (
               <TextOutput

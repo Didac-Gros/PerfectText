@@ -5,20 +5,20 @@ import * as d3 from "d3";
 import { LoadingProgress } from "../shared/LoadingProgress";
 import { parseFileToString, parseMarkdownToNodes } from "../../utils/utils";
 import { FileUploader } from "../shared/FileUploader";
-import { fetchConceptMap } from "../../services/conceptMapApi";
+import { fetchConceptMap } from "../../services/openai/conceptMapApi";
 import { ConceptMap, Node } from "../../types/global";
 import { useNavigate } from "react-router-dom";
 import { LoginPopUp } from "../shared/LoginPopUp";
 import { User } from "firebase/auth";
 import { QuizReview } from "../QuizGame/QuizReview";
-import { fetchUserReview } from "../../services/userReview";
+import { fetchUserReview } from "../../services/firestore/userReview";
 import {
   addConceptMapToFirestore,
   getUserConceptMaps,
 } from "../../services/firestore/conceptMapRepository";
 import { RecentMaps } from "./RecentMaps";
 import { CiEdit } from "react-icons/ci";
-import { updateFirestoreField } from "../../services/firestore";
+import { updateFirestoreField } from "../../services/firestore/firestore";
 import { v4 as uuidv4 } from "uuid";
 
 interface ConceptMapGeneratorProps {

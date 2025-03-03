@@ -1,4 +1,4 @@
-import { fetchAPI } from './fetchApi'; // Usa la misma función fetchAPI para reutilización
+import { fetchAPI } from '../fetchApi'; // Usa la misma función fetchAPI para reutilización
 
 export const summarizeText = async (
   text: string,

@@ -7,11 +7,11 @@ import { ConceptMapGenerator } from "../components/ConceptMap/ConceptMapGenerato
 import { SummarizeTab } from "../components/summarize/SummarizeTab";
 import { CorrectTab } from "../components/correct/CorrectTab";
 import { useAuth } from "../hooks/useAuth";
-import { updateUserTokens } from "../services/firestore";
+import { updateUserTokens } from "../services/firestore/firestore";
 import { TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
-import { useNavigate } from "react-router-dom";
+import { TraductorTab } from "../components/traductor/TraductorTab";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -20,7 +20,6 @@ export const HomePage: React.FC = () => {
   ); // Establecer home como tab inicial
   const [tokens, setTokens] = useState<number | null>(userStore?.tokens! ?? 0); // Establecer home como tab inicial
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const removeTokens = async (tokensToRemove: number) => {
     await updateUserTokens(tokensToRemove);
@@ -29,7 +28,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-[98rem] mx-auto px-4 md:py-6">
+      <div className="max-w-[93rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -37,69 +36,78 @@ export const HomePage: React.FC = () => {
           tokens={tokens ?? 0}
           userStore={userStore}
         />
-          
-          {activeTab === "home" && (
-            <>
-              <Hero onTabChange={setActiveTab} />
-              <PricingSection />
-            </>
-          )}
 
-          {showPopUp && (
-            <div className="text-center mb-8">
-              <TokensPopUp
-                onClose={() => setShowPopUp(false)}
-                onUpdatePlan={() => {
-                  setActiveTab("plans");
-                  setShowPopUp(false);
-                }}
-                userExpirationDate={userStore!.expirationDate}
-              ></TokensPopUp>
-            </div>
-          )}
+        {activeTab === "home" && (
+          <>
+            <Hero onTabChange={setActiveTab} />
+            <PricingSection />
+          </>
+        )}
 
-          {activeTab === "correct" && (
-            <CorrectTab
-              onTabChange={setActiveTab}
-              user={user}
-              removeTokens={removeTokens}
-              userTokens={userStore?.tokens ?? 0}
-              setShowPopUpTokens={setShowPopUp}
-            />
-          )}
+        {showPopUp && (
+          <div className="text-center mb-8">
+            <TokensPopUp
+              onClose={() => setShowPopUp(false)}
+              onUpdatePlan={() => {
+                setActiveTab("plans");
+                setShowPopUp(false);
+              }}
+              userExpirationDate={userStore!.expirationDate}
+            ></TokensPopUp>
+          </div>
+        )}
 
-          {activeTab === "summarize" && (
-            <SummarizeTab
-              onTabChange={setActiveTab}
-              user={user}
-              removeTokens={removeTokens}
-              userTokens={userStore?.tokens ?? 0}
-              setShowPopUpTokens={setShowPopUp}
-            />
-          )}
+        {activeTab === "correct" && (
+          <CorrectTab
+            onTabChange={setActiveTab}
+            user={user}
+            removeTokens={removeTokens}
+            userTokens={userStore?.tokens ?? 0}
+            setShowPopUpTokens={setShowPopUp}
+          />
+        )}
 
-          {activeTab === "quiz" && (
-            <QuizGame
-              removeTokens={removeTokens}
-              userTokens={userStore?.tokens ?? 0}
-              setShowPopUpTokens={setShowPopUp}
-            />
-          )}
+        {activeTab === "traductor" && (
+          <TraductorTab
+            onTabChange={setActiveTab}
+            activeTab={activeTab}
+            removeTokens={removeTokens}
+            userTokens={userStore?.tokens ?? null}
+            setShowPopUpTokens={setShowPopUp}
+          />
+        )}
 
-          {activeTab === "conceptmap" && (
-            <ConceptMapGenerator
-              user={user}
-              removeTokens={removeTokens}
-              userTokens={userStore?.tokens ?? 0}
-              setShowPopUpTokens={setShowPopUp}
-            />
-          )}
+        {activeTab === "summarize" && (
+          <SummarizeTab
+            onTabChange={setActiveTab}
+            user={user}
+            removeTokens={removeTokens}
+            userTokens={userStore?.tokens ?? 0}
+            setShowPopUpTokens={setShowPopUp}
+          />
+        )}
 
-          {user && activeTab === "plans" && <StripePricingTable />}
+        {activeTab === "quiz" && (
+          <QuizGame
+            removeTokens={removeTokens}
+            userTokens={userStore?.tokens ?? 0}
+            setShowPopUpTokens={setShowPopUp}
+          />
+        )}
 
-          {/* {activeTab === 'plans' && <StripePricingTable />} */}
-        </div>
-      
+        {activeTab === "conceptmap" && (
+          <ConceptMapGenerator
+            user={user}
+            removeTokens={removeTokens}
+            userTokens={userStore?.tokens ?? 0}
+            setShowPopUpTokens={setShowPopUp}
+          />
+        )}
+
+        {user && activeTab === "plans" && <StripePricingTable />}
+
+        {/* {activeTab === 'plans' && <StripePricingTable />} */}
+      </div>
     </div>
   );
 };

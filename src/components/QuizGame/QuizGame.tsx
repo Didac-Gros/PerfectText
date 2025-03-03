@@ -4,7 +4,7 @@ import { QuizQuestion } from "./QuizQuestion";
 import { QuizSummary } from "./QuizSummary";
 import { Question, Quiz } from "../../types/global";
 import { GamepadIcon, Send } from "lucide-react";
-import { fetchGenerateQuestions } from "../../services/quizApi";
+import { fetchGenerateQuestions } from "../../services/openai/quizApi";
 import { LoadingProgress } from "../shared/LoadingProgress";
 import { FileUploader } from "../shared/FileUploader";
 import { parseFileToString } from "../../utils/utils";
@@ -43,6 +43,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
   const [questionsText, setQuestionsText] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [blob, setBlob] = useState<Blob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -130,8 +131,70 @@ export const QuizGame: React.FC<QuizGameProps> = ({
     setError(null);
   };
 
+  const handleButton = () => {
+    console.log("Button clicked");
+    const fileName = file!.name.replace(/\.[^/.]+$/, "") + "_traducido"; // Nombre base + _traducido
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob!);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleFileUpload = async (file: File) => {
     setFile(file);
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("targetLang", "EN"); // Idioma destino
+
+    const response = await fetch("http://localhost:3000/api/translate", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      alert("Error en la traducción del documento.");
+      return;
+    }
+
+    const blob2 = await response.blob();
+    setBlob(blob2);
+    const fileName = file.name.replace(/\.[^/.]+$/, "") + "_traducido"; // Nombre base + _traducido
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob2);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setIsLoading(false);
+
+    // try {
+    //   const response = await fetch("http://localhost:3000/api/download");
+
+    //   if (!response.ok) {
+    //     throw new Error("❌ Error al descargar el archivo.");
+    //   }
+
+    //   const blob = await response.blob();
+    //   const fileName =
+    //     response.headers.get("Content-Disposition")?.split("filename=")[1] ||
+    //     "documento_traducido.docx";
+
+    //   const link = document.createElement("a");
+    //   link.href = URL.createObjectURL(blob);
+    //   link.download = fileName.replace(/"/g, ""); // Elimina comillas innecesarias si existen
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+
+    //   console.log("✅ Archivo descargado con éxito.");
+    // } catch (error) {
+    //   console.error("❌ Error al descargar el archivo:", error);
+    // }
   };
 
   const handleLogin = () => {
@@ -160,7 +223,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-7xl mx-auto px-4"
+        className="max-w-full mx-auto px-4"
       >
         <div className="flex gap-6 mb-8">
           <div className="md:block hidden">

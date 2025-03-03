@@ -69,4 +69,5 @@ export type TabType =
   | "summarize"
   | "quiz"
   | "conceptmap"
-  | "plans";
+  | "plans"
+  | "traductor";

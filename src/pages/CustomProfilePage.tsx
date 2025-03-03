@@ -3,7 +3,7 @@ import React, { useState, ChangeEvent } from "react";
 import { RegisterInput } from "../components/register/RegisterInput";
 import { FaRegUser } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth } from "../services/firestore/firebase";
 import { useNavigate } from "react-router-dom";
 
 export const CustomProfilePage: React.FC = () => {

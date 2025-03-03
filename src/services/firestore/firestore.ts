@@ -1,6 +1,6 @@
 // src/services/firestore.ts
-import { Question, Quiz, User } from "../types/global";
-import { db, auth } from "../services/firebase";
+import { Question, Quiz, User } from "../../types/global";
+import { db, auth } from "./firebase";
 import {
   getDocs,
   query,
@@ -14,8 +14,8 @@ import {
   addDoc,
   orderBy,
 } from "firebase/firestore";
-import { User as MyUser, UserSubscription } from "../types/global"; // Importa tu interfaz
-import { generateUUID } from "../utils/utils";
+import { User as MyUser, UserSubscription } from "../../types/global"; // Importa tu interfaz
+import { generateUUID } from "../../utils/utils";
 import { v4 as uuidv4 } from "uuid";
 
 export const addUserToFirestore = async (user: User): Promise<void> => {

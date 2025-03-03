@@ -1,4 +1,4 @@
-import { fetchAPI } from './fetchApi'; // Importar la función reutilizable fetchAPI
+import { fetchAPI } from '../fetchApi'; // Importar la función reutilizable fetchAPI
 
 export async function fetchUserReview(messages: { role: string; content: string }[]): Promise<string> {
 

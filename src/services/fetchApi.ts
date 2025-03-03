@@ -8,7 +8,7 @@ interface APIRequest {
   language?: string;
   mode?: string;
   messages?: { role: string; content: string }[];
-
+  sourceLang?: string;
 }
 
 export async function fetchAPI<T>(endpoint: string, data: APIRequest): Promise<T> {

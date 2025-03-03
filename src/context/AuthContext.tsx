@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
-import { auth } from "../services/firebase"; // Configuración de Firebase
-import { addUserToFirestore, findUserByEmail } from "../services/firestore"; // Importar la función
+import { auth } from "../services/firestore/firebase"; // Configuración de Firebase
+import { addUserToFirestore, findUserByEmail } from "../services/firestore/firestore"; // Importar la función
 import { ReactNode } from "react";
 import { User as MyUser, UserSubscription } from "../types/global";
 import { Timestamp } from "firebase/firestore";

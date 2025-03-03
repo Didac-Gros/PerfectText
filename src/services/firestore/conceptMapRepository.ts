@@ -1,6 +1,6 @@
 // src/services/firestore.ts
 import { ConceptMap, Question, Quiz } from "../../types/global";
-import { db, auth } from "../../services/firebase";
+import { db, auth } from "./firebase";
 import {
   getDocs,
   query,

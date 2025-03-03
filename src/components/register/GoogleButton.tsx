@@ -1,9 +1,9 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../services/firebase";
+import { auth } from "../../services/firestore/firebase";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { User, UserSubscription } from "../../types/global";
-import { findUserByEmail } from "../../services/firestore";
+import { findUserByEmail } from "../../services/firestore/firestore";
 
 interface GoogleButtonProps {
     text: string;

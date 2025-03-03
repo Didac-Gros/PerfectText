@@ -4,21 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { ProfileNavigation } from "./ProfileNavigation";
 import Icon from "@mdi/react";
 import { mdiEmoticonWink } from "@mdi/js";
-import { User as MyUser } from "../../../types/global";
+import { User as MyUser, TabType } from "../../../types/global";
 import { formatTokens } from "../../../utils/utils";
 import { NavigationButton } from "./NavigationButton";
 import { PlansButton } from "./PlansButton";
 import { MobileButton } from "./MobileButton";
 import { LoginButton } from "./LoginButton";
 import { useAuth } from "../../../hooks/useAuth";
-
-type TabType =
-  | "home"
-  | "correct"
-  | "summarize"
-  | "quiz"
-  | "conceptmap"
-  | "plans";
 
 interface NavigationProps {
   activeTab: TabType;
@@ -140,8 +132,8 @@ export function Navigation({
 
           <NavigationButton
             onClick={() => onTabChange("correct")}
-            isActive={activeTab === "correct"}
-            text="Corrección"
+            isActive={activeTab === "correct" || activeTab === "traductor"}
+            text="Corrección / Traducción"
           >
             <Wand2 className="w-6 h-6" />
           </NavigationButton>

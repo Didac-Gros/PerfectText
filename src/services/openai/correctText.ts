@@ -1,5 +1,5 @@
-import { CorrectionResponse } from '../types/global';
-import { fetchAPI } from './fetchApi'; // Asegúrate de tener esta función en un archivo compartido
+import { CorrectionResponse } from '../../types/global';
+import { fetchAPI } from '../fetchApi'; // Asegúrate de tener esta función en un archivo compartido
 
 export const correctText = async (
   text: string, 

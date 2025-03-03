@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
-import { auth } from "../services/firebase"; // Archivo de configuración de Firebase
+import { auth } from "../services/firestore/firebase"; // Archivo de configuración de Firebase
 import { RegisterInput } from "../components/register/RegisterInput";
 import { FaArrowLeftLong, FaRegEye } from "react-icons/fa6";
 import { HiOutlineMail } from "react-icons/hi";
 import { GoogleButton } from "../components/register/GoogleButton";
 import SubmitButton from "../components/register/SubmitButton";
 import { FaRegUser } from "react-icons/fa";
-import { addUserToFirestore } from "../services/firestore";
+import { addUserToFirestore } from "../services/firestore/firestore";
 import { UserSubscription, User } from "../types/global";
 
 export const RegisterPage: React.FC = () => {

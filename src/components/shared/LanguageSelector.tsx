@@ -1,37 +1,13 @@
 import { motion } from "framer-motion";
 import { Languages, ChevronDown, ChevronUp } from "lucide-react";
-import { Language } from "../../types/global";
 import { useState, useRef, useEffect } from "react";
-import cataloniaFlag from "../../assets/Flag_of_Catalonia.svg";
+import { additionalLanguages, mainLanguages } from "../../utils/constants";
 
 
 interface LanguageSelectorProps {
   selectedLanguage: string;
   onLanguageChange: (language: string) => void;
 }
-
-// Ejemplo utilizando banderas en formato SVG desde un CDN fiable
-const mainLanguages: Language[] = [
-  { code: "es", name: "Español", flag: "https://flagcdn.com/es.svg" },
-  { code: "en", name: "English", flag: "https://flagcdn.com/gb.svg" },
-  { code: "ca", name: "Català", flag: cataloniaFlag },
-  { code: "fr", name: "Français", flag: "https://flagcdn.com/fr.svg" },
-  { code: "de", name: "Deutsch", flag: "https://flagcdn.com/de.svg" },
-];
-
-const additionalLanguages: Language[] = [
-  { code: "it", name: "Italiano", flag: "https://flagcdn.com/it.svg" },
-  { code: "zh", name: "中文 (Chino)", flag: "https://flagcdn.com/cn.svg" },
-  { code: "hi", name: "हिन्दी (Hindi)", flag: "https://flagcdn.com/in.svg" },
-  { code: "ar", name: "العربية (Árabe)", flag: "https://flagcdn.com/sa.svg" },
-  { code: "bn", name: "বাংলা (Bengalí)", flag: "https://flagcdn.com/bd.svg" },
-  { code: "pt", name: "Português", flag: "https://flagcdn.com/pt.svg" },
-  { code: "ru", name: "Русский (Ruso)", flag: "https://flagcdn.com/ru.svg" },
-  { code: "ja", name: "日本語 (Japonés)", flag: "https://flagcdn.com/jp.svg" },
-  { code: "tr", name: "Türkçe (Turco)", flag: "https://flagcdn.com/tr.svg" },
-  { code: "ko", name: "한국어 (Coreano)", flag: "https://flagcdn.com/kr.svg" },
-  { code: "vi", name: "Tiếng Việt (Vietnamita)", flag: "https://flagcdn.com/vn.svg" },
-];
 
 export function LanguageSelector({
   selectedLanguage,

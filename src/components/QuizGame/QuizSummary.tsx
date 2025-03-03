@@ -3,14 +3,14 @@ import { Trophy, Clock, Target } from "lucide-react";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { SummaryButton } from "./SummaryButton";
-import { fetchUserReview } from "../../services/userReview";
+import { fetchUserReview } from "../../services/firestore/userReview";
 import { Question } from "../../types/global";
 import { QuizReview } from "./QuizReview";
 import { useEffect, useRef, useState } from "react";
 import { addQuizToFirestore } from "../../services/firestore/quizRepository";
 import { timeAgo } from "../../utils/utils";
 import { CiEdit } from "react-icons/ci";
-import { updateFirestoreField } from "../../services/firestore";
+import { updateFirestoreField } from "../../services/firestore/firestore";
 
 interface QuizSummaryProps {
   score: number;

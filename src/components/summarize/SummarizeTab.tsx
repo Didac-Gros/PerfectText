@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextInput } from './TextInputSum';
 import { TextOutput } from './TextOutputSum';
 import { OptimizationModes } from '../shared/OptimizationModes';
-import { summarizeText } from '../../services/summarizeText';
+import { summarizeText } from '../../services/openai/summarizeText';
 import { User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { LoginPopUp } from '../shared/LoginPopUp';
@@ -25,7 +25,7 @@ export const SummarizeTab: React.FC<SummarizeTabProps> = ({
   setShowPopUpTokens,
 }) => {
   const [inputText, setInputText] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('es');
+  const [selectedLanguage, setSelectedLanguage] = useState('ES');
   const [selectedMode, setSelectedMode] = useState('general');
   const [correctedText, setCorrectedText] = useState('');
   const [enhancedText, setEnhancedText] = useState('');

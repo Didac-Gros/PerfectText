@@ -1,5 +1,5 @@
-import { Question } from '../types/global';
-import { fetchAPI } from './fetchApi'; // Importar la función reutilizable de fetchAPI
+import { Question } from '../../types/global';
+import { fetchAPI } from '../fetchApi'; // Importar la función reutilizable de fetchAPI
 
 export async function fetchGenerateQuestions(text: string): Promise<Question[]> {
   if (!text?.trim()) {
