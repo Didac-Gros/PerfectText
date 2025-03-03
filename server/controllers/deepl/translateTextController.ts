@@ -46,7 +46,7 @@ export async function translateText(req: Request, res: Response) {
         {
           text: [text], // La API espera un array de strings
           target_lang: language, // Idioma de destino
-          source_lang: sourceLang, // Idioma de origen
+          // source_lang: sourceLang, // Idioma de origen
         },
         {
           headers: {

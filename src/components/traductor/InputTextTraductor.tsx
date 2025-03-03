@@ -6,12 +6,14 @@ interface InputTextTraductorProps {
   inputText: string;
   onTextChange: (text: string) => void;
   placeholder: string;
+  comeFromInput: boolean;
 }
 
 export function InputTextTraductor({
   inputText,
   onTextChange,
-  placeholder
+  placeholder,
+  comeFromInput,
 }: InputTextTraductorProps) {
   return (
     <div>
@@ -20,7 +22,9 @@ export function InputTextTraductor({
           value={inputText}
           onChange={(e) => onTextChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full h-48 p-4 rounded-xl bg-gray-50 focus:bg-white border-2 border-gray-100 focus:border-blue-500 outline-none transition-colors resize-none"
+          className={`w-full h-72 p-4 ${
+            comeFromInput ? "rounded-bl-xl" : " rounded-br-xl"
+          }  bg-gray-50 focus:bg-white border-2 border-gray-100 focus:border-blue-500 outline-none transition-colors resize-none`}
         />
 
         {inputText && (

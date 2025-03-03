@@ -13,6 +13,10 @@ import { additionalLanguages, mainLanguages } from "../../utils/constants";
 import { fetchTranslateText } from "../../services/deepl/translateTextApi";
 import { parseFileToString } from "../../utils/utils";
 import { fetchTranslateDocument } from "../../services/deepl/translateDocApi";
+import { SelectTranslate } from "./SelectTranslate";
+import { MdOutlineTranslate } from "react-icons/md";
+import { TranslateText } from "./TranslateText";
+import { TranslateDoc } from "./TranslateDoc";
 
 type TraductorTabProps = {
   onTabChange: (tab: TabType) => void;
@@ -30,8 +34,9 @@ export function TraductorTab({
   removeTokens,
 }: TraductorTabProps) {
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
+  const [showTranslateTab, setShowTranslateTab] = useState<boolean>(true);
   const navigate = useNavigate();
-  const [inputLanguage, setInputLanguage] = useState("ES");
+  const [inputLanguage, setInputLanguage] = useState<string | undefined>(undefined);
   const [outputLanguage, setOutputLanguage] = useState("ES");
   const [docLanguage, setDocLanguage] = useState("ES");
   const [isLoading, setIsLoading] = useState(false);
@@ -108,7 +113,7 @@ export function TraductorTab({
       setShowPopUp(true);
     } else if (userTokens >= content.length) {
       setIsLoading(true);
-      
+
       removeTokens(content.length);
 
       fetchTranslateDocument(file!, docLanguage)
@@ -140,39 +145,62 @@ export function TraductorTab({
     setFile(file);
   };
 
-  const codeToFlag =
-    mainLanguages.find((lang) => lang.code === docLanguage)?.flag ??
-    additionalLanguages.find((lang) => lang.code === docLanguage)?.flag;
-
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <div className="flex flex-wrap gap-4 mb-10">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onTabChange("correct")}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
-            activeTab === "correct"
-              ? "bg-blue-500 text-white shadow-md"
-              : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          Corregir texto
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onTabChange("traductor")}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
-            activeTab === "traductor"
-              ? "bg-blue-500 text-white shadow-md"
-              : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          Traducir texto
-        </motion.button>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-2xl shadow-lg p-6"
+    >
+      {showPopUp && (
+        <div className="text-center mb-8">
+          <LoginPopUp
+            onClose={() => setShowPopUp(false)}
+            onLogin={handleLogin}
+          ></LoginPopUp>
+        </div>
+      )}
+      <div className="flex gap-5 mb-5 ">
+        <SelectTranslate
+          icon={<MdOutlineTranslate className="size-6" />}
+          title="Traducir texto"
+          subtitle="16 idiomas"
+          onClick={() => setShowTranslateTab(true)}
+          activate={showTranslateTab}
+        ></SelectTranslate>
+        <SelectTranslate
+          icon={<FaRegFileAlt className="size-6" />}
+          title="Traducir archivos"
+          subtitle=".pdf, .docx, .pptx"
+          onClick={() => setShowTranslateTab(false)}
+          activate={!showTranslateTab}
+
+        ></SelectTranslate>
       </div>
-      <div className="min-h-screen w-full flex-grow grid grid-cols-2 gap-8">
+      {showTranslateTab ? (
+        <TranslateText
+          inputText={inputText}
+          outputText={outputText}
+          inputLanguage={inputLanguage}
+          outputLanguage={outputLanguage}
+          setInputLanguage={setInputLanguage}
+          setOutputLanguage={setOutputLanguage}
+          setInputText={setInputText}
+          setOutputText={setOutputText}
+        ></TranslateText>
+      ) : (
+        <TranslateDoc
+          onFileUpload={handleFileUpload}
+          isLoading={isLoading}
+          file={file}
+          docLanguage={docLanguage}
+          setDocLanguage={setDocLanguage}
+          blob={blob}
+          handleTranslateDocument={handleTranslateDocument}
+          handleDownloadDocument={handleDownloadDocument}
+        ></TranslateDoc>
+      )}
+
+      {/* <div className="min-h-screen w-full flex-grow grid grid-cols-2 gap-8">
         {showPopUp && (
           <div className="text-center mb-8">
             <LoginPopUp
@@ -252,8 +280,8 @@ export function TraductorTab({
               </div>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </div> */}
+      {/* </div> */}
+    </motion.div>
   );
 }

@@ -109,7 +109,7 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
               onLanguageChange={setSelectedLanguage}
               onSubmit={handleSubmit}
               activeTab="correct"
-              onTabChange={() => onTabChange('traductor')}
+              onTabChange={() => onTabChange('summarize')}
             />
             {hasOutput && (
               <TextOutput
