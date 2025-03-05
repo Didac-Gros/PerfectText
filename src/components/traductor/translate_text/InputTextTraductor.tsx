@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { LoadingProgress } from "../shared/LoadingProgress";
+import { LoadingProgress } from "../../shared/LoadingProgress";
 import { Send, X } from "lucide-react";
 
 interface InputTextTraductorProps {

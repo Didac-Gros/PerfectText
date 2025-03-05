@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { LanguageSelector } from "../shared/LanguageSelector";
+import { LanguageSelector } from "../../shared/LanguageSelector";
 import { InputTextTraductor } from "./InputTextTraductor";
 import { Languages } from "lucide-react";
 import { GrLanguage } from "react-icons/gr";
-import { LanguageTraductor } from "./LanguageTraductor";
+import { LanguageTraductor } from "../LanguageTraductor";
 
 interface TranslateTextProps {
   inputText: string;

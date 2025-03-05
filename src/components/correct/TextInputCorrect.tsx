@@ -53,7 +53,7 @@ export function TextInput({
             : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
         >
-          Traducir texto
+          Resumir texto
         </motion.button>
       </div>
 

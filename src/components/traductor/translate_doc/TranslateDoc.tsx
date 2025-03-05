@@ -1,9 +1,9 @@
 import { FaRegFileAlt } from "react-icons/fa";
-import { FileUploader } from "../shared/FileUploader";
-import { LanguageSelector } from "../shared/LanguageSelector";
-import { PetitionButton } from "../shared/PetitionButton";
-import { InputTextTraductor } from "./InputTextTraductor";
-import { additionalLanguages, mainLanguages } from "../../utils/constants";
+import { FileUploader } from "../../shared/FileUploader";
+import { LanguageSelector } from "../../shared/LanguageSelector";
+import { PetitionButton } from "../../shared/PetitionButton";
+import { InputTextTraductor } from "../translate_text/InputTextTraductor";
+import { additionalLanguages, mainLanguages } from "../../../utils/constants";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { FileTradUploader } from "./FileTradUploader";
 import { motion } from "framer-motion";
@@ -34,15 +34,9 @@ export function TranslateDoc({
     additionalLanguages.find((lang) => lang.code === docLanguage)?.flag;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen w-full"
-    >
-      <header className="bg-blue-400/70 flex p-3 gap-4 items-center rounded-t-lg">
-        <p className="font-medium text-black">
-          Elige el idioma de traducción:
-        </p>
+    <div className="min-h-screen w-full">
+      <header className="bg-blue-400/70 flex p-3 items-center rounded-t-lg">
+        <p className="font-medium text-black">Elige el idioma de traducción:</p>
         <LanguageSelector
           selectedLanguage={docLanguage}
           onLanguageChange={setDocLanguage}
@@ -56,7 +50,7 @@ export function TranslateDoc({
           resetFile={false}
         ></FileTradUploader>
       </section>
-    </motion.div  >
+    </div>
     // <main className="min-h-screen w-full flex-grow grid grid-cols-2 gap-8">
     //   <section className="flex flex-col gap-3">
     //     <p className="font-medium ">O traducte directamente tu documento:</p>

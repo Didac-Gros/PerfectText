@@ -4,6 +4,7 @@ import { Node } from "../types/global";
 import Mammoth from "mammoth";
 import JSZip from "jszip";
 import { v4 as uuidv4 } from "uuid";
+import { additionalLanguages, allLanguages, mainLanguages } from "./constants";
 
 export const timeAgo = (date: Date): string => {
   const now = new Date();
@@ -147,6 +148,10 @@ export async function pptxToText(file: File): Promise<string> {
 async function parseTextFile(file: File): Promise<string> {
   const text = await file.text();
   return text;
+}
+
+export function codeToNameCountry(code: string): string {
+  return allLanguages.find((lang) => lang.code === code)?.name!;
 }
 
 function optimizeText(text: string): string {

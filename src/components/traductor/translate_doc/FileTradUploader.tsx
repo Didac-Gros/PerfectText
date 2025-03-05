@@ -3,7 +3,6 @@ import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 import { FaRegFileWord } from "react-icons/fa";
-import { GrDocumentTxt } from "react-icons/gr";
 import { FaRegFilePowerpoint } from "react-icons/fa";
 import { FaRegFilePdf } from "react-icons/fa";
 import { TbFileTypeTxt } from "react-icons/tb";

@@ -4,19 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { TabType } from "../../types/global";
 import { LanguageSelector } from "../shared/LanguageSelector";
-import { InputTextTraductor } from "./InputTextTraductor";
+import { InputTextTraductor } from "./translate_text/InputTextTraductor";
 import { FileUploader } from "../shared/FileUploader";
 import { PetitionButton } from "../shared/PetitionButton";
 import { FaRegFileAlt } from "react-icons/fa";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { additionalLanguages, mainLanguages } from "../../utils/constants";
 import { fetchTranslateText } from "../../services/deepl/translateTextApi";
-import { parseFileToString } from "../../utils/utils";
+import { codeToNameCountry, parseFileToString } from "../../utils/utils";
 import { fetchTranslateDocument } from "../../services/deepl/translateDocApi";
 import { SelectTranslate } from "./SelectTranslate";
 import { MdOutlineTranslate } from "react-icons/md";
-import { TranslateText } from "./TranslateText";
-import { TranslateDoc } from "./TranslateDoc";
+import { TranslateText } from "./translate_text/TranslateText";
+import { TranslateDoc } from "./translate_doc/TranslateDoc";
+import { FileUploaded } from "./translate_doc/FileUploaded";
 
 type TraductorTabProps = {
   onTabChange: (tab: TabType) => void;
@@ -36,7 +37,9 @@ export function TraductorTab({
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const [showTranslateTab, setShowTranslateTab] = useState<boolean>(true);
   const navigate = useNavigate();
-  const [inputLanguage, setInputLanguage] = useState<string | undefined>(undefined);
+  const [inputLanguage, setInputLanguage] = useState<string | undefined>(
+    undefined
+  );
   const [outputLanguage, setOutputLanguage] = useState("ES");
   const [docLanguage, setDocLanguage] = useState("ES");
   const [isLoading, setIsLoading] = useState(false);
@@ -173,7 +176,6 @@ export function TraductorTab({
           subtitle=".pdf, .docx, .pptx"
           onClick={() => setShowTranslateTab(false)}
           activate={!showTranslateTab}
-
         ></SelectTranslate>
       </div>
       {showTranslateTab ? (
@@ -187,7 +189,7 @@ export function TraductorTab({
           setInputText={setInputText}
           setOutputText={setOutputText}
         ></TranslateText>
-      ) : (
+      ) : !file ? (
         <TranslateDoc
           onFileUpload={handleFileUpload}
           isLoading={isLoading}
@@ -198,6 +200,11 @@ export function TraductorTab({
           handleTranslateDocument={handleTranslateDocument}
           handleDownloadDocument={handleDownloadDocument}
         ></TranslateDoc>
+      ) : (
+        <FileUploaded
+          fileName={"Example.docx"}
+          langName={codeToNameCountry(docLanguage)}
+        ></FileUploaded>
       )}
 
       {/* <div className="min-h-screen w-full flex-grow grid grid-cols-2 gap-8">
