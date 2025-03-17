@@ -52,7 +52,7 @@ export function FileTradUploader({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col m-auto w-fit h-full justify-center"
+      className="flex flex-col w-fit h-full justify-center"
     >
       <div
         {...getRootProps()}

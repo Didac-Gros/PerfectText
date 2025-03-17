@@ -132,8 +132,7 @@ export function Navigation({
 
           <NavigationButton
             onClick={() => onTabChange("correct")}
-            // isActive={activeTab === "correct" || activeTab === "summarize"}
-            isActive={activeTab === "correct"}
+            isActive={activeTab === "correct" || activeTab === "summarize"}
             text="Corrección"
           >
             <Wand2 className="w-6 h-6" />
@@ -146,13 +145,7 @@ export function Navigation({
           >
             <FileText className="w-6 h-6" />
           </NavigationButton> */}
-          <NavigationButton
-            onClick={() => onTabChange("summarize")}
-            isActive={activeTab === "summarize"}
-            text="Resumen"
-          >
-            <FileText className="w-6 h-6" />
-          </NavigationButton>
+
           <NavigationButton
             onClick={() => onTabChange("quiz")}
             isActive={activeTab === "quiz"}

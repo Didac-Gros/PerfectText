@@ -43,67 +43,52 @@ export function TranslateDoc({
           comeFromTrad
         ></LanguageSelector>
       </header>
-      <section className=" bg-gray-50 h-72 rounded-b-lg">
-        <FileTradUploader
-          onFileUpload={handleFileUpload}
-          isLoading={isLoading}
-          resetFile={false}
-        ></FileTradUploader>
+      <section className="bg-gray-50 rounded-b-lg p-6 flex flex-wrap justify-between items-center">
+        <div className="flex gap-6">
+          <div className="flex flex-col items-center gap-2">
+            <img
+              src="img/pdf_normal.png"
+              alt="Documento original en español"
+              className="w-64 h-auto rounded-lg shadow-md"
+            />
+            <p className="text-sm text-gray-600">Español (original)</p>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <img
+              src="img/pdf_trad.png"
+              alt="Documento traducido"
+              className="w-64 h-auto rounded-lg shadow-md"
+            />
+            <p className="text-sm text-gray-600">Traducción</p>
+          </div>
+        </div>
+
+        {/* Flecha animada apuntando a la derecha */}
+        <div className="flex items-center justify-center">
+          <svg
+            className="w-12 h-12 text-gray-500 animate-bounce"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </div>
+
+        <div className="flex justify-center">
+          <FileTradUploader
+            onFileUpload={handleFileUpload}
+            isLoading={isLoading}
+            resetFile={false}
+          />
+        </div>
       </section>
     </div>
-    // <main className="min-h-screen w-full flex-grow grid grid-cols-2 gap-8">
-    //   <section className="flex flex-col gap-3">
-    //     <p className="font-medium ">O traducte directamente tu documento:</p>
-    //     <FileUploader
-    //       onFileUpload={handleFileUpload}
-    //       isLoading={isLoading}
-    //       resetFile={false}
-    //     ></FileUploader>
-    //     {file && (
-    //       <div>
-    //         <p className="font-medium mb-3">
-    //           ¿A qué idioma lo quieres traducir?
-    //         </p>
-    //         <LanguageSelector
-    //           selectedLanguage={docLanguage}
-    //           onLanguageChange={setDocLanguage}
-    //         />
-    //       </div>
-    //     )}
-
-    //     <PetitionButton
-    //       isLoading={isLoading}
-    //       title="Traducir documento"
-    //       isFile={file != null}
-    //       onSubmit={handleTranslateDocument}
-    //     ></PetitionButton>
-    //   </section>
-    //   <section className="flex flex-col gap-3">
-    //     {blob && (
-    //       <div>
-    //         <p className="font-medium ">Tu documento traducido:</p>
-    //         <div className="h-40 flex items-center p-4 border-2 border-dashed rounded-lg border-gray-300 mt-6 gap-3">
-    //           <FaRegFileAlt className="size-10" />
-    //           <div className="flex flex-col gap-1 flex-1">
-    //             <p>
-    //               <span className="font-medium">Documento:</span> {file?.name}
-    //             </p>
-    //             <div className="flex items-center gap-2">
-    //               <p className="font-medium">Traducido al: </p>
-    //               <img
-    //                 src={codeToFlag}
-    //                 alt={`Foto de la bandera de ${docLanguage}`}
-    //                 className="w-6 h-4 object-contain rounded-sm"
-    //               />
-    //             </div>
-    //           </div>
-    //           <button onClick={handleDownloadDocument}>
-    //             <MdOutlineFileDownload className="size-10" />
-    //           </button>
-    //         </div>
-    //       </div>
-    //     )}
-    //   </section>
-    // </main>
   );
 }

@@ -145,56 +145,6 @@ export const QuizGame: React.FC<QuizGameProps> = ({
 
   const handleFileUpload = async (file: File) => {
     setFile(file);
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("targetLang", "EN"); // Idioma destino
-
-    const response = await fetch("http://localhost:3000/api/translate", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      alert("Error en la traducción del documento.");
-      return;
-    }
-
-    const blob2 = await response.blob();
-    setBlob(blob2);
-    const fileName = file.name.replace(/\.[^/.]+$/, "") + "_traducido"; // Nombre base + _traducido
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob2);
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setIsLoading(false);
-
-    // try {
-    //   const response = await fetch("http://localhost:3000/api/download");
-
-    //   if (!response.ok) {
-    //     throw new Error("❌ Error al descargar el archivo.");
-    //   }
-
-    //   const blob = await response.blob();
-    //   const fileName =
-    //     response.headers.get("Content-Disposition")?.split("filename=")[1] ||
-    //     "documento_traducido.docx";
-
-    //   const link = document.createElement("a");
-    //   link.href = URL.createObjectURL(blob);
-    //   link.download = fileName.replace(/"/g, ""); // Elimina comillas innecesarias si existen
-    //   document.body.appendChild(link);
-    //   link.click();
-    //   document.body.removeChild(link);
-
-    //   console.log("✅ Archivo descargado con éxito.");
-    // } catch (error) {
-    //   console.error("❌ Error al descargar el archivo:", error);
-    // }
   };
 
   const handleLogin = () => {
