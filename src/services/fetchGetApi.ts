@@ -1,5 +1,5 @@
 import { ErrorResponse } from "../types/global";
-import { API_URL_LOCAL } from "../utils/constants";
+import { API_URL, API_URL_LOCAL } from "../utils/constants";
 
 const API_TIMEOUT = 60000; // 60 segundos
 
@@ -8,7 +8,7 @@ export async function fetchGetApi<T>(endpoint: string): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-    const response = await fetch(`${API_URL_LOCAL}/${endpoint}`, {
+    const response = await fetch(`${API_URL}/${endpoint}`, {
       method: "GET",
       signal: controller.signal,
     });
