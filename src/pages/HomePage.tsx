@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Hero } from "../components/home/hero"; // Importación del Hero
 import { PricingSection } from "../components/home/PricingSection"; // Importación del PricingSection
 import { Navigation } from "../components/home/navigation/Navigation";
@@ -12,6 +12,7 @@ import { TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
+import { useLocation } from "react-router-dom";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -20,11 +21,25 @@ export const HomePage: React.FC = () => {
   ); // Establecer home como tab inicial
   const [tokens, setTokens] = useState<number | null>(userStore?.tokens! ?? 0); // Establecer home como tab inicial
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
-
+  const location = useLocation();
+  const fileURL = location.state?.fileURL;
+  const fileName = location.state?.fileName || "archivo_traducido.pdf";
   const removeTokens = async (tokensToRemove: number) => {
     await updateUserTokens(tokensToRemove);
     setTokens(tokens! - tokensToRemove);
   };
+
+  useEffect(() => {
+    if (fileURL) {
+      // Crear un enlace de descarga y activarlo automáticamente
+      const link = document.createElement("a");
+      link.href = fileURL;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }, [fileURL, fileName]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -67,15 +82,7 @@ export const HomePage: React.FC = () => {
           />
         )}
 
-        {activeTab === "traductor" && (
-          <TraductorTab
-            onTabChange={setActiveTab}
-            activeTab={activeTab}
-            removeTokens={removeTokens}
-            userTokens={userStore?.tokens ?? null}
-            setShowPopUpTokens={setShowPopUp}
-          />
-        )}
+        {activeTab === "traductor" && <TraductorTab />}
 
         {activeTab === "summarize" && (
           <SummarizeTab

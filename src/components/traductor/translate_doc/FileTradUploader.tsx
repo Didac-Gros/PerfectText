@@ -52,7 +52,7 @@ export function FileTradUploader({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col w-fit h-full justify-center"
+      className="flex flex-col justify-center"
     >
       <div
         {...getRootProps()}
@@ -87,32 +87,6 @@ export function FileTradUploader({
             >
               Selecciona desde tu ordenador
             </motion.button>
-
-            {/* <div className="p-3 bg-blue-100 rounded-full">
-              <Upload className="w-6 h-6 text-blue-500" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">
-                {isDragActive ? 'Suelta el archivo aquí' : 'Sube tu documento'}
-              </h3>
-              <p className="text-xs text-gray-500">
-                Arrastra y suelta o haz clic
-              </p>
-            </div>
-            <div className="flex gap-2 justify-center mt-2">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <FaRegFilePdf className="w-3 h-3" />
-                <span>PDF</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <FaRegFileWord className="w-3 h-3" />
-                <span>Word</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <GrDocumentTxt className="w-3 h-3" />
-                <span>Texto</span>
-              </div>
-            </div> */}
           </motion.div>
         ) : (
           <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-lg">
@@ -125,13 +99,6 @@ export function FileTradUploader({
           </div>
         )}
       </div>
-
-      {/* {fileName && !isLoading && (
-        <div className="mt-2 text-sm text-gray-600 text-center">
-          <span className="font-medium text-gray-700">Archivo cargado: </span>
-          <span className="text-blue-500">{fileName}</span>
-        </div>
-      )} */}
     </motion.div>
   );
 }

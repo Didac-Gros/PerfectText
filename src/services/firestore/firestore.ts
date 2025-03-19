@@ -1,6 +1,6 @@
 // src/services/firestore.ts
 import { Question, Quiz, User } from "../../types/global";
-import { db, auth } from "./firebase";
+import { storage, db, auth } from "./firebase";
 import {
   getDocs,
   query,
@@ -17,6 +17,7 @@ import {
 import { User as MyUser, UserSubscription } from "../../types/global"; // Importa tu interfaz
 import { generateUUID } from "../../utils/utils";
 import { v4 as uuidv4 } from "uuid";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const addUserToFirestore = async (user: User): Promise<void> => {
   try {
@@ -218,5 +219,77 @@ export const updateFirestoreField = async (
     console.log(`Documento actualizado en ${collectionName}/${docId}`);
   } catch (error) {
     console.error("Error actualizando el documento:", error);
+  }
+};
+
+/**
+ * 📌 Función para subir un archivo a Firestore y Firebase Storage.
+ * @param file - Archivo a subir
+ * @returns ID del archivo en Firestore
+ */
+export const uploadFileToFirestore = async (file: File): Promise<string> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("El usuario no está autenticado.");
+    }
+
+    const fileId = uuidv4();
+    const storageRef = ref(storage, `files/${user.uid}/${fileId}-${file.name}`);
+
+    // 👉 Subir archivo a Storage
+    const snapshot = await uploadBytes(storageRef, file);
+    const fileUrl = await getDownloadURL(snapshot.ref);
+
+    // 👉 Guardar en Firestore
+    const fileDocRef = doc(db, "files", fileId);
+    await setDoc(fileDocRef, {
+      id: fileId,
+      userId: user.uid,
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+      fileUrl: fileUrl,
+      uploadedAt: Timestamp.fromDate(new Date()),
+    });
+
+    return fileId;
+  } catch (error) {
+    console.error("Error al subir el archivo a Firestore y Storage:", error);
+    throw error;
+  }
+};
+
+/**
+ * 📌 Función para recuperar un archivo desde Firestore y convertirlo en un objeto File.
+ * @param fileId - ID del archivo en Firestore
+ * @returns Objeto File si se encuentra, de lo contrario null
+ */
+export const getFileFromFirestore = async (
+  fileId: string
+): Promise<File | null> => {
+  try {
+    const fileDocRef = doc(db, "files", fileId);
+    const fileDoc = await getDoc(fileDocRef);
+
+    if (!fileDoc.exists()) {
+      console.error("El archivo no existe en Firestore.");
+      return null;
+    }
+
+    const fileData = fileDoc.data();
+    if (!fileData.fileUrl) {
+      throw new Error("No se encontró la URL del archivo en Firestore.");
+    }
+
+    // 📥 Descargar archivo desde la URL
+    const response = await fetch(fileData.fileUrl);
+    const blob = await response.blob();
+
+    // 🔥 Convertir Blob a File
+    return new File([blob], fileData.fileName, { type: fileData.fileType });
+  } catch (error) {
+    console.error("Error al recuperar el archivo:", error);
+    return null;
   }
 };

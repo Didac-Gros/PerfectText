@@ -116,6 +116,36 @@ export async function parseFileToString(
   }
 }
 
+export async function parseFileToStringWoOpt(
+  file: File
+): Promise<{ title: string; text: string }> {
+  try {
+    let text = "";
+    if (file.type === "application/pdf") {
+      text = await pdfToText(file);
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      text = await docxToText(file);
+    } else if (file.type === "text/plain") {
+      text = await parseTextFile(file);
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    ) {
+      text = await pptxToText(file);
+    } else {
+      throw new Error("Tipo de archivo no soportado");
+    }
+
+    return { title: file.name, text: text };
+  } catch (error) {
+    console.error("Error procesando el archivo:", error);
+    throw error; // Propaga el error para manejarlo en el componente
+  }
+}
+
 async function docxToText(file: File) {
   const arrayBuffer = await file.arrayBuffer();
   const result = await Mammoth.extractRawText({ arrayBuffer });

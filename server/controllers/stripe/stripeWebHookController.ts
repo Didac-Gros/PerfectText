@@ -5,7 +5,7 @@ import { STRIPE_ESTANDAR } from "../../../src/utils/constants";
 import { UserSubscription } from "../../../src/types/global";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-11-20.acacia",
+  apiVersion: "2025-02-24.acacia",
 });
 
 // Controlador para manejar los eventos del webhook
