@@ -8,14 +8,11 @@ export async function fetchDownloadFile(filePath: string): Promise<Blob> {
   try {
     const encodedPath = encodeURIComponent(filePath);
     const response = await fetchGetApi<Response>(
-      `download-file?path=${encodedPath}`
+      `download-file?path=${encodedPath}`,
+      true
     );
-
-    if (!response.ok) {
-      throw new Error("No se pudo descargar el archivo.");
-    }
-
-    return await response.blob();
+    
+    return response.blob();
   } catch (error) {
     throw new Error(
       error instanceof Error

@@ -2,6 +2,7 @@ import { LanguageSelector } from "../../shared/LanguageSelector";
 import { FileTradUploader } from "./FileTradUploader";
 import { AnimatedArrow } from "./AnimatedArrow";
 import { PdfExample } from "./PdfExample";
+import { motion } from "framer-motion";
 
 interface TranslateDocProps {
   onFileUpload: (file: File) => void;
@@ -17,7 +18,11 @@ export function TranslateDoc({
   setDocLanguage,
 }: TranslateDocProps) {
   return (
-    <div className="min-h-screen w-full">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="min-h-screen w-full"
+    >
       <header className="bg-blue-400/70 flex gap-2 p-3 items-center rounded-t-lg">
         <p className="font-medium text-black">
           Elige el idioma de traducción:{" "}
@@ -37,6 +42,6 @@ export function TranslateDoc({
           resetFile={false}
         />
       </section>
-    </div>
+    </motion.div>
   );
 }

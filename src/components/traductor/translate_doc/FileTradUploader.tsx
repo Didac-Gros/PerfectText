@@ -49,11 +49,7 @@ export function FileTradUploader({
   }, [resetFile]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col justify-center"
-    >
+    <div className="flex flex-col justify-center">
       <div
         {...getRootProps()}
         className={`flex items-center m-4 relative border-2 border-dashed rounded-lg p-4 px-20 text-center cursor-pointer transition-colors
@@ -66,11 +62,7 @@ export function FileTradUploader({
       >
         <input {...getInputProps()} />
         {!isLoading ? (
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="flex flex-col items-center gap-4 "
-          >
+          <div className="flex flex-col items-center gap-4 ">
             <div className="flex">
               <FaRegFilePdf className="size-16" />
               <FaRegFileWord className="size-16" />
@@ -80,14 +72,10 @@ export function FileTradUploader({
             <h1 className="text-xl font-medium">
               Arrastra tu documento aquí o
             </h1>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-blue-500 p-4 py-3 rounded-xl text-white font-semibold"
-            >
+            <motion.button className="bg-blue-500 p-4 py-3 rounded-xl text-white font-semibold">
               Selecciona desde tu ordenador
             </motion.button>
-          </motion.div>
+          </div>
         ) : (
           <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-lg">
             <div className="flex items-center gap-2">
@@ -99,6 +87,6 @@ export function FileTradUploader({
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

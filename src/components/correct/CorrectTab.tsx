@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { TextInput } from './TextInputCorrect';
-import { TextOutput } from './TextOutputCorrect';
-import { OptimizationModes } from '../shared/OptimizationModes';
-import { correctText } from '../../services/openai/correctText';
-import { User } from 'firebase/auth';
-import { LoginPopUp } from '../shared/LoginPopUp';
-import { useNavigate } from 'react-router-dom';
-import { TabType } from '../../types/global';
+import React, { useState } from "react";
+import { TextInput } from "./TextInputCorrect";
+import { TextOutput } from "./TextOutputCorrect";
+import { OptimizationModes } from "../shared/OptimizationModes";
+import { correctText } from "../../services/openai/correctText";
+import { User } from "firebase/auth";
+import { LoginPopUp } from "../shared/LoginPopUp";
+import { useNavigate } from "react-router-dom";
+import { TabType } from "../../types/global";
+import { motion } from "framer-motion";
 
 type CorrectTabProps = {
   onTabChange: (tab: TabType) => void;
@@ -23,12 +24,12 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
   userTokens,
   setShowPopUpTokens,
 }) => {
-  const [inputText, setInputText] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('ES');
-  const [selectedMode, setSelectedMode] = useState('general');
-  const [correctedText, setCorrectedText] = useState('');
-  const [enhancedText, setEnhancedText] = useState('');
-  const [summarizedText, setSummarizedText] = useState('');
+  const [inputText, setInputText] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("ES");
+  const [selectedMode, setSelectedMode] = useState("general");
+  const [correctedText, setCorrectedText] = useState("");
+  const [enhancedText, setEnhancedText] = useState("");
+  const [summarizedText, setSummarizedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
@@ -39,8 +40,8 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
       setShowPopUp(true);
     } else if (userTokens === null || userTokens >= inputText.length) {
       if (!inputText.trim()) return;
-      console.log('userTokens: ', userTokens);
-      console.log('inputText: ', inputText.length);
+      console.log("userTokens: ", userTokens);
+      console.log("inputText: ", inputText.length);
 
       setIsLoading(true);
       setError(undefined);
@@ -56,12 +57,12 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
         );
         setCorrectedText(corrected);
         setEnhancedText(enhanced);
-        setSummarizedText('');
+        setSummarizedText("");
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error inesperado');
-        setCorrectedText('');
-        setEnhancedText('');
-        setSummarizedText('');
+        setError(err instanceof Error ? err.message : "Error inesperado");
+        setCorrectedText("");
+        setEnhancedText("");
+        setSummarizedText("");
       } finally {
         setIsLoading(false);
       }
@@ -72,20 +73,27 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
 
   const handleLogin = () => {
     try {
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Error al entrar en el login: ', (error as Error).message);
+      console.error("Error al entrar en el login: ", (error as Error).message);
     }
   };
 
   const hasOutput = correctedText || enhancedText || error;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="min-h-screen flex flex-col"
+    >
       {/* Contenido principal */}
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-3">
-          <OptimizationModes selectedMode={selectedMode} onModeChange={setSelectedMode} />
+          <OptimizationModes
+            selectedMode={selectedMode}
+            onModeChange={setSelectedMode}
+          />
         </div>
         {showPopUp && (
           <div className="text-center mb-8">
@@ -98,18 +106,18 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
         <div className="lg:col-span-9">
           <div
             className={`grid gap-8 ${
-              hasOutput ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'
+              hasOutput ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
             }`}
           >
             <TextInput
               inputText={inputText}
               selectedLanguage={selectedLanguage}
-              isLoading={isLoading} 
+              isLoading={isLoading}
               onTextChange={setInputText}
               onLanguageChange={setSelectedLanguage}
               onSubmit={handleSubmit}
               activeTab="correct"
-              onTabChange={() => onTabChange('summarize')}
+              onTabChange={() => onTabChange("summarize")}
             />
             {hasOutput && (
               <TextOutput
@@ -124,9 +132,8 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
           </div>
         </div>
       </div>
-
       {/* Espaciado adicional para la barra inferior */}
-      <div className="pb-20"></div>
-    </div>
+      <div className="pb-20"></div>{" "}
+    </motion.div>
   );
 };

@@ -3,7 +3,7 @@ import { API_URL, API_URL_LOCAL } from "../utils/constants";
 
 const API_TIMEOUT = 60000; // 60 segundos
 
-export async function fetchGetApi<T>(endpoint: string): Promise<T> {
+export async function fetchGetApi<T>(endpoint: string, expectBlob: boolean): Promise<T> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
@@ -20,7 +20,10 @@ export async function fetchGetApi<T>(endpoint: string): Promise<T> {
       throw new Error(errorData.error || `Error en la llamada a ${endpoint}`);
     }
 
-    return await response.json();
+    const toReturn = expectBlob ? await response : await response.json();
+    return toReturn;
+
+    // return await response.json();
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === "AbortError") {

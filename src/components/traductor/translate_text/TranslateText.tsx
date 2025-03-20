@@ -30,7 +30,7 @@ export function TranslateText({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen w-full flex-grow grid grid-cols-2"
+      className="w-full flex-grow grid grid-cols-2"
     >
       <section className="flex flex-col rounded-lg min-h-screen">
         <div className="bg-blue-400/90 p-3 rounded-tl-lg">

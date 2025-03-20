@@ -173,7 +173,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-full mx-auto px-4"
+        className="max-w-full mx-auto"
       >
         <div className="flex gap-6 mb-8">
           <div className="md:block hidden">

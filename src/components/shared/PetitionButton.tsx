@@ -3,13 +3,20 @@ import { LoadingProgress } from "./LoadingProgress";
 import { motion } from "framer-motion";
 
 interface PetitionButtonProps {
-    isLoading: boolean;
-    isFile: boolean;
-    title: string;
-    onSubmit: () => void;
+  isLoading: boolean;
+  isFile: boolean;
+  title: string;
+  loadingText: string;
+  onSubmit: () => void;
 }
 
-export function PetitionButton({isLoading, isFile, title, onSubmit}: PetitionButtonProps) {
+export function PetitionButton({
+  isLoading,
+  isFile,
+  title,
+  onSubmit,
+  loadingText,
+}: PetitionButtonProps) {
   return (
     <motion.button
       whileHover={{ scale: 1.02 }}
@@ -21,7 +28,7 @@ export function PetitionButton({isLoading, isFile, title, onSubmit}: PetitionBut
       }`}
     >
       {isLoading ? (
-        <LoadingProgress isLoading={isLoading} text="Generando preguntas" />
+        <LoadingProgress isLoading={isLoading} text={loadingText} />
       ) : (
         <div className="flex items-center gap-2">
           <Send className="w-5 h-5" />

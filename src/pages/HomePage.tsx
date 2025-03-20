@@ -13,6 +13,8 @@ import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
 import { useLocation } from "react-router-dom";
+import VoiceTab from "../components/voice/VoiceTab";
+import { TrexGame } from "../components/voice/TrexGame";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -43,7 +45,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-[93rem] mx-auto px-4 md:py-6">
+      <div className="max-w-[86rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -111,9 +113,9 @@ export const HomePage: React.FC = () => {
           />
         )}
 
-        {user && activeTab === "plans" && <StripePricingTable />}
+        {activeTab === "voice" && <VoiceTab />}
 
-        {/* {activeTab === 'plans' && <StripePricingTable />} */}
+        {user && activeTab === "plans" && <StripePricingTable />}
       </div>
     </div>
   );

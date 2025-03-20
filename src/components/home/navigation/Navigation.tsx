@@ -11,6 +11,7 @@ import { PlansButton } from "./PlansButton";
 import { MobileButton } from "./MobileButton";
 import { LoginButton } from "./LoginButton";
 import { useAuth } from "../../../hooks/useAuth";
+import { HiOutlineMicrophone } from "react-icons/hi";
 
 interface NavigationProps {
   activeTab: TabType;
@@ -119,7 +120,7 @@ export function Navigation({
         </div>
 
         {/* Navegación para ordenador */}
-        <div className="hidden md:flex flex-col md:flex-row items-center gap-4 absolute md:static bg-white w-full md:w-auto transition-transform duration-300 ">
+        <div className="hidden md:flex flex-col md:flex-row items-center gap-3 absolute md:static bg-white w-full md:w-auto transition-transform duration-300 ">
           {!user && (
             <NavigationButton
               onClick={() => onTabChange("home")}
@@ -138,13 +139,13 @@ export function Navigation({
             <Wand2 className="w-6 h-6" />
           </NavigationButton>
 
-          <NavigationButton
+          {/* <NavigationButton
             onClick={() => onTabChange("traductor")}
             isActive={activeTab === "traductor"}
             text="Traducción"
           >
             <FileText className="w-6 h-6" />
-          </NavigationButton>
+          </NavigationButton> */}
 
           <NavigationButton
             onClick={() => onTabChange("quiz")}
@@ -157,10 +158,18 @@ export function Navigation({
           <NavigationButton
             onClick={() => onTabChange("conceptmap")}
             isActive={activeTab === "conceptmap"}
-            text="Mapa Conceptual"
+            text="Mapa"
           >
             <Map className="w-6 h-6" />
           </NavigationButton>
+
+          {/* <NavigationButton
+            onClick={() => onTabChange("voice")}
+            isActive={activeTab === "voice"}
+            text="Voice"
+          >
+            <HiOutlineMicrophone className="w-6 h-6 " />
+          </NavigationButton> */}
 
           {user ? (
             <ProfileNavigation

@@ -86,6 +86,7 @@ export function FileUploaded({
               isFile
               title={"Traducir documento"}
               onSubmit={handleCheckout}
+              loadingText="Redirigiendo a la pasarela de pago..."
             ></PetitionButton>
           </div>
         )}

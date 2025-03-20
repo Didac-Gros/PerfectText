@@ -31,7 +31,7 @@ export interface Quiz {
   rated: boolean;
 }
 
-export interface ConceptMap{
+export interface ConceptMap {
   id: string;
   createdAt: Timestamp;
   mapTitle: string;
@@ -70,4 +70,25 @@ export type TabType =
   | "quiz"
   | "conceptmap"
   | "plans"
-  | "traductor";
+  | "traductor"
+  | "voice";
+
+export interface TranscriptionChunk {
+  id: string;
+  text: string;
+  timestamp: number;
+}
+
+export interface AudioRecorderState {
+  isRecording: boolean;
+  mediaRecorder: MediaRecorder | null;
+  audioChunks: Blob[];
+}
+
+export interface FileData {
+  path: string; // La ruta en el servidor donde se almacena el archivo
+  originalname: string; // El nombre original del archivo cuando fue subido
+  mimetype: string; // El tipo de archivo (ejemplo: 'application/pdf', 'image/png')
+  size: number; // El tamaño del archivo en bytes
+}
+

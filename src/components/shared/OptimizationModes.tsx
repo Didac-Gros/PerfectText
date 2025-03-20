@@ -39,9 +39,7 @@ const optimizationModes = [
 
 export function OptimizationModes({ selectedMode, onModeChange }: OptimizationModesProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+    <div
       className="bg-white rounded-2xl shadow-lg p-6"
     >
       <h3 className="text-lg font-semibold text-gray-700 mb-2">Optimizar texto para...</h3>
@@ -90,6 +88,6 @@ export function OptimizationModes({ selectedMode, onModeChange }: OptimizationMo
           );
         })}
       </div>
-    </motion.div>
+    </div>
   );
 }

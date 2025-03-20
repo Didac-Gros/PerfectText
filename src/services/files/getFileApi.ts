@@ -1,7 +1,9 @@
 import { fetchGetApi } from "../fetchGetApi";
+import { FileData } from "../../types/global";
+
 
 interface FileResponse {
-  data: any; // Cambia esto si sabes exactamente qué tipo de dato esperas
+  file: FileData; // El archivo recuperado asociado al `sessionId`
 }
 
 export async function fetchGetFile(sessionId: string): Promise<FileResponse> {
@@ -11,7 +13,8 @@ export async function fetchGetFile(sessionId: string): Promise<FileResponse> {
 
   try {
     const response = await fetchGetApi<FileResponse>(
-      `get-file?session_id=${sessionId}`
+      `get-file?session_id=${sessionId}`,
+      false
     );
     return response;
   } catch (error) {

@@ -6,6 +6,7 @@ import { generateQuiz } from "./controllers/openai/quizController";
 import { generateConceptMap } from "./controllers/openai/conceptMapController";
 import { checkPayment } from "./controllers/stripe/checkPaymentController";
 import { saveDatasetHandler } from "./controllers/openai/userReviewController";
+import { uploadFile } from "./controllers/files/uploadFileController";
 import { errorHandler } from "./middleware/errorHandler";
 import compression from "compression";
 import { stripeWebhook } from "./controllers/stripe/stripeWebHookController";
@@ -76,6 +77,24 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_PRUEBA as string, {
   apiVersion: "2025-02-24.acacia",
 });
 
+app.get("/api/check-payment", checkPayment);
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+app.get("/", (_req, res) => {
+  res.send("Servidor activo");
+});
+
+app.post("/api/correct", correctText);
+app.post("/api/summarize", summarizeText);
+app.post("/api/quiz/generate", generateQuiz);
+app.post("/api/conceptmap/generate", generateConceptMap);
+app.post("/api/webhook", stripeWebhook);
+app.post("/api/quiz/user-review", saveDatasetHandler);
+app.post("/api/translate/document", upload.single("file"), translateDocument);
+app.post("/api/translate/text", translateText);
+app.post("/api/upload-file", upload.single("file"), uploadFile);
 app.post(
   "/api/create-checkout-session",
   async (req: Request, res: Response) => {
@@ -106,7 +125,7 @@ app.post(
         success_url: successUrl,
         cancel_url: cancelUrl,
       });
-      
+
       fileStorage[session.id] = req.body.file;
 
       res.json({ id: session.id });
@@ -157,37 +176,6 @@ app.get("/api/get-file", (req: Request, res: Response) => {
 
   res.json({ file: fileStorage[sessionId] });
 });
-
-app.post("/api/upload-file", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No se subió ningún archivo." });
-  }
-
-  console.log("✅ Archivo subido con nombre original:", req.file.originalname);
-
-  res.json({ path: `/uploads/${req.file.originalname}` });
-});
-
-// RUTA 2: Verificar si el pago fue exitoso
-app.get("/api/check-payment", checkPayment);
-// Health check endpoint
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
-});
-
-app.get("/", (_req, res) => {
-  res.send("Servidor activo");
-});
-
-// API endpoints
-app.post("/api/correct", correctText);
-app.post("/api/summarize", summarizeText);
-app.post("/api/quiz/generate", generateQuiz);
-app.post("/api/conceptmap/generate", generateConceptMap);
-app.post("/api/webhook", stripeWebhook);
-app.post("/api/quiz/user-review", saveDatasetHandler);
-app.post("/api/translate/document", upload.single("file"), translateDocument);
-app.post("/api/translate/text", translateText);
 
 // Error handler
 app.use(errorHandler);
