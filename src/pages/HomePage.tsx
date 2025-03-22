@@ -15,6 +15,7 @@ import { TraductorTab } from "../components/traductor/TraductorTab";
 import { useLocation } from "react-router-dom";
 import VoiceTab from "../components/voice/VoiceTab";
 import { TrexGame } from "../components/voice/TrexGame";
+import { AIVoiceInput } from "../components/voice/VoiceInputTab";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -113,7 +114,13 @@ export const HomePage: React.FC = () => {
           />
         )}
 
-        {activeTab === "voice" && <VoiceTab />}
+        {activeTab === "voice" && (
+          <div className="bg-white  rounded-lg shadow p-6">
+            <VoiceTab
+             
+            />
+          </div>
+        )}
 
         {user && activeTab === "plans" && <StripePricingTable />}
       </div>

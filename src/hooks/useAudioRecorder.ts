@@ -24,7 +24,7 @@ export const useAudioRecorder = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [countdown, setCountdown] = useState<number | null>(null);
+  // const [countdown, setCountdown] = useState<number | null>(null);
   const [audioPreview, setAudioPreview] = useState<{
     url: string;
     blob: Blob;
@@ -92,23 +92,23 @@ export const useAudioRecorder = () => {
     lastRecordedTimeRef.current = 0;
   }, []);
 
-  const startCountdown = useCallback(async (): Promise<void> => {
-    return new Promise((resolve) => {
-      let count = 3;
-      setCountdown(count);
+  // const startCountdown = useCallback(async (): Promise<void> => {
+  //   return new Promise((resolve) => {
+  //     let count = 3;
+  //     setCountdown(count);
 
-      const interval = setInterval(() => {
-        count--;
-        if (count > 0) {
-          setCountdown(count);
-        } else {
-          clearInterval(interval);
-          setCountdown(null);
-          resolve();
-        }
-      }, 1000);
-    });
-  }, []);
+  //     const interval = setInterval(() => {
+  //       count--;
+  //       if (count > 0) {
+  //         setCountdown(count);
+  //       } else {
+  //         clearInterval(interval);
+  //         setCountdown(null);
+  //         resolve();
+  //       }
+  //     }, 1000);
+  //   });
+  // }, []);
 
   const initializeAudioContext = useCallback(
     async (stream: MediaStream): Promise<boolean> => {
@@ -255,7 +255,7 @@ export const useAudioRecorder = () => {
         }
       );
 
-      await startCountdown();
+      // await startCountdown();
 
       vadRef.current.start();
 
@@ -276,7 +276,7 @@ export const useAudioRecorder = () => {
     } catch (error) {
       console.error("Error starting recording:", error);
       cleanup();
-      setCountdown(null);
+      // setCountdown(null);
       setRecorderState({
         isRecording: false,
         mediaRecorder: null,
@@ -285,7 +285,7 @@ export const useAudioRecorder = () => {
     }
   }, [
     cleanup,
-    startCountdown,
+    // startCountdown,
     initializeAudioContext,
     isMinimized,
     startDrawing,
@@ -361,7 +361,7 @@ export const useAudioRecorder = () => {
     isPaused,
     isMinimized,
     recordingTime,
-    countdown,
+    // countdown,
     audioPreview,
     canvasRef,
     startRecording,

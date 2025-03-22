@@ -1,4 +1,3 @@
-import { log } from "node:console";
 import React, { useEffect, useRef, useState } from "react";
 
 interface TrexGameProps {

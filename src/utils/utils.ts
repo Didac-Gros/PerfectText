@@ -4,8 +4,9 @@ import { Node } from "../types/global";
 import Mammoth from "mammoth";
 import JSZip from "jszip";
 import { v4 as uuidv4 } from "uuid";
-import { additionalLanguages, allLanguages, mainLanguages } from "./constants";
-
+import { allLanguages } from "./constants";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 export const timeAgo = (date: Date): string => {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -182,6 +183,12 @@ async function parseTextFile(file: File): Promise<string> {
 
 export function codeToNameCountry(code: string): string {
   return allLanguages.find((lang) => lang.code === code)?.name!;
+}
+
+
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
 function optimizeText(text: string): string {
