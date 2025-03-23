@@ -6,6 +6,7 @@ import {
   useRoutes,
 } from "react-router-dom";
 import { initGA, logPageView } from "./utils/analytics";
+import { RecorderAudioProvider } from "./context/VoiceContext";
 
 function AppRoutes() {
   const element = useRoutes(routes);
@@ -24,10 +25,11 @@ function App() {
 
   return (
     <Router>
-      <AppRoutes />
+      {/* <RecorderAudioProvider> */}
+        <AppRoutes />
+      {/* </RecorderAudioProvider> */}
     </Router>
   );
 }
 
 export default App;
-

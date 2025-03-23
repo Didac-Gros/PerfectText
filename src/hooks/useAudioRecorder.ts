@@ -7,6 +7,7 @@ import {
   cleanupAudioResources,
 } from "../utils/audio";
 import { VoiceActivityDetector } from "../utils/vad";
+import { useVoice } from "../context/VoiceContext";
 
 const VISUALIZER_CONFIG = {
   backgroundColor: "#3B82F6",
@@ -16,14 +17,24 @@ const VISUALIZER_CONFIG = {
 };
 
 export const useAudioRecorder = () => {
+  // const {
+  //   recorderState,
+  //   isPaused,
+  //   recordingTime,
+  //   setRecorderState,
+  //   setIsPaused,
+  //   setRecordingTime,
+  // } = useVoice();
+
   const [recorderState, setRecorderState] = useState<AudioRecorderState>({
     isRecording: false,
     mediaRecorder: null,
     audioChunks: [],
   });
-  const [isPaused, setIsPaused] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
   const [recordingTime, setRecordingTime] = useState(0);
+
+  const [isMinimized, setIsMinimized] = useState(false);
   // const [countdown, setCountdown] = useState<number | null>(null);
   const [audioPreview, setAudioPreview] = useState<{
     url: string;
@@ -318,8 +329,8 @@ export const useAudioRecorder = () => {
     }
   }, [cleanup]);
 
-  const togglePause = useCallback(() => {
-    setIsPaused((prev) => {
+  const togglePause = useCallback(() => {    
+    setIsPaused((prev: boolean) => {
       const newPausedState = !prev;
 
       if (newPausedState) {

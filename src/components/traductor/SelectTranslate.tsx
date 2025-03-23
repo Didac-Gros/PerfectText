@@ -21,7 +21,7 @@ export function SelectTranslate({
       whileTap={{ scale: 0.95 }}
       className={`${
         activate ? "bg-blue-500 text-white  shadow-md " : "bg-gray-100"
-      }  rounded-full flex p-3 px-4 gap-2 items-center `}
+      }  rounded-xl flex p-3 px-4 gap-2 items-center `}
       onClick={onClick}
     >
       {icon}

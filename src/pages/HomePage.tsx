@@ -15,7 +15,7 @@ import { TraductorTab } from "../components/traductor/TraductorTab";
 import { useLocation } from "react-router-dom";
 import VoiceTab from "../components/voice/VoiceTab";
 import { TrexGame } from "../components/voice/TrexGame";
-import { AIVoiceInput } from "../components/voice/VoiceInputTab";
+import { useVoice } from "../context/VoiceContext";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -45,7 +45,7 @@ export const HomePage: React.FC = () => {
   }, [fileURL, fileName]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className={`min-h-screen ${activeTab === 'voice' ? "bg-[#0E1014]" :  "bg-gradient-to-br from-gray-50 to-gray-100"} `}>
       <div className="max-w-[86rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
@@ -115,11 +115,9 @@ export const HomePage: React.FC = () => {
         )}
 
         {activeTab === "voice" && (
-          <div className="bg-white  rounded-lg shadow p-6">
             <VoiceTab
              
             />
-          </div>
         )}
 
         {user && activeTab === "plans" && <StripePricingTable />}

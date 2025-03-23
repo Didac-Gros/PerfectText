@@ -1,13 +1,10 @@
-import React, { useState, useCallback, useRef } from "react";
+import  { useState, useCallback, useRef } from "react";
 import {
   X,
   Pause,
   Play,
   Square,
-  Minimize2,
   Maximize2,
-  Trash2,
-  Save,
   Copy,
   Download,
   FileText,
@@ -15,7 +12,7 @@ import {
   CheckCircle,
   Target,
   ChevronDown,
-  Mic,
+  NotebookPen,
 } from "lucide-react";
 import {
   transcribeAudio,
@@ -24,9 +21,9 @@ import {
 } from "../../utils/openai";
 import { useAudioRecorder } from "../../hooks/useAudioRecorder";
 import { formatTime } from "../../utils/audio";
-import { TrexGame } from "./TrexGame";
-import { motion } from "framer-motion";
-import { cn } from "../../utils/utils";
+import { RecorderAudio } from "./RecorderAudio";
+import { AudioPreview } from "./AudioPreview";
+import { ProcessingAudio } from "./ProcessingAudio";
 
 export default function AudioRecorder() {
   const {
@@ -73,6 +70,7 @@ export default function AudioRecorder() {
 
   const processAudioRecording = async (audioBlob: Blob) => {
     setIsProcessing(true);
+
     setProcessingProgress(0);
     try {
       setAudioPreview(null);
@@ -110,6 +108,7 @@ export default function AudioRecorder() {
         );
         setAudioUrl(URL.createObjectURL(audioBlob));
       }
+      await handleGenerateSummary(text);
 
       setProcessingProgress(100);
     } catch (error) {
@@ -120,13 +119,13 @@ export default function AudioRecorder() {
     }
   };
 
-  const handleGenerateSummary = async () => {
-    if (!transcription || isGeneratingSummary) return;
+  const handleGenerateSummary = async (text?: string) => {
+    // if (!transcription || isGeneratingSummary) return;
 
     setIsGeneratingSummary(true);
     try {
       setProcessingStatus("Generando resumen...");
-      const summaryText = await generateSummary(transcription);
+      const summaryText = await generateSummary(text ?? summary);
       setSummary(summaryText);
 
       // Intentar extraer los datos estructurados del resumen
@@ -155,7 +154,7 @@ export default function AudioRecorder() {
         console.error("Error parsing summary data:", e);
         // Si falla el parsing, usamos el texto tal cual
       }
-
+      console.log("Summary:", showSummary);
       setShowSummary(true);
     } catch (error) {
       console.error("Error generating summary:", error);
@@ -232,240 +231,34 @@ export default function AudioRecorder() {
     setShowSummary(false);
   };
 
-  const renderExpandButton = (isExpanded: boolean, color: string = "gray") => (
-    <button
-      className={`w-full flex items-center justify-center gap-2 py-2 mt-4 text-gray-600 hover:text-gray-900 transition-colors group ${
-        isExpanded ? "border-t border-gray-100" : ""
-      }`}
-    >
-      <span className="text-sm font-medium">
-        {isExpanded ? "Mostrar menos" : "Mostrar texto completo"}
-      </span>
-      <ChevronDown
-        className={`w-4 h-4 transition-transform duration-300 ${
-          isExpanded ? "rotate-180" : ""
-        }`}
-      />
-    </button>
-  );
-
-  if (
-    // !recorderState.isRecording &&
-    !isProcessing &&
-    !transcription &&
-    !audioPreview
-  ) {
+  if (!isProcessing && !transcription && !audioPreview && !isMinimized) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed inset-0 bg-black flex items-center justify-center"
-      >
-        <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
-          <button
-            className={cn(
-              "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
-              recorderState.isRecording
-                ? "bg-none"
-                : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
-            )}
-            type="button"
-            onClick={recorderState.isRecording ? stopRecording : startRecording}
-          >
-            {recorderState.isRecording ? (
-              <div
-                className="w-6 h-6 rounded-sm animate-spin bg-black dark:bg-white cursor-pointer pointer-events-auto"
-                style={{ animationDuration: "3s" }}
-              />
-            ) : (
-              <Mic className="w-6 h-6 text-white " />
-            )}
-          </button>
-
-          <span
-            className={cn(
-              "font-mono text-sm transition-opacity duration-300",
-              recorderState.isRecording
-                ? "text-black/70 dark:text-white/70"
-                : "text-black/30 dark:text-white/30"
-            )}
-          >
-            {formatTime(recordingTime)}
-          </span>
-
-          <div className="h-4 w-64 flex items-center justify-center gap-0.5">
-            {[...Array(48)].map((_, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "w-0.5 rounded-full transition-all duration-300",
-                  recorderState.isRecording
-                    ? "bg-black/50 dark:bg-white/50 animate-pulse"
-                    : "bg-black/10 dark:bg-white/10 h-1"
-                )}
-                style={
-                  recorderState.isRecording
-                    ? {
-                        height: `${20 + Math.random() * 80}%`,
-                        animationDelay: `${i * 0.05}s`,
-                      }
-                    : undefined
-                }
-              />
-            ))}
-          </div>
-
-          <p className="h-4 text-xs text-white ">
-            {recorderState.isRecording ? "Listening..." : "Click to speak"}
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (recorderState.isRecording && !isMinimized && false) {
-    return (
-      <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
-        <button
-          className={cn(
-            "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
-            true ? "bg-none" : "bg-none hover:bg-black/10 "
-          )}
-          type="button"
-          onClick={stopRecording}
-        >
-          {true ? (
-            <div
-              className="w-6 h-6 rounded-sm animate-spin bg-black cursor-pointer pointer-events-auto"
-              style={{ animationDuration: "3s" }}
-            />
-          ) : (
-            <Mic className="w-6 h-6 text-black/70 " />
-          )}
-        </button>
-
-        <span
-          className={cn(
-            "font-mono text-sm transition-opacity duration-300",
-            true ? "text-black/70 " : "text-black/30 "
-          )}
-        >
-          {formatTime(recordingTime)}
-        </span>
-
-        <div className="h-4 w-64 flex items-center justify-center gap-0.5">
-          {[...Array(48)].map((_, i) => (
-            <div
-              key={i}
-              className={cn("w-0.5 rounded-full transition-all duration-300")}
-              style={{
-                backgroundColor: true ? "#00BFFF" : "#D3D3D3",
-                height: true ? `${20 + Math.random() * 80}%` : "0.5rem",
-                animationDelay: `${i * 0.05}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        <p className="h-4 text-xs text-black/70 ">
-          {true ? "Listening..." : "Click to speak"}
-        </p>
-      </div>
+      <RecorderAudio
+        stopRecording={stopRecording}
+        isPaused={isPaused}
+        recordingTime={recordingTime}
+        setIsMinimized={setIsMinimized}
+        togglePause={togglePause}
+        recorderState={recorderState}
+        startRecording={startRecording}
+      ></RecorderAudio>
     );
   }
 
   if (audioPreview) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-900 rounded-2xl shadow-lg w-full max-w-3xl"
-        >
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">
-                Previsualización de la grabación
-              </h2>
-            </div>
-
-            <div className="bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-              <div className="flex items-center h-20 px-6">
-                <button
-                  onClick={togglePlayPause}
-                  className="w-12 h-12 flex items-center justify-center bg-gray-700 text-white rounded-full hover:bg-gray-700 transition-colors flex-shrink-0 transform hover:scale-105"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6" />
-                  )}
-                </button>
-
-                <div className="flex-1 mx-6 relative h-full flex items-center">
-                  <div className="w-full h-16">
-                    <div className="absolute inset-0 flex items-center justify-between px-1">
-                      {Array.from({ length: 50 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-1 bg-white bg-opacity-40 rounded-full"
-                          style={{
-                            height: `${20 + Math.random() * 40}%`,
-                            opacity:
-                              i <
-                              (currentTime /
-                                (audioRef.current?.duration || 1)) *
-                                50
-                                ? 1
-                                : 0.3,
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-shrink-0 flex items-center gap-4">
-                  <div className="h-10 w-20 flex items-center justify-center bg-gray-700 rounded-full">
-                    <span className="text-white font-medium text-sm">
-                      {formatTime(currentTime)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <audio
-                ref={audioRef}
-                src={audioPreview.url}
-                onTimeUpdate={handleTimeUpdate}
-                onEnded={handleAudioEnded}
-                className="hidden"
-              />
-            </div>
-
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700">
-              <button
-                onClick={() => {
-                  URL.revokeObjectURL(audioPreview.url);
-                  setAudioPreview(null);
-                  setRecordingTime(0);
-                }}
-                className="flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-5 h-5" />
-                Eliminar grabación
-              </button>
-              <button
-                onClick={() => processAudioRecording(audioPreview.blob)}
-                className="flex items-center gap-2 px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors transform hover:scale-105"
-              >
-                <Save className="w-5 h-5" />
-                Guardar
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      <AudioPreview
+        audioPreview={audioPreview}
+        processAudioRecording={processAudioRecording}
+        currentTime={currentTime}
+        setAudioPreview={setAudioPreview}
+        setRecordingTime={setRecordingTime}
+        handleTimeUpdate={handleTimeUpdate}
+        handleAudioEnded={handleAudioEnded}
+        isPlaying={isPlaying}
+        togglePlayPause={togglePlayPause}
+        audioRef={audioRef}
+      ></AudioPreview>
     );
   }
 
@@ -509,131 +302,20 @@ export default function AudioRecorder() {
     );
   }
 
-  if (recorderState.isRecording && !isMinimized && false) {
-    return (
-      <div className="fixed inset-0 bg-[#2A5CAA] bg-opacity-80 transition-colors duration-300">
-        {countdown !== null && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-white text-9xl font-bold animate-pulse">
-              {countdown}
-            </span>
-          </div>
-        )}
-
-        <div className="h-screen flex flex-col">
-          <div className="absolute top-0 left-0 right-0 p-8 z-10">
-            <div className="max-w-[100vw] mx-auto flex justify-between items-center">
-              <h1 className="text-4xl font-medium text-white">
-                {isPaused ? "Grabación Pausada" : "Grabando..."}
-              </h1>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsMinimized(true)}
-                  className="text-white hover:bg-white/10 p-2 rounded-full transition-colors"
-                >
-                  <Minimize2 className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={stopRecording}
-                  className="text-white hover:bg-white/10 p-2 rounded-full transition-colors"
-                >
-                  <X className="w-8 h-8" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 relative">
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 w-full h-full"
-            />
-          </div>
-
-          <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-            <div className="max-w-[100vw] mx-auto flex items-center gap-4">
-              <div className="bg-white rounded-2xl shadow-lg p-2 flex items-center gap-3">
-                <button
-                  onClick={togglePause}
-                  className="w-10 h-10 flex items-center justify-center text-[#2A5CAA] rounded-xl hover:bg-gray-100 transition-colors"
-                >
-                  {isPaused ? (
-                    <Play className="w-5 h-5" />
-                  ) : (
-                    <Pause className="w-5 h-5" />
-                  )}
-                </button>
-                <button
-                  onClick={stopRecording}
-                  className="w-10 h-10 flex items-center justify-center text-[#2A5CAA] rounded-xl hover:bg-gray-100 transition-colors"
-                >
-                  <Square className="w-5 h-5" />
-                </button>
-                <span className="text-[#2A5CAA] font-medium px-2">
-                  {formatTime(recordingTime)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (isProcessing) {
     return (
-      <div className="fixed inset-0 bg-[#0E1014] flex flex-col items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl w-full flex flex-col items-center"
-        >
-          <div className="mb-8 text-center">
-            <h2 className="text-white text-3xl font-bold mb-3 tracking-tight">
-              {processingStatus}
-            </h2>
-            <p className="text-white/80 text-lg font-light">
-              Esto puede tomar unos segundos
-            </p>
-          </div>
-
-          {/* Barra de progreso */}
-          <div className="w-full max-w-md h-2 bg-gray-700 rounded-full mb-6 overflow-hidden">
-            <div
-              className="h-full bg-[#3B82F6] rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${processingProgress}%` }}
-            />
-          </div>
-
-          {/* <div className="w-full max-w-xl bg-gray-800 rounded-2xl shadow-xl overflow-hidden border-4 border-[#3B82F6] mb-6">
-      <TrexGame isActive={isProcessing} />
-    </div> */}
-
-          <div className="flex items-center justify-center mt-2">
-            <div className="flex space-x-3">
-              <div
-                className="w-3 h-3 bg-[#3B82F6] rounded-full animate-bounce"
-                style={{ animationDelay: "0ms" }}
-              />
-              <div
-                className="w-3 h-3 bg-[#3B82F6] rounded-full animate-bounce"
-                style={{ animationDelay: "150ms" }}
-              />
-              <div
-                className="w-3 h-3 bg-[#3B82F6] rounded-full animate-bounce"
-                style={{ animationDelay: "300ms" }}
-              />
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      <ProcessingAudio
+        processingStatus={processingStatus}
+        processingProgress={processingProgress}
+        isProcessing={isProcessing}
+      ></ProcessingAudio>
     );
   }
 
   return (
-    <div className="fixed inset-0  bg-[#0E1014] py-8 px-4 sm:px-6 lg:px-8">
+    <div className=" bg-[#0E1014]  py-8 px-4 sm:px-6 lg:px-8">
       {" "}
-      <div className="max-w-7xl mt-28 mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="bg-gray-900 rounded-2xl shadow-lg overflow-hidden mb-8 transform transition-all hover:shadow-xl">
           <div className="flex items-center h-24 px-8">
             <button
@@ -691,7 +373,7 @@ export default function AudioRecorder() {
                   <Download className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={handleGenerateSummary}
+                  onClick={() => handleGenerateSummary}
                   disabled={isGeneratingSummary}
                   className={`p-3 rounded-xl transition-all transform hover:scale-105 ${
                     isGeneratingSummary
@@ -719,7 +401,7 @@ export default function AudioRecorder() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <FileText className="w-6 h-6 text-[#2A5CAA]" />
-                <h2 className="text-2xl font-semibold text-gray-900">
+                <h2 className="text-2xl font-semibold text-white">
                   Resumen Generado
                 </h2>
               </div>
@@ -878,7 +560,14 @@ export default function AudioRecorder() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-6">
+            <div className="flex items-center gap-3">
+              <NotebookPen className="w-6 h-6 text-[#2A5CAA]" />
+              <h2 className="text-2xl font-semibold text-white">
+                Apuntes de notas
+              </h2>
+            </div>
+
+            {/* <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-6">
               <span className="text-sm text-gray-500">
                 Generado el{" "}
                 {new Date().toLocaleDateString("es-ES", {
@@ -915,16 +604,16 @@ export default function AudioRecorder() {
                   <span>Descargar</span>
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 
         <div className="mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex gap-6">
             {sentences.slice(0, 3).map((sentence, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group w-full bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <span className="inline-flex items-center justify-center px-3 py-1.5 bg-blue-50 text-[#2A5CAA] rounded-lg text-sm font-medium">
@@ -962,7 +651,7 @@ export default function AudioRecorder() {
           )}
         </div>
 
-        {!showSummary && (
+        {/* {!showSummary && (
           <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 md:hidden">
             <button
               onClick={handleGenerateSummary}
@@ -977,7 +666,7 @@ export default function AudioRecorder() {
               {isGeneratingSummary ? "Generando..." : "Generar Resumen"}
             </button>
           </div>
-        )}
+        )} */}
 
         <audio
           ref={audioRef}
