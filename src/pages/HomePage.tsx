@@ -14,8 +14,8 @@ import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
 import { useLocation } from "react-router-dom";
 import VoiceTab from "../components/voice/VoiceTab";
-import { TrexGame } from "../components/voice/TrexGame";
-import { useVoice } from "../context/VoiceContext";
+import { useAudioRecorder } from "../hooks/useAudioRecorder";
+import { AudioWindow } from "../components/home/AudioWindow";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -32,6 +32,24 @@ export const HomePage: React.FC = () => {
     setTokens(tokens! - tokensToRemove);
   };
 
+  const {
+    recorderState,
+    isPaused,
+    isMinimized,
+    recordingTime,
+    // countdown,
+    audioPreview,
+    canvasRef,
+    startRecording,
+    togglePause,
+    stopRecording,
+    setIsMinimized,
+    setAudioPreview,
+    setRecordingTime,
+    setRecorderState,
+    setIsPaused,
+  } = useAudioRecorder();
+
   useEffect(() => {
     if (fileURL) {
       // Crear un enlace de descarga y activarlo automáticamente
@@ -44,8 +62,41 @@ export const HomePage: React.FC = () => {
     }
   }, [fileURL, fileName]);
 
+  useEffect(() => {
+    if (activeTab !== "voice" && !isMinimized) {
+      stopRecording(true);
+      setTimeout(() => setRecordingTime(0), 100); // Dale un pequeño delay para asegurar que se actualice correctamente
+    }
+  }, [activeTab]);
+
+  const handleMinimized = () => {
+    setIsMinimized(false);
+    setActiveTab("voice");
+  };
+
+  const handleStopRecording = () => {
+    stopRecording(false);
+    setActiveTab("voice");
+    setRecordingTime(0);
+  };
+
   return (
-    <div className={`min-h-screen ${activeTab === 'voice' ? "bg-[#0E1014]" :  "bg-gradient-to-br from-gray-50 to-gray-100"} `}>
+    <div
+      className={`min-h-screen ${
+        activeTab === "voice"
+          ? "bg-[#0E1014]"
+          : "bg-gradient-to-br from-gray-50 to-gray-100"
+      } `}
+    >
+      {recorderState.isRecording && isMinimized && (
+        <AudioWindow
+          recordingTime={recordingTime}
+          isPaused={isPaused}
+          togglePause={togglePause}
+          handleMinimized={handleMinimized}
+          handleStopRecording={handleStopRecording}
+        ></AudioWindow>
+      )}
       <div className="max-w-[86rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
@@ -115,9 +166,23 @@ export const HomePage: React.FC = () => {
         )}
 
         {activeTab === "voice" && (
-            <VoiceTab
-             
-            />
+          <VoiceTab
+            isMinimized={isMinimized}
+            setIsMinimized={setIsMinimized}
+            recorderState={recorderState}
+            isPaused={isPaused}
+            recordingTime={recordingTime}
+            audioPreview={audioPreview}
+            canvasRef={canvasRef}
+            startRecording={startRecording}
+            togglePause={togglePause}
+            stopRecording={() => stopRecording(false)}
+            setAudioPreview={setAudioPreview}
+            setRecordingTime={setRecordingTime}
+            setIsPaused={setIsPaused}
+            setRecorderState={setRecorderState}
+            restartAudio={() => stopRecording(true)}
+          />
         )}
 
         {user && activeTab === "plans" && <StripePricingTable />}

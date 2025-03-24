@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Pause, Play, Save, Trash2 } from "lucide-react";
 import { formatTime } from "../../utils/audio";
+import { AudioRecorderState } from "../../types/global";
 
 interface AudioPreviewProps {
   audioPreview: {
@@ -21,6 +22,9 @@ interface AudioPreviewProps {
   isPlaying: boolean;
   togglePlayPause: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
+  setIsMinimized: (value: boolean) => void;
+  setIsPaused: (value: boolean) => void;
+  setRecorderState: (value: AudioRecorderState) => void;
 }
 
 export function AudioPreview({
@@ -34,6 +38,9 @@ export function AudioPreview({
   isPlaying,
   togglePlayPause,
   audioRef,
+  setIsMinimized,
+  setIsPaused,
+  setRecorderState,
 }: AudioPreviewProps) {
   return (
     <div className="fixed inset-0 bg-[#0E1014] flex items-center justify-center p-4">
@@ -108,6 +115,13 @@ export function AudioPreview({
                 URL.revokeObjectURL(audioPreview!.url);
                 setAudioPreview(null);
                 setRecordingTime(0);
+                setIsMinimized(false);
+                setIsPaused(true);
+                setRecorderState({
+                  isRecording: false,
+                  mediaRecorder: null,
+                  audioChunks: [],
+                });
               }}
               className="flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
             >

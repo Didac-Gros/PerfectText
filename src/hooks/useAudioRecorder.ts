@@ -32,7 +32,7 @@ export const useAudioRecorder = () => {
     audioChunks: [],
   });
   const [isPaused, setIsPaused] = useState(true);
-  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingTime, setRecordingTime] = useState<number>(0);
 
   const [isMinimized, setIsMinimized] = useState(false);
   // const [countdown, setCountdown] = useState<number | null>(null);
@@ -302,34 +302,51 @@ export const useAudioRecorder = () => {
     startDrawing,
   ]);
 
-  const stopRecording = useCallback(() => {
-    if (!vadRef.current) return;
+  const stopRecording = useCallback(
+    (inVoiceTab: boolean) => {
+      if (!vadRef.current) return;
 
-    try {
-      const audioBlob = vadRef.current.stop();
-      setAudioPreview({ url: URL.createObjectURL(audioBlob), blob: audioBlob });
+      try {
+        if (!isMinimized && inVoiceTab) {
+          setAudioPreview(null);
+          setRecorderState({
+            isRecording: false,
+            mediaRecorder: null,
+            audioChunks: [],
+          });
+          setIsPaused(true);
+          setRecordingTime(0);
+        } else {
+          const audioBlob = vadRef.current.stop();
+          setAudioPreview({
+            url: URL.createObjectURL(audioBlob),
+            blob: audioBlob,
+          });
+        }
 
-      setRecorderState({
-        isRecording: false,
-        mediaRecorder: null,
-        audioChunks: [],
-      });
+        setRecorderState({
+          isRecording: false,
+          mediaRecorder: null,
+          audioChunks: [],
+        });
 
-      cleanup();
-    } catch (error) {
-      console.error("Error stopping recording:", error);
-      cleanup();
-      setRecorderState({
-        isRecording: false,
-        mediaRecorder: null,
-        audioChunks: [],
-      });
-      setIsPaused(false);
-      setIsMinimized(false);
-    }
-  }, [cleanup]);
+        cleanup();
+      } catch (error) {
+        console.error("Error stopping recording:", error);
+        cleanup();
+        setRecorderState({
+          isRecording: false,
+          mediaRecorder: null,
+          audioChunks: [],
+        });
+        setIsPaused(false);
+        setIsMinimized(false);
+      }
+    },
+    [cleanup]
+  );
 
-  const togglePause = useCallback(() => {    
+  const togglePause = useCallback(() => {
     setIsPaused((prev: boolean) => {
       const newPausedState = !prev;
 
@@ -382,5 +399,7 @@ export const useAudioRecorder = () => {
     setAudioPreview,
     setRecordingTime,
     isVoiceActive: isVoiceActiveRef.current,
+    setRecorderState,
+    setIsPaused,
   };
 };

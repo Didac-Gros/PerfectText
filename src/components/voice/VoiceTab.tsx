@@ -1,4 +1,4 @@
-import  { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   X,
   Pause,
@@ -24,23 +24,67 @@ import { formatTime } from "../../utils/audio";
 import { RecorderAudio } from "./RecorderAudio";
 import { AudioPreview } from "./AudioPreview";
 import { ProcessingAudio } from "./ProcessingAudio";
+import { IsCookieFunction } from "react-router-dom";
+import { AudioRecorderState } from "../../types/global";
 
-export default function AudioRecorder() {
-  const {
-    recorderState,
-    isPaused,
-    isMinimized,
-    recordingTime,
-    // countdown,
-    audioPreview,
-    canvasRef,
-    startRecording,
-    togglePause,
-    stopRecording,
-    setIsMinimized,
-    setAudioPreview,
-    setRecordingTime,
-  } = useAudioRecorder();
+interface VoiceTabProps {
+  isMinimized: boolean;
+  setIsMinimized: (IsCookieFunction: boolean) => void;
+  recorderState: AudioRecorderState;
+  isPaused: boolean;
+  recordingTime: number;
+  audioPreview: {
+    url: string;
+    blob: Blob;
+  } | null;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  startRecording: () => void;
+  togglePause: () => void;
+  stopRecording: () => void;
+  setAudioPreview: (
+    audio: {
+      url: string;
+      blob: Blob;
+    } | null
+  ) => void;
+  setRecordingTime: (time: number) => void;
+  setIsPaused: (isPaused: boolean) => void;
+  setRecorderState: (state: AudioRecorderState) => void;
+  restartAudio: () => void;
+}
+
+export default function VoiceTab({
+  isMinimized,
+  setIsMinimized,
+  recorderState,
+  isPaused,
+  recordingTime,
+  audioPreview,
+  canvasRef,
+  startRecording,
+  togglePause,
+  stopRecording,
+  setAudioPreview,
+  setRecordingTime,
+  setIsPaused,
+  setRecorderState,
+  restartAudio,
+}: VoiceTabProps) {
+  // const {
+  //   recorderState,
+  //   isPaused,
+  //   // isMinimized,
+  //   recordingTime,
+  //   // countdown,
+  //   audioPreview,
+  //   canvasRef,
+  //   startRecording,
+  //   togglePause,
+  //   stopRecording,
+  //   // setIsMinimized,
+  //   setAudioPreview,
+  //   setRecordingTime,
+  // } = useAudioRecorder();
 
   const [transcription, setTranscription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -241,6 +285,7 @@ export default function AudioRecorder() {
         togglePause={togglePause}
         recorderState={recorderState}
         startRecording={startRecording}
+        restartAudio={restartAudio}
       ></RecorderAudio>
     );
   }
@@ -258,46 +303,17 @@ export default function AudioRecorder() {
         isPlaying={isPlaying}
         togglePlayPause={togglePlayPause}
         audioRef={audioRef}
+        setIsMinimized={setIsMinimized}
+        setIsPaused={setIsPaused}
+        setRecorderState={setRecorderState}
       ></AudioPreview>
     );
   }
 
   if (recorderState.isRecording && isMinimized) {
     return (
-      <div className="fixed bottom-4 right-4 w-80 bg-[#2A5CAA] rounded-lg shadow-lg overflow-hidden">
-        <div className="p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-white text-sm font-medium">
-              {formatTime(recordingTime)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={togglePause}
-              className="text-white hover:bg-white/10 p-1 rounded-lg transition-colors"
-            >
-              {isPaused ? (
-                <Play className="w-4 h-4" />
-              ) : (
-                <Pause className="w-4 h-4" />
-              )}
-            </button>
-            <button
-              onClick={() => setIsMinimized(false)}
-              className="text-white hover:bg-white/10 p-1 rounded-lg transition-colors"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={stopRecording}
-              className="text-white hover:bg-white/10 p-1 rounded-lg transition-colors"
-            >
-              <Square className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        <canvas ref={canvasRef} className="w-full h-10" />
+      <div className="text-2xl text-white font-bold text-center">
+        <h1>Sigue trabajando en tus proyectos mientras grabas tu voz!</h1>
       </div>
     );
   }

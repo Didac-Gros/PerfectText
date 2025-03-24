@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
-import { Menu, MenuButton, MenuItems } from '@headlessui/react';
-import { useAuth } from '../../../hooks/useAuth';
+import { Menu, MenuButton, MenuItems } from "@headlessui/react";
+import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { UserIcon, ArrowRightOnRectangleIcon as LogoutIcon } from '@heroicons/react/24/outline';
+import {
+  UserIcon,
+  ArrowRightOnRectangleIcon as LogoutIcon,
+} from "@heroicons/react/24/outline";
+import { Moon } from "lucide-react";
+import { LuCrown } from "react-icons/lu";
 
 interface ProfileNavigationProps {
   photoURL: string | null;
@@ -12,7 +17,13 @@ interface ProfileNavigationProps {
   handleLogout: () => void;
 }
 
-export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLogout }: ProfileNavigationProps) {
+export function ProfileNavigation({
+  photoURL,
+  name,
+  tokens,
+  fromMobile,
+  handleLogout,
+}: ProfileNavigationProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -25,15 +36,18 @@ export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLo
   };
 
   return (
-    <Menu as="div" className="relative z-20">
-      <MenuButton className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-gray-600 hover:bg-gray-100">
+    
+    <Menu as="div" className="relative z-20 ">
+      <MenuButton className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-gray-600">
         <div className="flex items-center gap-3">
           <img
             src={photoURL || ""}
             alt="Avatar"
-            className={`${fromMobile ? 'w-9 h-9' : 'w-10 h-10'} rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all`}
+            className={`${
+              fromMobile ? "size-9" : "size-10"
+            } rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all`}
           />
-          <div className="flex flex-col items-start">
+          {/* <div className="flex flex-col items-start">
             <span
               className={`${fromMobile ? 'text-sm' : 'text-lg'} text-lg font-bold text-gray-800 hover:text-black transition-all leading-none`}
               style={{
@@ -41,16 +55,14 @@ export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLo
               }}
             >
               {name}
-            </span>
-            <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-              {/* Ícono de moneda */}
+            </span> */}
+          {/* <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className={`${fromMobile ? 'w-4 h-4' : 'w-5 h-5'} `}
                 viewBox="0 0 24 24"
                 fill="none"
               >
-                {/* Fondo de la moneda con gradiente */}
                 <defs>
                   <radialGradient
                     id={`coinGradient-${fromMobile ? 'mobile' : 'desktop'}`}
@@ -73,16 +85,13 @@ export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLo
                   strokeWidth="1.5"
                 />
 
-                {/* Bordes texturizados */}
                 <circle cx="12" cy="12" r="9" fill="none" stroke="#DAA520" strokeWidth="0.5" strokeDasharray="2,2" />
 
-                {/* Detalle del brillo */}
                 <path
                   d="M12 4C13.5 4 15.5 5 16 6.5C16.5 8 14.5 10 13 9C11.5 8 11 6 12 4Z"
                   fill="rgba(255, 255, 255, 0.5)"
                 />
 
-                {/* Estrella central */}
                 <path
                   d="M12 7L13.4 10.2L17 10.7L14.5 13L15.4 16.5L12 14.7L8.6 16.5L9.5 13L7 10.7L10.6 10.2L12 7Z"
                   fill="#FFF8DC"
@@ -93,14 +102,18 @@ export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLo
               <span className={`${fromMobile ? 'text-xs' : 'text-sm'} font-bold text-gray-500`}>
                 {tokens === null ? 'Ilimitados' : tokens}
               </span>
-            </div>
+            </div> */}
 
-          </div>
+          {/* </div> */}
         </div>
       </MenuButton>
 
-      <MenuItems className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-12">
+      <MenuItems className="absolute right-0 w-48 bg-white border border-gray-300 rounded-xl shadow-lg z-12">
         {/* Botón de Personalizar Perfil */}
+        <div className="flex items-center w-full space-x-3 px-4 py-3 justify-center font-semibold" >
+          <p>{name}</p>
+        </div>
+        <hr />
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -112,6 +125,18 @@ export function ProfileNavigation({ photoURL, name, tokens, fromMobile, handleLo
         </motion.button>
 
         {/* Espaciado natural en lugar de línea */}
+        <div className="my-1"></div>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleLogout}
+          className="flex items-center w-full space-x-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+        >
+          <LuCrown className="w-5 h-5 text-gray-700 group-hover:text-gray-900" />
+
+          <span className="text-sm font-medium">Ver planes</span>
+        </motion.button>
         <div className="my-1"></div>
 
         {/* Botón de Cerrar Sesión */}

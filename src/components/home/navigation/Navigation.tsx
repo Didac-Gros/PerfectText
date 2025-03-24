@@ -1,4 +1,13 @@
-import { Wand2, FileText, GamepadIcon, Map, Home } from "lucide-react";
+import {
+  Wand2,
+  FileText,
+  GamepadIcon,
+  Map,
+  Home,
+  Mic,
+  Moon,
+  Bell,
+} from "lucide-react";
 import { User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { ProfileNavigation } from "./ProfileNavigation";
@@ -94,13 +103,13 @@ export function Navigation({
             <Wand2 className="w-6 h-6" />
           </MobileButton>
 
-          <MobileButton
-            onClick={() => onTabChange("summarize")}
-            isActive={activeTab === "summarize"}
-            text="Resumen"
+          {/* <MobileButton
+            onClick={() => onTabChange("traductor")}
+            isActive={activeTab === "traductor"}
+            text="Traducción"
           >
             <FileText className="w-6 h-6" />
-          </MobileButton>
+          </MobileButton> */}
 
           <MobileButton
             onClick={() => onTabChange("quiz")}
@@ -117,10 +126,18 @@ export function Navigation({
           >
             <Map className="w-6 h-6" />
           </MobileButton>
+
+          <MobileButton
+            onClick={() => onTabChange("voice")}
+            isActive={activeTab === "voice"}
+            text="Voice"
+          >
+            <Mic className="w-6 h-6" />
+          </MobileButton>
         </div>
 
         {/* Navegación para ordenador */}
-        <div className="hidden md:flex flex-col md:flex-row items-center gap-3 absolute md:static bg-white w-full md:w-auto transition-transform duration-300 ">
+        <div className="hidden md:flex flex-col md:flex-row items-center gap-2 absolute md:static  w-full md:w-auto transition-transform duration-300 ">
           {!user && (
             <NavigationButton
               onClick={() => onTabChange("home")}
@@ -170,6 +187,10 @@ export function Navigation({
           >
             <HiOutlineMicrophone className="w-6 h-6 " />
           </NavigationButton>
+  
+          <button className="ml-2">
+            <Moon color="#3B82F6" />
+          </button>
 
           {user ? (
             <ProfileNavigation
@@ -183,12 +204,12 @@ export function Navigation({
             <LoginButton handleLogin={handleLogin}></LoginButton>
           )}
 
-          {user && (
+          {/* {user && (
             <PlansButton
               isActiveTab={activeTab === "plans"}
               onTabChange={() => onTabChange("plans")}
             ></PlansButton>
-          )}
+          )} */}
         </div>
       </div>
       <div className="pt-20"></div>{" "}

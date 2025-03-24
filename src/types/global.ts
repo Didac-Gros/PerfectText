@@ -91,4 +91,3 @@ export interface FileData {
   mimetype: string; // El tipo de archivo (ejemplo: 'application/pdf', 'image/png')
   size: number; // El tamaño del archivo en bytes
 }
-

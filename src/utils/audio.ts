@@ -294,7 +294,7 @@ export const drawAudioVisualization = (
   }
 };
 
-export const formatTime = (seconds: number): string => {
+export const formatTime = (seconds: number): string => {    
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs.toString().padStart(2, '0')}`;

@@ -3,6 +3,7 @@ import { cn } from "../../utils/utils";
 import { motion } from "framer-motion";
 import { formatTime } from "../../utils/audio";
 import { AudioRecorderState } from "../../types/global";
+import { useEffect } from "react";
 
 interface RecorderAudioProps {
   stopRecording: () => void;
@@ -12,6 +13,7 @@ interface RecorderAudioProps {
   startRecording: () => void;
   isPaused: boolean;
   recordingTime: number;
+  restartAudio: () => void;
 }
 
 export function RecorderAudio({
@@ -22,6 +24,7 @@ export function RecorderAudio({
   startRecording,
   isPaused,
   recordingTime,
+  restartAudio
 }: RecorderAudioProps) {
   return (
     <motion.div
@@ -40,7 +43,7 @@ export function RecorderAudio({
       )}
       {recorderState.isRecording && (
         <button
-          // onClick={() => setIsMinimized(true)}
+          onClick={restartAudio}
           className=" absolute text-white hover:bg-white/10 p-2 rounded-full transition-colors top-28 right-24"
           title="Reiniciar grabación"
         >
