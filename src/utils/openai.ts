@@ -21,19 +21,19 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
 
     // Then, use GPT to convert the transcription into study notes
     const notesResponse = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "Escucha el siguiente audio y toma apuntes como lo haría un estudiante en clase. No generes una transcripción palabra por palabra, sino apunta solo los conceptos clave, definiciones importantes, ejemplos relevantes y cualquier dato esencial que ayude a comprender la lección. Estructura los apuntes de forma clara, utilizando viñetas o secciones si es necesario. No incluyas relleno ni frases innecesarias, solo lo más relevante."
+          content: "Escucha el siguiente audio y toma apuntes como lo haría un estudiante en clase, Actúa como un experto en toma de apuntes estructurados y resúmenes visualmente claros de transcripciones de audio. No generes una transcripción palabra por palabra, sino apunta solo los conceptos clave, definiciones importantes, ejemplos relevantes y cualquier dato esencial que ayude a comprender la lección. Estructura los apuntes de forma clara, utilizando viñetas o secciones si es necesario. No incluyas relleno ni frases innecesarias, solo lo más relevante.Tu objetivo es transformar la transcripción en apuntes fáciles de leer, bien organizados y que parezcan escritos por un estudiante en clase"
         },
         {
           role: "user",
           content: transcriptionResponse.text
         }
       ],
-      temperature: 0.7,
-      max_tokens: 1500
+      temperature: 0.8,
+      max_tokens: 15000
     });
 
     return notesResponse.choices[0].message.content || '';
@@ -52,19 +52,19 @@ export interface SummaryResponse {
 export const generateSummary = async (text: string): Promise<string> => {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "Actúa como un experto en análisis y resumen de transcripciones de audio. Tienes una amplia experiencia procesando conversaciones extensas y extrayendo información clave de manera estructurada y precisa.\n\nTu tarea es resumir una transcripción de audio en tres secciones bien definidas:\n\n1. Resumen principal: Un párrafo que explique el tema general y contexto\n2. Puntos clave: Lista de ideas principales usando el formato '- punto'\n3. Conclusiones: Un párrafo con las conclusiones principales\n\nFormatea la respuesta exactamente así:\n\n[resumen principal]\n\n[puntos clave, uno por línea empezando con -]\n\n[conclusiones]"
+          content: "Actúa como un experto en análisis y resumen de transcripciones de audio. Tienes una amplia experiencia procesando conversaciones extensas y extrayendo información clave de manera estructurada y precisa.Tu tarea es resumir una transcripción de audio en tres secciones bien definidas. **Es obligatorio generar cada una de las secciones, sin dejar ninguna vacía.** Si el contenido no proporciona suficiente información para una sección, infiere un contexto general en base al tema.\n\nTu tarea es resumir una transcripción de audio en tres secciones bien definidas:\n\n1. Resumen principal: Un párrafo que explique el tema general y contexto\n2. Puntos clave: Lista de ideas principales usando el formato '- punto'\n3. Conclusiones: Un párrafo con las conclusiones principales\n\nFormatea la respuesta exactamente así:\n\n[resumen principal]\n\n[puntos clave, uno por línea empezando con -]\n\n[conclusiones].Si la transcripción es confusa o carece de estructura clara, sintetiza el tema general basándote en las palabras clave más repetidas y en el tono de la conversación."
         },
         {
           role: "user",
           content: text
         }
       ],
-      temperature: 0.7,
-      max_tokens: 1500
+      temperature: 0.8,
+      max_tokens: 15000
     });
 
     const content = response.choices[0].message.content || "";
