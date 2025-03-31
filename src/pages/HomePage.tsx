@@ -82,7 +82,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${
+      className={`min-h-screen lg:pb-0 pb-20 ${
         activeTab === "voice"
           ? "bg-[#0E1014]"
           : "bg-gradient-to-br from-gray-50 to-gray-100"
@@ -136,7 +136,9 @@ export const HomePage: React.FC = () => {
           />
         )}
 
-        {activeTab === "traductor" && <TraductorTab />}
+        {activeTab === "traductor" && (
+          <TraductorTab onTabChange={setActiveTab} activeTab={activeTab}/>
+        )}
 
         {activeTab === "summarize" && (
           <SummarizeTab

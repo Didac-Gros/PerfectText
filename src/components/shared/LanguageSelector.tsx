@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Languages, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { additionalLanguages, mainLanguages, mainLanguagesTradDoc } from "../../utils/constants";
+import { additionalLanguages, mainLanguages, mainLanguagesTrad, mainLanguagesTradDoc } from "../../utils/constants";
 
 
 interface LanguageSelectorProps {
@@ -19,7 +19,7 @@ export function LanguageSelector({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const mainLang = comeFromTrad ? mainLanguagesTradDoc : mainLanguages;
+  const mainLang = comeFromTrad ? mainLanguagesTradDoc : mainLanguagesTrad;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,7 +46,7 @@ export function LanguageSelector({
   return (
     <div className="flex items-center gap-2 flex-wrap md:flex-nowrap relative">
       {/* Botones principales */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         {mainLang.map((lang) => (
           <motion.button
             key={lang.code}

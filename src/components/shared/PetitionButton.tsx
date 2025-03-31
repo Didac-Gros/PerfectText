@@ -23,7 +23,7 @@ export function PetitionButton({
       whileTap={{ scale: 0.98 }}
       onClick={onSubmit}
       disabled={isLoading || !isFile}
-      className={`mt-2 px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${
+      className={` px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center gap-2 w-full ${
         isLoading || !isFile ? "opacity-50 cursor-not-allowed" : ""
       }`}
     >

@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
 import { Languages, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { additionalLanguagesTrad, mainLanguagesTrad } from "../../utils/constants";
+import {
+  additionalLanguagesTrad,
+  allLanguages,
+  mainLanguagesTrad,
+} from "../../utils/constants";
 
 interface LanguageTraductorProps {
   selectedLanguage: string | undefined;
@@ -34,36 +38,38 @@ export function LanguageTraductor({
     };
   }, []);
 
-  const selectedAdditionalLang = additionalLanguagesTrad.find(
+  const selectedAdditionalLang = allLanguages.find(
     (lang) => lang.code === selectedLanguage
   );
 
   return (
-    <div className="flex items-center gap-2 flex-wrap md:flex-nowrap relative">
+    <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
       {/* Botones principales */}
-      <div className="relative">
+      <div className="flex items-center gap-2 flex-wrap relative">
         <motion.button
           ref={buttonRef}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen((prev) => !prev)}
-          className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors ${
+          className={`flex items-center justify-center  px-3 py-1.5 rounded-lg transition-colors ${
             selectedAdditionalLang
               ? "bg-blue-500 text-white shadow-md"
               : "bg-gray-50 text-gray-700 hover:bg-gray-100"
           }`}
         >
           {selectedAdditionalLang ? (
-            <>
-              <img
-                src={selectedAdditionalLang.flag}
-                alt={`${selectedAdditionalLang.name} flag`}
-                className="w-6 h-4 object-contain"
-              />
-              <span className="text-sm font-medium">
-                {selectedAdditionalLang.name}
-              </span>
-            </>
+              <div className="flex items-center space-x-2">
+                <img
+                  src={selectedAdditionalLang.flag}
+                  alt={`${selectedAdditionalLang.name} flag`}
+                  className="w-6 h-4 object-contain"
+                />
+                <span className="text-sm font-medium">
+                  {selectedAdditionalLang.name}
+                </span>
+              </div>
+
+              
           ) : (
             <>
               <Languages className="w-4 h-4" />
@@ -111,30 +117,52 @@ export function LanguageTraductor({
                   <span className="text-sm font-medium">Detectar idioma</span>
                 </motion.button>
               )}
+              <div className="">
+                {additionalLanguagesTrad.map((lang) => (
+                  <motion.button
+                    key={lang.code}
+                    whileHover={{ backgroundColor: "#F3F4F6" }}
+                    onClick={() => {
+                      onLanguageChange(lang.code);
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center space-x-2 px-3 py-2 w-full text-left hover:bg-gray-50"
+                  >
+                    <img
+                      src={lang.flag}
+                      alt={`${lang.name} flag`}
+                      className="w-6 h-4 object-contain"
+                    />
+                    <span className="text-sm font-medium">{lang.name}</span>
+                  </motion.button>
+                ))}
+              </div>
 
-              {additionalLanguagesTrad.map((lang) => (
-                <motion.button
-                  key={lang.code}
-                  whileHover={{ backgroundColor: "#F3F4F6" }}
-                  onClick={() => {
-                    onLanguageChange(lang.code);
-                    setIsOpen(false);
-                  }}
-                  className="flex items-center space-x-2 px-3 py-2 w-full text-left hover:bg-gray-50"
-                >
-                  <img
-                    src={lang.flag}
-                    alt={`${lang.name} flag`}
-                    className="w-6 h-4 object-contain"
-                  />
-                  <span className="text-sm font-medium">{lang.name}</span>
-                </motion.button>
-              ))}
+              <div className="hidden">
+                {allLanguages.map((lang) => (
+                  <motion.button
+                    key={lang.code}
+                    whileHover={{ backgroundColor: "#F3F4F6" }}
+                    onClick={() => {
+                      onLanguageChange(lang.code);
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center space-x-2 px-3 py-2 w-full text-left hover:bg-gray-50"
+                  >
+                    <img
+                      src={lang.flag}
+                      alt={`${lang.name} flag`}
+                      className="w-6 h-4 object-contain"
+                    />
+                    <span className="text-sm font-medium">{lang.name}</span>
+                  </motion.button>
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
       </div>
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         {mainLanguagesTrad.map((lang) => (
           <motion.button
             key={lang.code}

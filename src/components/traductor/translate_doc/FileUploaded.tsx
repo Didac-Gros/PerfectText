@@ -8,6 +8,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import { fetchCreateSession } from "../../../services/stripe/createSessionApi";
 import { fetchUploadFile } from "../../../services/files/uploadFileApi";
 import { log } from "node:console";
+import { Eye, RotateCcw, Send } from "lucide-react";
+import { LoadingProgress } from "../../shared/LoadingProgress";
 
 interface FileUploadedProps {
   fileName: string;
@@ -59,37 +61,47 @@ export function FileUploaded({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen w-full"
+      className=" w-full"
     >
       {showPopUp && (
         <PopUpExample setShowPopUp={() => setShowPopUp(false)}></PopUpExample>
       )}
 
-      <div className="bg-gray-50 rounded-b-lg pb-10">
+      <div className="bg-gray-50 rounded-b-lg pb-2">
         <header className="bg-blue-400/70 p-3  text-center rounded-t-lg mb-6 flex">
           <p className="font-medium text-black">Traduce tu documento!</p>
         </header>
         <FileHeader fileName={fileName} langName={langName}></FileHeader>
-        <div className="flex justify-center mt-10 gap-12 pb-6">
-          <SelectVersion
-            title="VERSIÓN PREMIUM"
-            description="Se mantendrá diseño, imágenes y formato del documento original."
-            onClick={() => setVersionSelected(true)}
-            active={versionSelected}
-            onExampleClick={() => setShowPopUp(true)}
-          ></SelectVersion>
+        <div className="lg:flex justify-center items-center m-4 lg:mt-20 gap-6">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowPopUp(true)}
+            className={`lg:w-1/2 w-full py-3 px-6 mb-2 bg-blue-400 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2`}
+          >
+            <Eye className="w-5 h-5" />
+            EJEMPLO VISUAL
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleCheckout}
+            disabled={isLoading}
+            className={`lg:w-1/2 w-full py-3 px-6 mb-2 bg-teal-400 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200  ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }   flex flex-col items-center justify-center gap-2`}
+          >
+            {isLoading ? (
+              <LoadingProgress isLoading={isLoading} text={"Redirigiendo a pasarela de pagos..."} />
+            ) : (
+              <div className="flex items-center gap-2">
+                <Send className="w-5 h-5" />
+                <span>{"Traducir documento"}</span>
+              </div>
+            )}
+          </motion.button>
         </div>
-        {versionSelected && (
-          <div className="max-w-lg w-full m-auto">
-            <PetitionButton
-              isLoading={isLoading}
-              isFile
-              title={"Traducir documento"}
-              onSubmit={handleCheckout}
-              loadingText="Redirigiendo a la pasarela de pago..."
-            ></PetitionButton>
-          </div>
-        )}
+
       </div>
     </motion.div>
   );

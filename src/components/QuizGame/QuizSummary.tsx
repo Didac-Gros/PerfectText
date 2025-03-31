@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trophy, Clock, Target } from "lucide-react";
+import { Trophy, Clock, Target, RotateCcw } from "lucide-react";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { SummaryButton } from "./SummaryButton";
@@ -237,11 +237,14 @@ export function QuizSummary({
           handleClick={onRepeat}
           text="Repetir quiz"
           color="bg-blue-400"
+          icon={<RotateCcw className="w-5 h-5" /> }
         ></SummaryButton>
         <SummaryButton
           handleClick={onRestart}
           text="Crear nuevo quiz"
           color="bg-teal-400"
+          icon={<RotateCcw className="w-5 h-5" /> }
+
         ></SummaryButton>
       </div>
       {!answered && !quizRated && (

@@ -21,7 +21,7 @@ export function TranslateDoc({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen w-full"
+      className="w-full "
     >
       <header className="bg-blue-400/70 flex gap-2 p-3 items-center rounded-t-lg">
         <p className="font-medium text-black">
@@ -33,9 +33,12 @@ export function TranslateDoc({
           comeFromTrad
         ></LanguageSelector>
       </header>
-      <section className="bg-gray-50 rounded-b-lg p-6 flex flex-wrap justify-evenly items-center">
-        <PdfExample></PdfExample>
-        <AnimatedArrow></AnimatedArrow>
+      <section className="bg-gray-50 rounded-b-lg p-6 py-16 pb-20 flex flex-wrap justify-evenly items-center">
+        <div className=" gap-5 lg:flex hidden">
+          <PdfExample></PdfExample>
+          <AnimatedArrow></AnimatedArrow>
+        </div>
+
         <FileTradUploader
           onFileUpload={onFileUpload}
           isLoading={isLoading}

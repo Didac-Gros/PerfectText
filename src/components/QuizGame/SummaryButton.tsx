@@ -1,7 +1,14 @@
 import { motion } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 
-export function SummaryButton({ handleClick, text, color}: { handleClick: () => void, text: string, color: string }) {
+interface SummaryButtonProps {
+    handleClick: () => void;
+    text: string;
+    color: string;
+    icon: React.ReactNode;
+}
+
+export function SummaryButton({ handleClick, text, color, icon }: SummaryButtonProps) {
     return (
         <motion.button
             whileHover={{ scale: 1.02 }}
@@ -9,7 +16,8 @@ export function SummaryButton({ handleClick, text, color}: { handleClick: () => 
             onClick={handleClick}
             className={`w-1/2 py-3 px-6 mb-2 ${color} text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2`}
         >
-            <RotateCcw className="w-5 h-5" />
+            {/* <RotateCcw className="w-5 h-5" /> */}
+            {icon}
             {text}
         </motion.button>
     );

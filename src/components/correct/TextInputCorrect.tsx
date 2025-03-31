@@ -3,7 +3,7 @@ import { X, Send } from 'lucide-react';
 import { LanguageSelector } from '../shared/LanguageSelector';
 import { LoadingProgress } from '../shared/LoadingProgress';
 
-type TabType = 'correct' | 'summarize';
+type TabType = 'correct' | 'traductor';
 
 interface TextInputProps {
   inputText: string;
@@ -47,13 +47,13 @@ export function TextInput({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => onTabChange('summarize')}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${activeTab === 'summarize'
+          onClick={() => onTabChange('traductor')}
+          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${activeTab === 'traductor'
             ? 'bg-blue-500 text-white shadow-md'
             : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
         >
-          Resumir texto
+          Traducir texto
         </motion.button>
       </div>
 

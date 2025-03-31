@@ -85,7 +85,7 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen flex flex-col"
+      className="flex flex-col "
     >
       {/* Contenido principal */}
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -117,7 +117,7 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
               onLanguageChange={setSelectedLanguage}
               onSubmit={handleSubmit}
               activeTab="correct"
-              onTabChange={() => onTabChange("summarize")}
+              onTabChange={() => onTabChange("traductor")}
             />
             {hasOutput && (
               <TextOutput
@@ -132,8 +132,6 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
           </div>
         </div>
       </div>
-      {/* Espaciado adicional para la barra inferior */}
-      <div className="pb-20"></div>{" "}
     </motion.div>
   );
 };

@@ -13,7 +13,7 @@ interface TranslateTextProps {
   outputText: string;
   setOutputText: (text: string) => void;
   outputLanguage: string;
-  setOutputLanguage: (language: string) => void;
+  setOutputLanguage: (language: string | undefined) => void;
 }
 
 export function TranslateText({
@@ -30,9 +30,9 @@ export function TranslateText({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full flex-grow grid grid-cols-2"
+      className="w-full h-full flex flex-col lg:grid lg:grid-cols-2 gap-4"
     >
-      <section className="flex flex-col rounded-lg min-h-screen">
+      <section className="flex flex-col rounded-lg h-full">
         <div className="bg-blue-400/90 p-3 rounded-tl-lg">
           <LanguageTraductor
             selectedLanguage={inputLanguage}
@@ -49,7 +49,7 @@ export function TranslateText({
       </section>
       <section className="flex flex-col">
         <div className="bg-blue-400/90 p-3 rounded-tr-lg">
-          <LanguageSelector
+          <LanguageTraductor
             selectedLanguage={outputLanguage}
             onLanguageChange={setOutputLanguage}
           />

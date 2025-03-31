@@ -52,7 +52,7 @@ export function FileTradUploader({
     <div className="flex flex-col justify-center">
       <div
         {...getRootProps()}
-        className={`flex items-center m-4 relative border-2 border-dashed rounded-lg p-4 px-20 text-center cursor-pointer transition-colors
+        className={`flex items-center  relative border-2 border-dashed rounded-lg p-4 lg:px-12 px-6 text-center cursor-pointer transition-colors
         ${
           isDragActive
             ? "border-blue-500 bg-blue-50"

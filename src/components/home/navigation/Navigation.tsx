@@ -156,13 +156,13 @@ export function Navigation({
             <Wand2 className="w-6 h-6" />
           </NavigationButton>
 
-          <NavigationButton
+          {/* <NavigationButton
             onClick={() => onTabChange("traductor")}
             isActive={activeTab === "traductor"}
             text="Traducción"
           >
             <FileText className="w-6 h-6" />
-          </NavigationButton>
+          </NavigationButton> */}
 
           <NavigationButton
             onClick={() => onTabChange("quiz")}

@@ -19,15 +19,15 @@ export function SelectTranslate({
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className={`${
+      className={` ${
         activate ? "bg-blue-500 text-white  shadow-md " : "bg-gray-100"
-      }  rounded-xl flex p-3 px-4 gap-2 items-center `}
+      }  rounded-xl flex p-3 px-4 gap-2 items-center lg:w-44 w-full `}
       onClick={onClick}
     >
       {icon}
       <div className="flex flex-col items-start">
-        <p className="font-semibold">{title}</p>
-        <p className="text-sm">{subtitle}</p>
+        <p className="font-semibold text-sm">{title}</p>
+        <p className="text-xs">{subtitle}</p>
       </div>
     </motion.button>
   );

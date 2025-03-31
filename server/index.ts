@@ -33,7 +33,7 @@ const app = express();
 
 // Security and performance configuration
 const corsOptions = {
-  //origin: 'https://perfecttext.ai',
+  origin: 'https://perfecttext.ai',
   // origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -100,7 +100,7 @@ app.post(
   async (req: Request, res: Response) => {
     try {
       const successUrl = `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
-      const cancelUrl = `${process.env.FRONTEND_URL}/cancel`;
+      const cancelUrl = `${process.env.FRONTEND_URL}`;
 
       if (!successUrl.startsWith("http") || !cancelUrl.startsWith("http")) {
         console.error("⚠️ ERROR: FRONTEND_URL no está definido correctamente.");

@@ -6,7 +6,7 @@ export function PdfExample() {
         <img
           src="/img/pdf_normal.png"
           alt="Documento original en español"
-          className="w-64 h-auto rounded-lg shadow-md"
+          className="w-48 h-auto rounded-lg shadow-md"
         />
         <p className="text-sm font-semibold text-gray-600">Español (original)</p>
       </div>
@@ -14,7 +14,7 @@ export function PdfExample() {
         <img
           src="/img/pdf_trad.png"
           alt="Documento traducido"
-          className="w-64 h-auto rounded-lg shadow-md"
+          className="w-48 h-auto rounded-lg shadow-md"
         />
         <p className="text-sm font-semibold text-gray-600">Traducción</p>
       </div>
