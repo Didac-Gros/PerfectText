@@ -70,22 +70,6 @@ export default function VoiceTab({
   setRecorderState,
   restartAudio,
 }: VoiceTabProps) {
-  // const {
-  //   recorderState,
-  //   isPaused,
-  //   // isMinimized,
-  //   recordingTime,
-  //   // countdown,
-  //   audioPreview,
-  //   canvasRef,
-  //   startRecording,
-  //   togglePause,
-  //   stopRecording,
-  //   // setIsMinimized,
-  //   setAudioPreview,
-  //   setRecordingTime,
-  // } = useAudioRecorder();
-
   const [transcription, setTranscription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -312,7 +296,7 @@ export default function VoiceTab({
 
   if (recorderState.isRecording && isMinimized) {
     return (
-      <div className="text-2xl text-white font-bold text-center">
+      <div className="text-2xl text-black dark:text-white font-bold text-center">
         <h1>Sigue trabajando en tus proyectos mientras grabas tu voz!</h1>
       </div>
     );
@@ -329,14 +313,14 @@ export default function VoiceTab({
   }
 
   return (
-    <div className=" bg-[#0E1014]  py-8 px-4 sm:px-6 lg:px-8">
-      {" "}
+    <div className="dark:bg-gray-950 bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-gray-900 rounded-2xl shadow-lg overflow-hidden mb-8 transform transition-all hover:shadow-xl">
+        {/* Reproductor de audio */}
+        <div className="dark:bg-gray-900 bg-white rounded-2xl shadow-lg overflow-hidden mb-8 transform transition-all hover:shadow-xl dark:hover:shadow-gray-800/50">
           <div className="flex items-center h-24 px-8">
             <button
               onClick={togglePlayPause}
-              className="w-16 h-16 flex items-center justify-center bg-[#2A5CAA] text-white rounded-full hover:bg-[#1E4A8F] transform hover:scale-105 transition-all"
+              className="w-16 h-16 flex items-center justify-center bg-[#2A5CAA] dark:bg-indigo-700 text-white rounded-full hover:bg-[#1E4A8F] dark:hover:bg-indigo-800 transform hover:scale-105 transition-all"
             >
               {isPlaying ? (
                 <Pause className="w-8 h-8" />
@@ -351,7 +335,7 @@ export default function VoiceTab({
                   {Array.from({ length: 50 }).map((_, i) => (
                     <div
                       key={i}
-                      className="w-1.5 rounded-full bg-gradient-to-b from-[#2A5CAA] to-[#5B8AD4]"
+                      className="w-1.5 rounded-full bg-gradient-to-b from-[#2A5CAA] to-[#5B8AD4] dark:from-indigo-500 dark:to-indigo-300"
                       style={{
                         height: `${20 + Math.random() * 40}%`,
                         opacity:
@@ -363,10 +347,10 @@ export default function VoiceTab({
                 </div>
               </div>
               <div className="mt-2 flex justify-between text-sm font-medium">
-                <span className="text-[#2A5CAA]">
+                <span className="text-[#2A5CAA] dark:text-indigo-400">
                   {formatTime(currentTime)}
                 </span>
-                <span className="text-gray-400">
+                <span className="text-gray-400 dark:text-gray-500">
                   {formatTime(recordingTime)}
                 </span>
               </div>
@@ -376,14 +360,14 @@ export default function VoiceTab({
               <div className="flex gap-2">
                 <button
                   onClick={copyTranscription}
-                  className="p-3 text-gray-600 hover:text-[#2A5CAA] hover:bg-blue-50 rounded-xl transition-all transform hover:scale-105"
+                  className="p-3 text-gray-600 hover:text-[#2A5CAA] dark:text-gray-400 dark:hover:text-indigo-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-xl transition-all transform hover:scale-105"
                   title="Copiar transcripción"
                 >
                   <Copy className="w-5 h-5" />
                 </button>
                 <button
                   onClick={downloadTranscription}
-                  className="p-3 text-gray-600 hover:text-[#2A5CAA] hover:bg-blue-50 rounded-xl transition-all transform hover:scale-105"
+                  className="p-3 text-gray-600 hover:text-[#2A5CAA] dark:text-gray-400 dark:hover:text-indigo-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-xl transition-all transform hover:scale-105"
                   title="Descargar transcripción"
                 >
                   <Download className="w-5 h-5" />
@@ -393,8 +377,8 @@ export default function VoiceTab({
                   disabled={isGeneratingSummary}
                   className={`p-3 rounded-xl transition-all transform hover:scale-105 ${
                     isGeneratingSummary
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "text-gray-600 hover:text-[#2A5CAA] hover:bg-blue-50"
+                      ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                      : "text-gray-600 hover:text-[#2A5CAA] dark:text-gray-400 dark:hover:text-indigo-400 hover:bg-blue-50 dark:hover:bg-gray-800"
                   }`}
                   title="Generar resumen"
                 >
@@ -403,7 +387,7 @@ export default function VoiceTab({
               </div>
               <button
                 onClick={cleanupAudio}
-                className="flex items-center gap-2 px-5 py-3 bg-[#2A5CAA] text-white rounded-xl hover:bg-[#1E4A8F] transform hover:scale-105 transition-all font-medium"
+                className="flex items-center gap-2 px-5 py-3 bg-[#2A5CAA] dark:bg-indigo-700 text-white rounded-xl hover:bg-[#1E4A8F] dark:hover:bg-indigo-800 transform hover:scale-105 transition-all font-medium"
               >
                 <Play className="w-4 h-4" />
                 Nueva Grabación
@@ -412,18 +396,19 @@ export default function VoiceTab({
           </div>
         </div>
 
+        {/* Resumen generado */}
         {showSummary && (summaryData || summary) && (
           <div className="mb-8 space-y-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileText className="w-6 h-6 text-[#2A5CAA]" />
-                <h2 className="text-2xl font-semibold text-white">
+                <FileText className="w-6 h-6 text-[#2A5CAA] dark:text-indigo-400" />
+                <h2 className="text-2xl font-semibold dark:text-white text-gray-900">
                   Resumen Generado
                 </h2>
               </div>
               <button
                 onClick={() => setShowSummary(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -431,18 +416,18 @@ export default function VoiceTab({
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Tema Principal */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700/50 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#2A5CAA]">
+                    <div className="w-12 h-12 bg-blue-50 dark:bg-gray-700 rounded-xl flex items-center justify-center text-[#2A5CAA] dark:text-indigo-400">
                       <Lightbulb className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold dark:text-white text-gray-900">
                       Tema Principal
                     </h3>
                   </div>
                   <div
-                    className={`mt-4 text-gray-700 leading-relaxed ${
+                    className={`mt-4 dark:text-gray-300 text-gray-700 leading-relaxed ${
                       !expandedCards.theme ? "line-clamp-3" : ""
                     }`}
                   >
@@ -450,8 +435,10 @@ export default function VoiceTab({
                   </div>
                   <button
                     onClick={() => toggleCard("theme")}
-                    className={`w-full flex items-center justify-center gap-2 py-2 mt-4 text-gray-600 hover:text-gray-900 transition-colors group ${
-                      expandedCards.theme ? "border-t border-gray-100" : ""
+                    className={`w-full flex items-center justify-center gap-2 py-2 mt-4 dark:text-gray-400 text-gray-600 hover:text-gray-900 dark:hover:text-gray-300 transition-colors group ${
+                      expandedCards.theme
+                        ? "border-t border-gray-100 dark:border-gray-700"
+                        : ""
                     }`}
                   >
                     <span className="text-sm font-medium">
@@ -469,13 +456,13 @@ export default function VoiceTab({
               </div>
 
               {/* Puntos Clave */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700/50 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                    <div className="w-12 h-12 bg-green-50 dark:bg-gray-700 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400">
                       <CheckCircle className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold dark:text-white text-gray-900">
                       Puntos Clave
                     </h3>
                   </div>
@@ -489,10 +476,10 @@ export default function VoiceTab({
                         ? summaryData.puntos_clave.map((point, index) => (
                             <li
                               key={index}
-                              className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                              className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                             >
-                              <div className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-green-400" />
-                              <p className="text-gray-700 leading-relaxed">
+                              <div className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-green-400 dark:bg-green-500" />
+                              <p className="dark:text-gray-300 text-gray-700 leading-relaxed">
                                 {point.replace(/^[-•]/, "").trim()}
                               </p>
                             </li>
@@ -503,10 +490,10 @@ export default function VoiceTab({
                             .map((point, index) => (
                               <li
                                 key={index}
-                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                                className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                               >
-                                <div className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-green-400" />
-                                <p className="text-gray-700 leading-relaxed">
+                                <div className="flex-shrink-0 w-1.5 h-1.5 mt-2 rounded-full bg-green-400 dark:bg-green-500" />
+                                <p className="dark:text-gray-300 text-gray-700 leading-relaxed">
                                   {point.replace(/^[-•]/, "").trim()}
                                 </p>
                               </li>
@@ -515,8 +502,10 @@ export default function VoiceTab({
                   </div>
                   <button
                     onClick={() => toggleCard("points")}
-                    className={`w-full flex items-center justify-center gap-2 py-2 mt-4 text-gray-600 hover:text-gray-900 transition-colors group ${
-                      expandedCards.points ? "border-t border-gray-100" : ""
+                    className={`w-full flex items-center justify-center gap-2 py-2 mt-4 dark:text-gray-400 text-gray-600 hover:text-gray-900 dark:hover:text-gray-300 transition-colors group ${
+                      expandedCards.points
+                        ? "border-t border-gray-100 dark:border-gray-700"
+                        : ""
                     }`}
                   >
                     <span className="text-sm font-medium">
@@ -534,18 +523,18 @@ export default function VoiceTab({
               </div>
 
               {/* Conclusiones */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="dark:bg-gray-800 bg-white rounded-2xl shadow-md hover:shadow-xl dark:hover:shadow-gray-700/50 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                    <div className="w-12 h-12 bg-purple-50 dark:bg-gray-700 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400">
                       <Target className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold dark:text-white text-gray-900">
                       Conclusiones
                     </h3>
                   </div>
                   <div
-                    className={`mt-4 text-gray-700 leading-relaxed ${
+                    className={`mt-4 dark:text-gray-300 text-gray-700 leading-relaxed ${
                       !expandedCards.conclusions ? "line-clamp-3" : ""
                     }`}
                   >
@@ -555,9 +544,9 @@ export default function VoiceTab({
                   </div>
                   <button
                     onClick={() => toggleCard("conclusions")}
-                    className={`w-full flex items-center justify-center gap-2 py-2 mt-4 text-gray-600 hover:text-gray-900 transition-colors group ${
+                    className={`w-full flex items-center justify-center gap-2 py-2 mt-4 dark:text-gray-400 text-gray-600 hover:text-gray-900 dark:hover:text-gray-300 transition-colors group ${
                       expandedCards.conclusions
-                        ? "border-t border-gray-100"
+                        ? "border-t border-gray-100 dark:border-gray-700"
                         : ""
                     }`}
                   >
@@ -577,75 +566,37 @@ export default function VoiceTab({
             </div>
 
             <div className="flex items-center gap-3">
-              <NotebookPen className="w-6 h-6 text-[#2A5CAA]" />
-              <h2 className="text-2xl font-semibold text-white">
+              <NotebookPen className="w-6 h-6 text-[#2A5CAA] dark:text-indigo-400" />
+              <h2 className="text-2xl font-semibold dark:text-white text-gray-900">
                 Apuntes de notas
               </h2>
             </div>
-
-            {/* <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl mt-6">
-              <span className="text-sm text-gray-500">
-                Generado el{" "}
-                {new Date().toLocaleDateString("es-ES", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => navigator.clipboard.writeText(summary)}
-                  className="flex items-center gap-2 px-4 py-2 text-[#2A5CAA] hover:bg-blue-50 rounded-lg transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const element = document.createElement("a");
-                    const file = new Blob([summary], { type: "text/plain" });
-                    element.href = URL.createObjectURL(file);
-                    element.download = `resumen-${
-                      new Date().toISOString().split("T")[0]
-                    }.txt`;
-                    document.body.appendChild(element);
-                    element.click();
-                    document.body.removeChild(element);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 text-[#2A5CAA] hover:bg-blue-50 rounded-lg transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Descargar</span>
-                </button>
-              </div>
-            </div> */}
           </div>
         )}
 
+        {/* Frases destacadas */}
         <div className="mb-6">
           <div className="flex gap-6">
             {sentences.slice(0, 3).map((sentence, index) => (
               <div
                 key={index}
-                className="group w-full bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group w-full dark:bg-gray-800 bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg dark:hover:shadow-gray-700/50 transition-all duration-300"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
-                  <span className="inline-flex items-center justify-center px-3 py-1.5 bg-blue-50 text-[#2A5CAA] rounded-lg text-sm font-medium">
+                  <span className="inline-flex items-center justify-center px-3 py-1.5 bg-blue-50 dark:bg-gray-700 text-[#2A5CAA] dark:text-indigo-400 rounded-lg text-sm font-medium">
                     {formatTime(
                       Math.floor((recordingTime / sentences.length) * index)
                     )}
                   </span>
                   <button
                     onClick={() => deleteSentence(index)}
-                    className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+                    className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
                     title="Eliminar frase"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-gray-700 text-lg leading-relaxed font-sans">
+                <p className="dark:text-gray-300 text-gray-700 text-lg leading-relaxed font-sans">
                   {sentence.trim()}
                 </p>
               </div>
@@ -656,9 +607,9 @@ export default function VoiceTab({
             <div className="flex justify-center mt-8">
               <button
                 onClick={downloadTranscription}
-                className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm hover:shadow"
+                className="flex items-center gap-3 px-6 py-3 dark:bg-gray-800 bg-white border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all shadow-sm hover:shadow dark:hover:shadow-gray-700/50"
               >
-                <Download className="w-5 h-5 text-[#2A5CAA]" />
+                <Download className="w-5 h-5 text-[#2A5CAA] dark:text-indigo-400" />
                 <span className="font-medium">
                   Descargar transcripción completa ({sentences.length} frases)
                 </span>
@@ -666,23 +617,6 @@ export default function VoiceTab({
             </div>
           )}
         </div>
-
-        {/* {!showSummary && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 md:hidden">
-            <button
-              onClick={handleGenerateSummary}
-              disabled={isGeneratingSummary}
-              className={`flex items-center gap-2 px-6 py-4 rounded-full shadow-lg transition-all ${
-                isGeneratingSummary
-                  ? "bg-gray-200 text-gray-500"
-                  : "bg-[#2A5CAA] text-white hover:bg-[#1E4A8F]"
-              }`}
-            >
-              <FileText className="w-5 h-5" />
-              {isGeneratingSummary ? "Generando..." : "Generar Resumen"}
-            </button>
-          </div>
-        )} */}
 
         <audio
           ref={audioRef}

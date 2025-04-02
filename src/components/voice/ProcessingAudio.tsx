@@ -13,17 +13,17 @@ export function ProcessingAudio({
   isProcessing
 }: ProcessingAudioProps) {
   return (
-    <div className="fixed inset-0 bg-[#0E1014] flex flex-col items-center justify-center p-6">
+    <div className="fixed inset-0 bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-2xl w-full flex flex-col items-center"
       >
         <div className="mb-8 text-center">
-          <h2 className="text-white text-3xl font-bold mb-3 tracking-tight">
+          <h2 className="text-black dark:text-white text-3xl font-bold mb-3 tracking-tight">
             {processingStatus}
           </h2>
-          <p className="text-white/80 text-lg font-light">
+          <p className="text-black dark:text-white/80 text-lg font-light">
             Esto puede tomar unos segundos
           </p>
         </div>

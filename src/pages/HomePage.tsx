@@ -16,7 +16,7 @@ import { useLocation } from "react-router-dom";
 import VoiceTab from "../components/voice/VoiceTab";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { AudioWindow } from "../components/home/AudioWindow";
-
+import { useDarkMode } from "../hooks/useDarkMode";
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>(
@@ -80,11 +80,19 @@ export const HomePage: React.FC = () => {
     setRecordingTime(0);
   };
 
+  const [isDark, setIsDark] = useDarkMode();
+
+  useEffect(() => {
+    if(activeTab !== "voice") {
+      setIsDark(false);
+    }
+  }, [activeTab]);
+
   return (
     <div
       className={`min-h-screen lg:pb-0 pb-20 ${
         activeTab === "voice"
-          ? "bg-[#0E1014]"
+          ? "dark:bg-gray-950 bg-gray-50"
           : "bg-gradient-to-br from-gray-50 to-gray-100"
       } `}
     >
@@ -104,6 +112,8 @@ export const HomePage: React.FC = () => {
           user={user}
           tokens={tokens ?? 0}
           userStore={userStore}
+          setDarkMode={setIsDark}
+          isDarkMode={isDark}
         />
 
         {activeTab === "home" && (
@@ -137,7 +147,7 @@ export const HomePage: React.FC = () => {
         )}
 
         {activeTab === "traductor" && (
-          <TraductorTab onTabChange={setActiveTab} activeTab={activeTab}/>
+          <TraductorTab onTabChange={setActiveTab} activeTab={activeTab} />
         )}
 
         {activeTab === "summarize" && (

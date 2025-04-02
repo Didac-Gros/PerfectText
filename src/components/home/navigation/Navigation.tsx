@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
   Wand2,
   FileText,
@@ -7,6 +8,7 @@ import {
   Mic,
   Moon,
   Bell,
+  Sun,
 } from "lucide-react";
 import { User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +23,7 @@ import { MobileButton } from "./MobileButton";
 import { LoginButton } from "./LoginButton";
 import { useAuth } from "../../../hooks/useAuth";
 import { HiOutlineMicrophone } from "react-icons/hi";
+import { active } from "d3";
 
 interface NavigationProps {
   activeTab: TabType;
@@ -28,6 +31,8 @@ interface NavigationProps {
   user: User | null;
   userStore: MyUser | null;
   tokens: number;
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  isDarkMode: boolean;
 }
 
 export function Navigation({
@@ -35,6 +40,8 @@ export function Navigation({
   onTabChange,
   user,
   tokens,
+  setDarkMode,
+  isDarkMode,
 }: NavigationProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -58,16 +65,20 @@ export function Navigation({
 
   return (
     <nav className="mb-6">
-      <div className="bg-white w-full shadow-md py-4 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
+      <div
+        className={`dark:bg-gray-900 bg-white w-full shadow-md dark:shadow-gray-800/50 py-4 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50`}
+      >
         {/* Logo */}
         <div className="flex items-center gap-2">
           <Icon
             path={mdiEmoticonWink}
             size={1.5}
-            className="text-black-700"
+            className="dark:text-blue-400 text-black"
             title="Logo"
           />
-          <span className="text-xl font-bold text-black-700">PerfectText</span>
+          <span className="text-xl font-bold dark:text-white text-gray-800">
+            PerfectText
+          </span>
           <div className="md:hidden fixed right-0">
             {user ? (
               <ProfileNavigation
@@ -83,8 +94,10 @@ export function Navigation({
           </div>
         </div>
 
-        {/* Navegación para móbiles*/}
-        <div className="fixed bottom-0 left-0 right-0 bg-white py-3 shadow-md flex justify-around items-center z-50 md:hidden">
+        {/* Navegación para móviles */}
+        <div
+          className={`fixed bottom-0 left-0 right-0 dark:bg-gray-900 bg-white py-3 shadow-md dark:shadow-gray-800/50 flex justify-around items-center z-50 md:hidden`}
+        >
           {!user && (
             <MobileButton
               onClick={() => onTabChange("home")}
@@ -102,14 +115,6 @@ export function Navigation({
           >
             <Wand2 className="w-6 h-6" />
           </MobileButton>
-
-          {/* <MobileButton
-            onClick={() => onTabChange("traductor")}
-            isActive={activeTab === "traductor"}
-            text="Traducción"
-          >
-            <FileText className="w-6 h-6" />
-          </MobileButton> */}
 
           <MobileButton
             onClick={() => onTabChange("quiz")}
@@ -137,7 +142,7 @@ export function Navigation({
         </div>
 
         {/* Navegación para ordenador */}
-        <div className="hidden md:flex flex-col md:flex-row items-center gap-2 absolute md:static  w-full md:w-auto transition-transform duration-300 ">
+        <div className="hidden md:flex flex-col md:flex-row items-center gap-2 absolute md:static w-full md:w-auto transition-transform duration-300">
           {!user && (
             <NavigationButton
               onClick={() => onTabChange("home")}
@@ -155,14 +160,6 @@ export function Navigation({
           >
             <Wand2 className="w-6 h-6" />
           </NavigationButton>
-
-          {/* <NavigationButton
-            onClick={() => onTabChange("traductor")}
-            isActive={activeTab === "traductor"}
-            text="Traducción"
-          >
-            <FileText className="w-6 h-6" />
-          </NavigationButton> */}
 
           <NavigationButton
             onClick={() => onTabChange("quiz")}
@@ -185,12 +182,20 @@ export function Navigation({
             isActive={activeTab === "voice"}
             text="Voice"
           >
-            <HiOutlineMicrophone className="w-6 h-6 " />
+            <HiOutlineMicrophone className="w-6 h-6" />
           </NavigationButton>
-  
-          <button className="ml-2">
-            <Moon color="#3B82F6" />
-          </button>
+          {activeTab === "voice" && (
+            <button
+              className="ml-2"
+              onClick={() => setDarkMode((prev) => !prev)}
+            >
+              {isDarkMode ? (
+                <Sun className="text-blue-400" />
+              ) : (
+                <Moon className=" text-blue-600" />
+              )}
+            </button>
+          )}
 
           {user ? (
             <ProfileNavigation
@@ -203,17 +208,9 @@ export function Navigation({
           ) : (
             <LoginButton handleLogin={handleLogin}></LoginButton>
           )}
-
-          {/* {user && (
-            <PlansButton
-              isActiveTab={activeTab === "plans"}
-              onTabChange={() => onTabChange("plans")}
-            ></PlansButton>
-          )} */}
         </div>
       </div>
-      <div className="pt-20"></div>{" "}
-      {/* Espaciado adicional para evitar que el contenido se corte */}
+      <div className="pt-20"></div>
     </nav>
   );
 }

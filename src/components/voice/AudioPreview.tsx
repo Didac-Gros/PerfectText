@@ -43,24 +43,26 @@ export function AudioPreview({
   setRecorderState,
 }: AudioPreviewProps) {
   return (
-    <div className="fixed inset-0 bg-[#0E1014] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900 rounded-2xl shadow-lg w-full max-w-3xl"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-3xl border border-gray-200 dark:border-gray-700"
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               Previsualización de la grabación
             </h2>
           </div>
 
-          <div className="bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          {/* Contenedor del reproductor */}
+          <div className="bg-indigo-50 dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
             <div className="flex items-center h-20 px-6">
+              {/* Botón de play/pause */}
               <button
                 onClick={togglePlayPause}
-                className="w-12 h-12 flex items-center justify-center bg-gray-700 text-white rounded-full hover:bg-gray-700 transition-colors flex-shrink-0 transform hover:scale-105"
+                className="w-12 h-12 flex items-center justify-center bg-white dark:bg-gray-700 text-indigo-600 dark:text-white rounded-full hover:bg-indigo-100 dark:hover:bg-gray-600 transition-colors transform hover:scale-105 shadow-sm dark:shadow-none"
               >
                 {isPlaying ? (
                   <Pause className="w-6 h-6" />
@@ -69,13 +71,14 @@ export function AudioPreview({
                 )}
               </button>
 
+              {/* Visualizador de ondas */}
               <div className="flex-1 mx-6 relative h-full flex items-center">
                 <div className="w-full h-16">
                   <div className="absolute inset-0 flex items-center justify-between px-1">
                     {Array.from({ length: 50 }).map((_, i) => (
                       <div
                         key={i}
-                        className="w-1 bg-white bg-opacity-40 rounded-full"
+                        className="w-1 bg-indigo-500 dark:bg-white rounded-full"
                         style={{
                           height: `${20 + Math.random() * 40}%`,
                           opacity:
@@ -91,9 +94,10 @@ export function AudioPreview({
                 </div>
               </div>
 
+              {/* Tiempo */}
               <div className="flex-shrink-0 flex items-center gap-4">
-                <div className="h-10 w-20 flex items-center justify-center bg-gray-700 rounded-full">
-                  <span className="text-white font-medium text-sm">
+                <div className="h-10 w-20 flex items-center justify-center bg-indigo-100 dark:bg-gray-700 rounded-full shadow-inner">
+                  <span className="text-gray-900 dark:text-white font-medium text-sm">
                     {formatTime(currentTime)}
                   </span>
                 </div>
@@ -109,7 +113,8 @@ export function AudioPreview({
             />
           </div>
 
-          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700">
+          {/* Botones de acción */}
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => {
                 URL.revokeObjectURL(audioPreview!.url);
@@ -123,14 +128,14 @@ export function AudioPreview({
                   audioChunks: [],
                 });
               }}
-              className="flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 rounded-lg transition-colors border border-red-100 dark:border-gray-700"
             >
               <Trash2 className="w-5 h-5" />
               Eliminar grabación
             </button>
             <button
               onClick={() => processAudioRecording(audioPreview!.blob)}
-              className="flex items-center gap-2 px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors transform hover:scale-105"
+              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 dark:bg-indigo-700 text-white dark:text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors transform hover:scale-105 shadow-md"
             >
               <Save className="w-5 h-5" />
               Guardar

@@ -30,12 +30,12 @@ export function RecorderAudio({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed inset-0 bg-[#0E1014] flex items-center justify-center"
+      className="fixed inset-0 dark:bg-gray-950  bg-gray-50 flex items-center justify-center"
     >
       {recorderState.isRecording && (
         <button
           onClick={() => setIsMinimized(true)}
-          className=" absolute text-white hover:bg-white/10 p-2 rounded-full transition-colors top-28 right-10"
+          className=" absolute text-black dark:text-white hover:bg-white/10 p-2 rounded-full transition-colors top-28 right-10"
           title="Minimizar"
         >
           <Minimize2 className="size-6" />
@@ -44,7 +44,7 @@ export function RecorderAudio({
       {recorderState.isRecording && (
         <button
           onClick={restartAudio}
-          className=" absolute text-white hover:bg-white/10 p-2 rounded-full transition-colors top-28 right-24"
+          className=" absolute text-black dark:text-white hover:bg-white/10 p-2 rounded-full transition-colors top-28 right-24"
           title="Reiniciar grabación"
         >
           <RefreshCcw className="size-6" />
@@ -67,7 +67,7 @@ export function RecorderAudio({
               style={{ animationDuration: "3s" }}
             />
           ) : (
-            <Mic className="size-6 text-white " />
+            <Mic className="size-6 dark:text-white text-black " />
           )}
         </button>
 
@@ -90,7 +90,7 @@ export function RecorderAudio({
                 "w-0.5 rounded-full transition-all duration-300",
                 !isPaused
                   ? "bg-black/50 dark:bg-white/50 animate-pulse"
-                  : "bg-black/10 dark:bg-white/10 h-1"
+                  : "bg-black/20 dark:bg-white/10 h-1"
               )}
               style={
                 recorderState.isRecording
@@ -104,7 +104,7 @@ export function RecorderAudio({
           ))}
         </div>
 
-        <p className="h-4 text-xs text-white ">
+        <p className="h-4 text-xs text-black dark:text-white ">
           {!isPaused ? "Listening..." : "Click to speak"}
         </p>
         {isPaused && recorderState.isRecording && (
