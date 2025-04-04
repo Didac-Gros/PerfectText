@@ -313,7 +313,7 @@ export default function VoiceTab({
     );
   }
 
-  if (true) {
+  if (isProcessing) {
     return (
       <ProcessingAudio
         processingStatus={processingStatus}

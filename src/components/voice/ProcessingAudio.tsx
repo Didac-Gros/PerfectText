@@ -37,7 +37,7 @@ export function ProcessingAudio({
         </div>
 
         <div className="w-full bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6 hidden md:block">
-          <Game isActive={true} />
+          <Game isActive={isProcessing} />
         </div>
 
         {/* <div className="flex items-center justify-center mt-2">
