@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 import { allLanguages } from "./constants";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { marked } from "marked";
+
 export const timeAgo = (date: Date): string => {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -40,6 +42,41 @@ export const timeAgo = (date: Date): string => {
     return `hace ${years} año${years > 1 ? "s" : ""}`;
   }
 };
+
+export function downloadMarkdownAsHtml(
+  markdown: string,
+  filename = "notas.html"
+) {
+  // Convertir Markdown a HTML
+  const htmlContent = marked.parse(markdown);
+
+  // Envolverlo como documento HTML completo
+  const fullHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${filename}</title>
+    </head>
+    <body>
+      ${htmlContent}
+    </body>
+    </html>
+  `;
+
+  // Crear el blob y el enlace de descarga
+  const blob = new Blob([fullHtml], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  // Liberar recursos
+  URL.revokeObjectURL(url);
+}
 
 /**
  * Convierte el contenido de un archivo en una cadena de texto y optimiza para reducir tokens.
@@ -184,8 +221,6 @@ async function parseTextFile(file: File): Promise<string> {
 export function codeToNameCountry(code: string): string {
   return allLanguages.find((lang) => lang.code === code)?.name!;
 }
-
-
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

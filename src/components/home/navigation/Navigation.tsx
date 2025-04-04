@@ -79,6 +79,19 @@ export function Navigation({
           <span className="text-xl font-bold dark:text-white text-gray-800">
             PerfectText
           </span>
+
+          {activeTab === "voice" && (
+            <button
+              className="ml-2 fixed right-14 md:hidden"
+              onClick={() => setDarkMode((prev) => !prev)}
+            >
+              {isDarkMode ? (
+                <Sun className="text-blue-400" />
+              ) : (
+                <Moon className=" text-blue-600" />
+              )}
+            </button>
+          )}
           <div className="md:hidden fixed right-0">
             {user ? (
               <ProfileNavigation
@@ -110,7 +123,7 @@ export function Navigation({
 
           <MobileButton
             onClick={() => onTabChange("correct")}
-            isActive={activeTab === "correct"}
+            isActive={activeTab === "correct" || activeTab === "traductor"}
             text="Corrección"
           >
             <Wand2 className="w-6 h-6" />
@@ -155,7 +168,7 @@ export function Navigation({
 
           <NavigationButton
             onClick={() => onTabChange("correct")}
-            isActive={activeTab === "correct" || activeTab === "summarize"}
+            isActive={activeTab === "correct" || activeTab === "traductor"}
             text="Corrección"
           >
             <Wand2 className="w-6 h-6" />
@@ -184,6 +197,7 @@ export function Navigation({
           >
             <HiOutlineMicrophone className="w-6 h-6" />
           </NavigationButton>
+
           {activeTab === "voice" && (
             <button
               className="ml-2"

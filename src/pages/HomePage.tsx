@@ -105,6 +105,7 @@ export const HomePage: React.FC = () => {
           handleStopRecording={handleStopRecording}
         ></AudioWindow>
       )}
+      
       <div className="max-w-[86rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}

@@ -38,9 +38,13 @@ export function LanguageTraductor({
     };
   }, []);
 
-  const selectedAdditionalLang = allLanguages.find(
-    (lang) => lang.code === selectedLanguage
-  );
+  const selectedAdditionalLang =
+    window.innerWidth >= 768
+      ? additionalLanguagesTrad.find((lang) => lang.code === selectedLanguage)
+      : allLanguages.find((lang) => lang.code === selectedLanguage);
+
+  const menuLanguages =
+    window.innerWidth >= 768 ? additionalLanguagesTrad : allLanguages;
 
   return (
     <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
@@ -53,23 +57,21 @@ export function LanguageTraductor({
           onClick={() => setIsOpen((prev) => !prev)}
           className={`flex items-center justify-center  px-3 py-1.5 rounded-lg transition-colors ${
             selectedAdditionalLang
-              ? "bg-blue-500 text-white shadow-md"
+              ? "md:bg-blue-500 bg-white text-black md:text-white shadow-md"
               : "bg-gray-50 text-gray-700 hover:bg-gray-100"
           }`}
         >
           {selectedAdditionalLang ? (
-              <div className="flex items-center space-x-2">
-                <img
-                  src={selectedAdditionalLang.flag}
-                  alt={`${selectedAdditionalLang.name} flag`}
-                  className="w-6 h-4 object-contain"
-                />
-                <span className="text-sm font-medium">
-                  {selectedAdditionalLang.name}
-                </span>
-              </div>
-
-              
+            <div className="flex items-center space-x-2">
+              <img
+                src={selectedAdditionalLang.flag}
+                alt={`${selectedAdditionalLang.name} flag`}
+                className="w-6 h-4 object-contain"
+              />
+              <span className="text-sm font-medium">
+                {selectedAdditionalLang.name}
+              </span>
+            </div>
           ) : (
             <>
               <Languages className="w-4 h-4" />
@@ -117,26 +119,24 @@ export function LanguageTraductor({
                   <span className="text-sm font-medium">Detectar idioma</span>
                 </motion.button>
               )}
-              <div className="">
-                {additionalLanguagesTrad.map((lang) => (
-                  <motion.button
-                    key={lang.code}
-                    whileHover={{ backgroundColor: "#F3F4F6" }}
-                    onClick={() => {
-                      onLanguageChange(lang.code);
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center space-x-2 px-3 py-2 w-full text-left hover:bg-gray-50"
-                  >
-                    <img
-                      src={lang.flag}
-                      alt={`${lang.name} flag`}
-                      className="w-6 h-4 object-contain"
-                    />
-                    <span className="text-sm font-medium">{lang.name}</span>
-                  </motion.button>
-                ))}
-              </div>
+              {menuLanguages.map((lang) => (
+                <motion.button
+                  key={lang.code}
+                  whileHover={{ backgroundColor: "#F3F4F6" }}
+                  onClick={() => {
+                    onLanguageChange(lang.code);
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center space-x-2 px-3 py-2 w-full text-left hover:bg-gray-50"
+                >
+                  <img
+                    src={lang.flag}
+                    alt={`${lang.name} flag`}
+                    className="w-6 h-4 object-contain"
+                  />
+                  <span className="text-sm font-medium">{lang.name}</span>
+                </motion.button>
+              ))}
 
               <div className="hidden">
                 {allLanguages.map((lang) => (

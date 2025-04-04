@@ -21,7 +21,7 @@ export function TranslateDoc({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full "
+      className="w-full flex flex-col "
     >
       <header className="bg-blue-400/70 flex gap-2 p-3 items-center rounded-t-lg">
         <p className="font-medium text-black">
@@ -33,8 +33,8 @@ export function TranslateDoc({
           comeFromTrad
         ></LanguageSelector>
       </header>
-      <section className="bg-gray-50 rounded-b-lg p-6 py-16 pb-20 flex flex-wrap justify-evenly items-center">
-        <div className=" gap-5 lg:flex hidden">
+      <div className="bg-gray-50 rounded-b-lg p-6 py-16 pb-20 flex flex-wrap justify-evenly items-center">
+        <div className=" gap-5 md:flex hidden">
           <PdfExample></PdfExample>
           <AnimatedArrow></AnimatedArrow>
         </div>
@@ -44,7 +44,7 @@ export function TranslateDoc({
           isLoading={isLoading}
           resetFile={false}
         />
-      </section>
+      </div>
     </motion.div>
   );
 }

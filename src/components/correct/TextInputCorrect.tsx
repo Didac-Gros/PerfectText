@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion';
-import { X, Send } from 'lucide-react';
-import { LanguageSelector } from '../shared/LanguageSelector';
-import { LoadingProgress } from '../shared/LoadingProgress';
+import { motion } from "framer-motion";
+import { X, Send } from "lucide-react";
+import { LanguageSelector } from "../shared/LanguageSelector";
+import { LoadingProgress } from "../shared/LoadingProgress";
 
-type TabType = 'correct' | 'traductor';
+type TabType = "correct" | "traductor";
 
 interface TextInputProps {
   inputText: string;
@@ -24,7 +24,7 @@ export function TextInput({
   onLanguageChange,
   onSubmit,
   activeTab,
-  onTabChange
+  onTabChange,
 }: TextInputProps) {
   return (
     <motion.div
@@ -36,39 +36,45 @@ export function TextInput({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => onTabChange('correct')}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${activeTab === 'correct'
-            ? 'bg-blue-500 text-white shadow-md'
-            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-            }`}
+          onClick={() => onTabChange("correct")}
+          className={`flex-1 md:py-2 px-4 py-2 rounded-xl font-medium transition-colors ${
+            activeTab === "correct"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+          }`}
         >
-          Corregir texto
+          <p className="hidden md:block">Corregir texto</p>
+          <p className=" md:hidden">Corregir</p>{" "}
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => onTabChange('traductor')}
-          className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${activeTab === 'traductor'
-            ? 'bg-blue-500 text-white shadow-md'
-            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-            }`}
+          onClick={() => onTabChange("traductor")}
+          className={`flex-1 md:py-2 px-4 py-2 rounded-xl font-medium transition-colors ${
+            activeTab === "traductor"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+          }`}
         >
-          Traducir texto
+          <p className="hidden md:block">Traducir texto</p>
+          <p className=" md:hidden">Traducir</p>
         </motion.button>
       </div>
 
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <LanguageSelector
           selectedLanguage={selectedLanguage}
           onLanguageChange={onLanguageChange}
         />
-      </div>
+      </div> */}
 
       <div className="relative mb-4">
         <textarea
           value={inputText}
           onChange={(e) => onTextChange(e.target.value)}
-          placeholder={`Escribe o pega tu texto aquí para ${activeTab === 'correct' ? 'corregirlo' : 'resumirlo'}...`}
+          placeholder={`Escribe o pega tu texto aquí para ${
+            activeTab === "correct" ? "corregirlo" : "resumirlo"
+          }...`}
           className="w-full h-48 p-4 rounded-xl bg-gray-50 focus:bg-white border-2 border-gray-100 focus:border-blue-500 outline-none transition-colors resize-none"
         />
 
@@ -78,7 +84,7 @@ export function TextInput({
             animate={{ opacity: 1 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => onTextChange('')}
+            onClick={() => onTextChange("")}
             className="absolute top-2 right-2 p-1 rounded-lg bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-700 transition-colors"
           >
             <X className="w-4 h-4" />
@@ -91,20 +97,25 @@ export function TextInput({
         whileTap={{ scale: 0.98 }}
         onClick={onSubmit}
         disabled={!inputText.trim() || isLoading}
-        className={`w-full py-2 px-6 rounded-xl font-medium transition-all duration-200 flex flex-col items-center justify-center gap-2 ${!inputText.trim() || isLoading
-          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          : 'bg-blue-500 text-white shadow-md hover:bg-blue-600'
-          }`}
+        className={`w-full py-2 px-6 rounded-xl font-medium transition-all duration-200 flex flex-col items-center justify-center gap-2 ${
+          !inputText.trim() || isLoading
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-blue-500 text-white shadow-md hover:bg-blue-600"
+        }`}
       >
         {isLoading ? (
           <LoadingProgress
             isLoading={isLoading}
-            text={activeTab === 'correct' ? 'Corrigiendo texto' : 'Resumiendo texto'}
+            text={
+              activeTab === "correct" ? "Corrigiendo texto" : "Resumiendo texto"
+            }
           />
         ) : (
           <div className="flex items-center gap-2">
             <Send className="w-5 h-5" />
-            <span>{activeTab === 'correct' ? 'Corregir texto' : 'Resumir texto'}</span>
+            <span>
+              {activeTab === "correct" ? "Corregir texto" : "Resumir texto"}
+            </span>
           </div>
         )}
       </motion.button>

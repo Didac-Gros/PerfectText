@@ -58,21 +58,42 @@ export function AudioPreview({
 
           {/* Contenedor del reproductor */}
           <div className="bg-indigo-50 dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center h-20 px-6">
+            <div className="flex items-center h-20 p-2 md:gap-0 gap-3">
               {/* Botón de play/pause */}
               <button
                 onClick={togglePlayPause}
-                className="w-12 h-12 flex items-center justify-center bg-white dark:bg-gray-700 text-indigo-600 dark:text-white rounded-full hover:bg-indigo-100 dark:hover:bg-gray-600 transition-colors transform hover:scale-105 shadow-sm dark:shadow-none"
+                className="size-10 md:size-12 flex items-center justify-center bg-white dark:bg-gray-700 text-indigo-600 dark:text-white rounded-full hover:bg-indigo-100 dark:hover:bg-gray-600 transition-colors transform hover:scale-105 shadow-sm dark:shadow-none"
               >
                 {isPlaying ? (
-                  <Pause className="w-6 h-6" />
+                  <Pause className="size-5 md:size-6" />
                 ) : (
-                  <Play className="w-6 h-6" />
+                  <Play className="size-5 md:size-6 ml-1" />
                 )}
               </button>
 
               {/* Visualizador de ondas */}
-              <div className="flex-1 mx-6 relative h-full flex items-center">
+              <div className="flex-1 md:hidden ">
+                <div className="relative h-14">
+                  <div className="  absolute inset-0 mt-2 flex items-center justify-between">
+                    {Array.from({ length: 20 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 rounded-full bg-gradient-to-b from-[#2A5CAA] to-[#5B8AD4] dark:from-indigo-500 dark:to-indigo-300"
+                        style={{
+                          height: `${20 + Math.random() * 40}%`,
+                          opacity:
+                            i < (currentTime / audioRef.current?.duration!) * 20
+                              ? 1
+                              : 0.2,
+                          transition: "all 0.2s ease",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="hidden flex-1 mx-6 relative h-full md:flex items-center">
                 <div className="w-full h-16">
                   <div className="absolute inset-0 flex items-center justify-between px-1">
                     {Array.from({ length: 50 }).map((_, i) => (
@@ -95,7 +116,13 @@ export function AudioPreview({
               </div>
 
               {/* Tiempo */}
-              <div className="flex-shrink-0 flex items-center gap-4">
+              <div className="md:hidden py-2 px-3 flex items-center justify-center bg-indigo-100 dark:bg-gray-700 rounded-full shadow-inner">
+                <span className="text-gray-900 dark:text-white font-medium text-sm">
+                  {formatTime(currentTime)}
+                </span>
+              </div>
+
+              <div className="flex-shrink-0 md:flex items-center gap-4 hidden">
                 <div className="h-10 w-20 flex items-center justify-center bg-indigo-100 dark:bg-gray-700 rounded-full shadow-inner">
                   <span className="text-gray-900 dark:text-white font-medium text-sm">
                     {formatTime(currentTime)}
@@ -131,7 +158,9 @@ export function AudioPreview({
               className="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 rounded-lg transition-colors border border-red-100 dark:border-gray-700"
             >
               <Trash2 className="w-5 h-5" />
-              Eliminar grabación
+              <p className="hidden md:block">Eliminar grabación</p>
+              <p className="md:hidden">Eliminar</p>
+
             </button>
             <button
               onClick={() => processAudioRecording(audioPreview!.blob)}

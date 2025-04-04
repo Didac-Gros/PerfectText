@@ -22,7 +22,9 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
   const [showTranslateTab, setShowTranslateTab] = useState<boolean>(true);
   const navigate = useNavigate();
   const [inputLanguage, setInputLanguage] = useState<string | undefined>("ES");
-  const [outputLanguage, setOutputLanguage] = useState<string | undefined>("EN");
+  const [outputLanguage, setOutputLanguage] = useState<string | undefined>(
+    "EN"
+  );
   const [docLanguage, setDocLanguage] = useState("ES");
   const [isLoading, setIsLoading] = useState(false);
   const [inputText, setInputText] = useState("");
@@ -130,7 +132,7 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-2xl shadow-lg p-6 w-full flex-grow"
-        >
+      >
         {showPopUp && (
           <div className="text-center mb-8">
             <LoginPopUp
@@ -150,7 +152,8 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
                 : "bg-gray-50 text-gray-700 hover:bg-gray-100"
             }`}
           >
-            Corregir texto
+            <p className="hidden md:block">Corregir texto</p>
+            <p className=" md:hidden">Corregir</p>{" "}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -162,7 +165,8 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
                 : "bg-gray-50 text-gray-700 hover:bg-gray-100"
             }`}
           >
-            Traducir texto
+            <p className="hidden md:block">Traducir texto</p>
+            <p className=" md:hidden">Traducir</p>
           </motion.button>
         </div>
         {showTranslateTab ? (
