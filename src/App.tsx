@@ -5,8 +5,7 @@ import {
   useLocation,
   useRoutes,
 } from "react-router-dom";
-import { initGA, logPageView } from "./utils/analytics";
-import { RecorderAudioProvider } from "./context/VoiceContext";
+import { logPageView } from "./utils/analytics";
 import ReactGA from "react-ga4";
 
 const MEASUREMENT_ID = "G-MXDS10FD1V"; // Reemplaza con tu ID

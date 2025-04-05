@@ -33,7 +33,7 @@ const app = express();
 
 // Security and performance configuration
 const corsOptions = {
-  origin: 'https://perfecttext.ai',
+  // origin: 'https://perfecttext.ai',
   // origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
