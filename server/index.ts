@@ -33,7 +33,7 @@ const app = express();
 
 // Security and performance configuration
 const corsOptions = {
-  //origin: 'https://perfecttext.ai',
+  origin: 'https://perfecttext.ai',
   // origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -73,7 +73,7 @@ app.use((req, res, next) => {
   }
 });
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_PRUEBA as string, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-02-24.acacia",
 });
 

@@ -61,12 +61,12 @@ export function TextInput({
         </motion.button>
       </div>
 
-      {/* <div className="mb-4">
+      <div className="mb-4">
         <LanguageSelector
           selectedLanguage={selectedLanguage}
           onLanguageChange={onLanguageChange}
         />
-      </div> */}
+      </div>
 
       <div className="relative mb-4">
         <textarea

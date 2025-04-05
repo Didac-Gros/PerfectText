@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Languages, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { additionalLanguages, mainLanguages, mainLanguagesTrad, mainLanguagesTradDoc } from "../../utils/constants";
+import { additionalLanguages, allLanguages, mainLanguages, mainLanguagesTrad, mainLanguagesTradDoc } from "../../utils/constants";
 
 
 interface LanguageSelectorProps {
@@ -42,6 +42,9 @@ export function LanguageSelector({
   const selectedAdditionalLang = additionalLanguages.find(
     (lang) => lang.code === selectedLanguage
   );
+
+  const menuLanguages = window.innerWidth < 768 ? allLanguages : additionalLanguages;
+  
 
   return (
     <div className="flex items-center gap-2 flex-wrap md:flex-nowrap relative">
@@ -123,7 +126,7 @@ export function LanguageSelector({
             }}
           >
             <div className="py-1 overflow-y-auto" style={{ maxHeight: "320px" }}>
-              {additionalLanguages.map((lang) => (
+              {menuLanguages.map((lang) => (
                 <motion.button
                   key={lang.code}
                   whileHover={{ backgroundColor: "#F3F4F6" }}

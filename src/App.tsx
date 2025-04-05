@@ -7,7 +7,9 @@ import {
 } from "react-router-dom";
 import { initGA, logPageView } from "./utils/analytics";
 import { RecorderAudioProvider } from "./context/VoiceContext";
+import ReactGA from "react-ga4";
 
+const MEASUREMENT_ID = "G-MXDS10FD1V"; // Reemplaza con tu ID
 function AppRoutes() {
   const element = useRoutes(routes);
   const location = useLocation(); // Obtiene la ubicación actual
@@ -18,18 +20,17 @@ function AppRoutes() {
 
   return element;
 }
-function App() {
+const App: React.FC = () => {
   useEffect(() => {
-    initGA(); // Inicializa Google Analytics una vez al cargar la app
+    ReactGA.initialize(MEASUREMENT_ID);
+    ReactGA.send("pageview");
   }, []);
 
   return (
     <Router>
-      {/* <RecorderAudioProvider> */}
-        <AppRoutes />
-      {/* </RecorderAudioProvider> */}
+      <AppRoutes />
     </Router>
   );
-}
+};
 
 export default App;

@@ -1,14 +1,11 @@
 import { motion } from "framer-motion";
 import { FileHeader } from "./FileHeader";
-import { SelectVersion } from "./SelectVersion";
 import { useState } from "react";
-import { PetitionButton } from "../../shared/PetitionButton";
 import { PopUpExample } from "./PopUpExample";
 import { loadStripe } from "@stripe/stripe-js";
 import { fetchCreateSession } from "../../../services/stripe/createSessionApi";
 import { fetchUploadFile } from "../../../services/files/uploadFileApi";
-import { log } from "node:console";
-import { Eye, RotateCcw, Send } from "lucide-react";
+import { Eye, Send } from "lucide-react";
 import { LoadingProgress } from "../../shared/LoadingProgress";
 
 interface FileUploadedProps {
@@ -24,11 +21,10 @@ export function FileUploaded({
   file,
   langCode,
 }: FileUploadedProps) {
-  const [versionSelected, setVersionSelected] = useState<boolean>(false);
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const stripePromise = loadStripe(
-    "pk_test_51QRAsiKIdUQC1kmZW09sMdKMahtALxF2ePorDUxt8vadtGkEW80S2Vxa9i3kgd71HyQVTpwXsHloaYTbttnBvU2S00GmqySJHZ"
+    "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"
   ); // Tu clave pública de Stripe
 
   const handleCheckout = async () => {
@@ -40,7 +36,7 @@ export function FileUploaded({
       setIsLoading(false);
     } else {
       try {
-        const path = await fetchUploadFile(file);
+        await fetchUploadFile(file);
 
         const sessionId = await fetchCreateSession(langCode, file);
 
