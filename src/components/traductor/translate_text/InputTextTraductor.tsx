@@ -26,7 +26,7 @@ export function InputTextTraductor({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleCopy(inputText)}
-            className="absolute right-0 top-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="absolute right-5 top-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
             title="Copiar texto"
           >
             <Copy className="w-5 h-5 text-gray-500" />
@@ -37,7 +37,7 @@ export function InputTextTraductor({
           value={inputText}
           onChange={(e) => onTextChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full h-44 sm:h-60 md:h-72 lg:h-[calc(100vh-350px)] p-4 ${
+          className={`w-full h-44 sm:h-60 md:h-80  p-4 ${
             comeFromInput ? "rounded-bl-xl" : " rounded-br-xl"
           }  bg-gray-50 focus:bg-white border-2 border-gray-100 focus:border-blue-500 outline-none transition-colors resize-none`}
         />

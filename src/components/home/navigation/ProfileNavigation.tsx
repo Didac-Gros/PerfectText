@@ -15,6 +15,7 @@ interface ProfileNavigationProps {
   tokens: string;
   fromMobile: boolean;
   handleLogout: () => void;
+  setActiveTab: () => void;
 }
 
 export function ProfileNavigation({
@@ -23,6 +24,7 @@ export function ProfileNavigation({
   tokens,
   fromMobile,
   handleLogout,
+  setActiveTab
 }: ProfileNavigationProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -110,8 +112,9 @@ export function ProfileNavigation({
 
       <MenuItems className="absolute right-0 w-48 bg-white border border-gray-300 rounded-xl shadow-lg z-12">
         {/* Botón de Personalizar Perfil */}
-        <div className="flex items-center w-full space-x-3 px-4 py-3 justify-center font-semibold" >
-          <p>{name}</p>
+        <div className="flex flex-col items-center w-full py-3 justify-center" >
+          <p className="font-semibold">{name}</p>
+          <p className="text-xs text-gray-500 font-medium">Tokens: {tokens}</p>
         </div>
         <hr />
         <motion.button
@@ -130,7 +133,7 @@ export function ProfileNavigation({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handleLogout}
+          onClick={setActiveTab}
           className="flex items-center w-full space-x-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-gray-100 hover:text-gray-900"
         >
           <LuCrown className="w-5 h-5 text-gray-700 group-hover:text-gray-900" />

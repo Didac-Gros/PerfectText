@@ -100,6 +100,7 @@ export function Navigation({
                 tokens={formatTokens(tokens)}
                 fromMobile
                 handleLogout={handleLogout}
+                setActiveTab={() => onTabChange("plans")}
               />
             ) : (
               <LoginButton handleLogin={handleLogin}></LoginButton>
@@ -218,6 +219,8 @@ export function Navigation({
               tokens={formatTokens(tokens)}
               fromMobile={false}
               handleLogout={handleLogout}
+              setActiveTab={() => onTabChange("plans")}
+
             />
           ) : (
             <LoginButton handleLogin={handleLogin}></LoginButton>

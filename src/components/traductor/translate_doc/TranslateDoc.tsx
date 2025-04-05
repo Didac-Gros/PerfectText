@@ -33,17 +33,21 @@ export function TranslateDoc({
           comeFromTrad
         ></LanguageSelector>
       </header>
-      <div className="bg-gray-50 rounded-b-lg p-6 py-16 pb-20 flex flex-wrap justify-evenly items-center">
-        <div className=" gap-5 md:flex hidden">
-          <PdfExample></PdfExample>
-          <AnimatedArrow></AnimatedArrow>
+      <div className="bg-gray-50 rounded-b-lg px-6 py-12 min-h-[280px] flex flex-col md:flex-row justify-center items-center gap-8">
+        {/* Ejemplos PDF y flecha */}
+        <div className="flex flex-col md:flex-row gap-5 items-center">
+          <PdfExample />
+          <AnimatedArrow />
         </div>
 
-        <FileTradUploader
-          onFileUpload={onFileUpload}
-          isLoading={isLoading}
-          resetFile={false}
-        />
+        {/* Uploader */}
+        <div className="w-full md:w-auto max-w-md">
+          <FileTradUploader
+            onFileUpload={onFileUpload}
+            isLoading={isLoading}
+            resetFile={false}
+          />
+        </div>
       </div>
     </motion.div>
   );

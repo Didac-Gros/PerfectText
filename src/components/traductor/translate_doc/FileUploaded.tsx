@@ -24,7 +24,7 @@ export function FileUploaded({
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const stripePromise = loadStripe(
-    "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"
+    "pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI"
   ); // Tu clave pública de Stripe
 
   const handleCheckout = async () => {

@@ -19,7 +19,7 @@ export function LanguageSelector({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const mainLang = comeFromTrad ? mainLanguagesTradDoc : mainLanguagesTrad;
+  const mainLang = comeFromTrad ? mainLanguagesTradDoc : mainLanguages;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -39,7 +39,9 @@ export function LanguageSelector({
     };
   }, []);
 
-  const selectedAdditionalLang = additionalLanguages.find(
+  const selectedAdditionalLang = window.innerWidth < 768 ? allLanguages.find(
+    (lang) => lang.code === selectedLanguage
+  ) : additionalLanguages.find(
     (lang) => lang.code === selectedLanguage
   );
 

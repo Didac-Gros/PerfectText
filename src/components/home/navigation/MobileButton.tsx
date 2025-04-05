@@ -15,7 +15,7 @@ export function MobileButton({ onClick, isActive, children, text }: MobileButton
             onClick={onClick}
             className={`flex flex-col items-center ${isActive
                 ? 'text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 hover:text-gray-800 dark:text-white/80 shadow-lg'
+                : 'text-gray-600 hover:text-gray-800 dark:text-white/80'
                 }`}
         >
             {children}

@@ -13,7 +13,7 @@ export function ProcessingAudio({
   isProcessing
 }: ProcessingAudioProps) {
   return (
-    <div className="fixed inset-0 md:mt-16 bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-6">
+    <div className="fixed top-[4rem] bottom-0 left-0 right-0  bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -39,23 +39,6 @@ export function ProcessingAudio({
         <div className="w-full bg-gray-800 rounded-2xl shadow-xl overflow-hidden mb-6 hidden md:block">
           <Game isActive={isProcessing} />
         </div>
-
-        {/* <div className="flex items-center justify-center mt-2">
-          <div className="flex space-x-3">
-            <div
-              className="w-3 h-3 bg-[#3B82F6] rounded-full animate-bounce"
-              style={{ animationDelay: "0ms" }}
-            />
-            <div
-              className="w-3 h-3 bg-[#3B82F6] rounded-full animate-bounce"
-              style={{ animationDelay: "150ms" }}
-            />
-            <div
-              className="w-3 h-3 bg-[#3B82F6] rounded-full animate-bounce"
-              style={{ animationDelay: "300ms" }}
-            />
-          </div>
-        </div> */}
       </motion.div>
     </div>
   );
