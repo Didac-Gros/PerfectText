@@ -99,8 +99,8 @@ app.post(
   "/api/create-checkout-session",
   async (req: Request, res: Response) => {
     try {
-      const successUrl = `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
-      const cancelUrl = `${process.env.FRONTEND_URL}`;
+      const successUrl = `https://perfecttext.ai/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
+      const cancelUrl = `https://perfecttext.ai`;
 
       if (!successUrl.startsWith("http") || !cancelUrl.startsWith("http")) {
         console.error("⚠️ ERROR: FRONTEND_URL no está definido correctamente.");
