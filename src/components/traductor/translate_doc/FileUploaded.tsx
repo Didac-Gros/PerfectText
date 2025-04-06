@@ -24,9 +24,10 @@ export function FileUploaded({
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const stripePromise = loadStripe(
-    "pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI"
-  ); // Tu clave pública de Stripe
+    // "pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI"
+    "pk_test_51QRAsiKIdUQC1kmZW09sMdKMahtALxF2ePorDUxt8vadtGkEW80S2Vxa9i3kgd71HyQVTpwXsHloaYTbttnBvU2S00GmqySJHZ"
 
+  ); // Tu clave pública de Stripe
   const handleCheckout = async () => {
     setIsLoading(true);
     const stripe = await stripePromise;

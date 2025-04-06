@@ -73,7 +73,7 @@ app.use((req, res, next) => {
   }
 });
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_PRUEBA as string, {
   apiVersion: "2025-02-24.acacia",
 });
 
@@ -116,7 +116,7 @@ app.post(
               product_data: {
                 name: "Traducción de documento",
               },
-              unit_amount: 0,
+              unit_amount: 199,
             },
             quantity: 1,
           },
