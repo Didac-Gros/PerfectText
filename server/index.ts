@@ -77,6 +77,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-02-24.acacia",
 });
 
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+
 app.get("/api/check-payment", checkPayment);
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
