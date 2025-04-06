@@ -77,12 +77,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-02-24.acacia",
 });
 
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-});
-
 app.get("/api/check-payment", checkPayment);
 app.get("/health", (_req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
@@ -105,8 +99,8 @@ app.post(
   "/api/create-checkout-session",
   async (req: Request, res: Response) => {
     try {
-      const successUrl = `https://perfecttext.ai/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
-      const cancelUrl = `https://perfecttext.ai`;
+      const successUrl = `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
+      const cancelUrl = process.env.FRONTEND_URL || "";
 
       if (!successUrl.startsWith("http") || !cancelUrl.startsWith("http")) {
         console.error("⚠️ ERROR: FRONTEND_URL no está definido correctamente.");
@@ -122,7 +116,7 @@ app.post(
               product_data: {
                 name: "Traducción de documento",
               },
-              unit_amount: 199, // 1,99€ en céntimos
+              unit_amount: 199,
             },
             quantity: 1,
           },
