@@ -52,7 +52,10 @@ export const HomePage: React.FC = () => {
   } = useAudioRecorder();
 
   useEffect(() => {
-    if (fileURL && !showedFile.current) {
+    const alreadyDownloaded = sessionStorage.getItem("documentDownloaded");
+
+    if (fileURL && !alreadyDownloaded) {
+      sessionStorage.setItem("documentDownloaded", "true");
       showedFile.current = true; // Marcar que ya se ha mostrado el archivo
       // Crear un enlace de descarga y activarlo automáticamente
       const link = document.createElement("a");

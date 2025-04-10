@@ -35,6 +35,8 @@ export const SuccessPaymentPage = () => {
       );
 
       if (paymentStatus.paid) {
+        sessionStorage.removeItem("documentDownloaded");
+
         fetchTranslateDocument(file!, langCode!)
           .then(async (blob) => {
             const fileURL = URL.createObjectURL(blob);

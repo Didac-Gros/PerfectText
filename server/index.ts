@@ -116,7 +116,7 @@ app.post(
               product_data: {
                 name: "Traducción de documento",
               },
-              unit_amount: 0,
+              unit_amount: 50,
             },
             quantity: 1,
           },

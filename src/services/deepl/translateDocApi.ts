@@ -1,3 +1,5 @@
+import { API_URL, API_URL_LOCAL } from "../../utils/constants";
+
  // Importar la función reutilizable de fetchAPI
 export async function fetchTranslateDocument(
   file: File,
@@ -9,7 +11,7 @@ export async function fetchTranslateDocument(
     formData.append("targetLang", targetLang); // Idioma destino
 
     const response = await fetch(
-      "http://localhost:3000/api/translate/document",
+      `${API_URL}/translate/document`,
       {
         method: "POST",
         body: formData,
