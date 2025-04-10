@@ -11,6 +11,7 @@ import { addQuizToFirestore } from "../../services/firestore/quizRepository";
 import { timeAgo } from "../../utils/utils";
 import { CiEdit } from "react-icons/ci";
 import { updateFirestoreField } from "../../services/firestore/firestore";
+import { useAuth } from "../../hooks/useAuth";
 
 interface QuizSummaryProps {
   score: number;
@@ -60,9 +61,10 @@ export function QuizSummary({
   const [isEditing, setIsEditing] = useState(false);
   const [quizzIdState, setQuizIdState] = useState(quizzId);
   const hasSaved = useRef(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!hasSaved.current && !comeFromRecent) {
+    if (!hasSaved.current && !comeFromRecent && user) {
       hasSaved.current = true;
       addQuizToFirestore(questions, answers, score, titleFile)
         .then((quizzId: string) => {
@@ -237,14 +239,13 @@ export function QuizSummary({
           handleClick={onRepeat}
           text="Repetir quiz"
           color="bg-blue-400"
-          icon={<RotateCcw className="w-5 h-5" /> }
+          icon={<RotateCcw className="w-5 h-5" />}
         ></SummaryButton>
         <SummaryButton
           handleClick={onRestart}
           text="Crear nuevo quiz"
           color="bg-teal-400"
-          icon={<RotateCcw className="w-5 h-5" /> }
-
+          icon={<RotateCcw className="w-5 h-5" />}
         ></SummaryButton>
       </div>
       {!answered && !quizRated && (

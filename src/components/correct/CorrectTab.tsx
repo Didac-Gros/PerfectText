@@ -36,19 +36,18 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!user) {
-      setShowPopUp(true);
-    } else if (userTokens === null || userTokens >= inputText.length) {
+    // if (!user) {
+    //   setShowPopUp(true);
+    // } else 
+    // if (userTokens === null || userTokens >= inputText.length) {
       if (!inputText.trim()) return;
-      console.log("userTokens: ", userTokens);
-      console.log("inputText: ", inputText.length);
 
-      setIsLoading(true);
+      setIsLoading(true); 
       setError(undefined);
-      removeTokens(inputText.length);
-      if (userTokens !== null) {
-        userTokens -= inputText.length;
-      }
+      // removeTokens(inputText.length);
+      // if (userTokens !== null) {
+      //   userTokens -= inputText.length;
+      // }
       try {
         const { corrected, enhanced } = await correctText(
           inputText,
@@ -66,9 +65,9 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
       } finally {
         setIsLoading(false);
       }
-    } else {
-      setShowPopUpTokens(true);
-    }
+    // } else {
+    //   setShowPopUpTokens(true);
+    // }
   };
 
   const handleLogin = () => {

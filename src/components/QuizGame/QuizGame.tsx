@@ -62,11 +62,11 @@ export const QuizGame: React.FC<QuizGameProps> = ({
   }, [user]);
 
   const handleGenerateQuestions = async () => {
-    if (user) {
-      if (
-        userTokens === null ||
-        userTokens >= userText.length + fileText.length
-      ) {
+    // if (user) {
+    //   if (
+    //     userTokens === null ||
+    //     userTokens >= userText.length + fileText.length
+    //   ) {
         setIsLoading(true);
         setError(null);
         let content = "";
@@ -95,8 +95,8 @@ export const QuizGame: React.FC<QuizGameProps> = ({
         } finally {
           setIsLoading(false);
         }
-      } else setShowPopUpTokens(true);
-    } else setShowPopUp(true);
+    //   } else setShowPopUpTokens(true);
+    // } else setShowPopUp(true);
   };
 
   const handleAnswer = (isCorrect: boolean, time: number) => {

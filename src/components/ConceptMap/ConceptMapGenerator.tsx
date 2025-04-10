@@ -324,53 +324,54 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
   };
 
   const generateConceptMap = async () => {
-    if (user) {
-      if (
-        userTokens === null ||
-        userTokens >= userText.length + fileText.length
-      ) {
-        setIsLoading(true);
-        setError(null);
+    // if (user) {
+    //   if (
+    //     userTokens === null ||
+    //     userTokens >= userText.length + fileText.length
+    //   ) {
 
-        try {
-          removeTokens(userText.length + fileText.length);
-          const response = await fetchConceptMap(`${userText} ${fileText}`);
-          setMarkdown(response);
-          const root = parseMarkdownToNodes(response);
+    setIsLoading(true);
+    setError(null);
 
-          if (!root.children?.length) {
-            throw new Error(
-              "No se pudieron generar conceptos del texto proporcionado"
-            );
-          }
-          setTimeout(() => setShowPopup(true), 10000);
-          renderConceptMap(root);
-          const mapId = uuidv4();
+    try {
+      removeTokens(userText.length + fileText.length);
+      const response = await fetchConceptMap(`${userText} ${fileText}`);
+      setMarkdown(response);
+      const root = parseMarkdownToNodes(response);
 
-          addConceptMapToFirestore(mapId, root, fileTitle)
-            .then(() => {
-              setMapId(mapId);
-            })
-            .catch((error) =>
-              console.error("Error al guardar el quiz:", error)
-            );
-          svgRef.current?.scrollIntoView({ behavior: "smooth" });
+      if (!root.children?.length) {
+        throw new Error(
+          "No se pudieron generar conceptos del texto proporcionado"
+        );
+      }
+      setTimeout(() => setShowPopup(true), 10000);
+      renderConceptMap(root);
+      const mapId = uuidv4();
+      if (user) {
+        addConceptMapToFirestore(mapId, root, fileTitle)
+          .then(() => {
+            setMapId(mapId);
+          })
+          .catch((error) => console.error("Error al guardar el quiz:", error));
+      }
 
-          setUserText("");
-          setResetFile(true);
-          setIsMap(true);
-        } catch (err) {
-          console.error("Error generating concept map:", err);
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Error al generar el mapa conceptual"
-          );
-        } finally {
-          setIsLoading(false);
-        }
-      } else setShowPopUpTokens(true);
-    } else setShowPopUp(true);
+      svgRef.current?.scrollIntoView({ behavior: "smooth" });
+
+      setUserText("");
+      setResetFile(true);
+      setIsMap(true);
+    } catch (err) {
+      console.error("Error generating concept map:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error al generar el mapa conceptual"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+    //   } else setShowPopUpTokens(true);
+    // } else setShowPopUp(true);
   };
 
   const handleFileUpload = async (file: File) => {

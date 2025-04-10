@@ -113,7 +113,7 @@ export function ProfileNavigation({
       <MenuItems className="absolute right-0 w-48 bg-white border border-gray-300 rounded-xl shadow-lg z-12">
         {/* Botón de Personalizar Perfil */}
         <div className="flex flex-col items-center w-full py-3 justify-center" >
-          <p className="font-semibold">{name}</p>
+          <p className="font-semibold dark:text-black">{name}</p>
           <p className="text-xs text-gray-500 font-medium">Tokens: {tokens}</p>
         </div>
         <hr />
