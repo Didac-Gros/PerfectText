@@ -119,13 +119,13 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
             onClick={() => setShowTranslateTab(true)}
             activate={showTranslateTab}
           ></SelectTranslate>
-          {/* <SelectTranslate
+          <SelectTranslate
             icon={<FaRegFileAlt className="size-6" />}
             title="Traducir archivos"
             subtitle=".pdf, .docx, .pptx"
             onClick={() => setShowTranslateTab(false)}
             activate={!showTranslateTab}
-          ></SelectTranslate> */}
+          ></SelectTranslate>
         </div>
       </div>
       <motion.div

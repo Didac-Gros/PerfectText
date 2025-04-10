@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Hero } from "../components/home/hero"; // Importación del Hero
 import { PricingSection } from "../components/home/PricingSection"; // Importación del PricingSection
 import { Navigation } from "../components/home/navigation/Navigation";
@@ -31,6 +31,7 @@ export const HomePage: React.FC = () => {
     await updateUserTokens(tokensToRemove);
     setTokens(tokens! - tokensToRemove);
   };
+  const showedFile = useRef<boolean>(false);
 
   const {
     recorderState,
@@ -51,7 +52,8 @@ export const HomePage: React.FC = () => {
   } = useAudioRecorder();
 
   useEffect(() => {
-    if (fileURL) {
+    if (fileURL && !showedFile.current) {
+      showedFile.current = true; // Marcar que ya se ha mostrado el archivo
       // Crear un enlace de descarga y activarlo automáticamente
       const link = document.createElement("a");
       link.href = fileURL;
@@ -83,7 +85,7 @@ export const HomePage: React.FC = () => {
   const [isDark, setIsDark] = useDarkMode();
 
   useEffect(() => {
-    if(activeTab !== "voice") {
+    if (activeTab !== "voice") {
       setIsDark(false);
     }
   }, [activeTab]);
@@ -105,7 +107,7 @@ export const HomePage: React.FC = () => {
           handleStopRecording={handleStopRecording}
         ></AudioWindow>
       )}
-      
+
       <div className="max-w-[86rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}

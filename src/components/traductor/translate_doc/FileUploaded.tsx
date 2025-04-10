@@ -24,8 +24,8 @@ export function FileUploaded({
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const stripePromise = loadStripe(
-    // "pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI"
-    "pk_test_51QRAsiKIdUQC1kmZW09sMdKMahtALxF2ePorDUxt8vadtGkEW80S2Vxa9i3kgd71HyQVTpwXsHloaYTbttnBvU2S00GmqySJHZ"
+    "pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI"
+    // "pk_test_51QRAsiKIdUQC1kmZW09sMdKMahtALxF2ePorDUxt8vadtGkEW80S2Vxa9i3kgd71HyQVTpwXsHloaYTbttnBvU2S00GmqySJHZ"
 
   ); // Tu clave pública de Stripe
   const handleCheckout = async () => {
@@ -40,7 +40,8 @@ export function FileUploaded({
         await fetchUploadFile(file);
 
         const sessionId = await fetchCreateSession(langCode, file);
-
+        console.log("Session ID:", sessionId);
+        
         const result = await stripe.redirectToCheckout({ sessionId });
 
         if (result.error) {

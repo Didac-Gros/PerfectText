@@ -73,7 +73,7 @@ app.use((req, res, next) => {
   }
 });
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_PRUEBA as string, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-02-24.acacia",
 });
 
@@ -101,7 +101,7 @@ app.post(
     try {
       const successUrl = `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
       const cancelUrl = process.env.FRONTEND_URL || "";
-
+      
       if (!successUrl.startsWith("http") || !cancelUrl.startsWith("http")) {
         console.error("⚠️ ERROR: FRONTEND_URL no está definido correctamente.");
         process.exit(1); // Detiene el servidor si no hay una URL válida
@@ -116,7 +116,7 @@ app.post(
               product_data: {
                 name: "Traducción de documento",
               },
-              unit_amount: 199,
+              unit_amount: 0,
             },
             quantity: 1,
           },
