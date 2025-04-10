@@ -94,14 +94,13 @@ app.post("/api/webhook", stripeWebhook);
 app.post("/api/quiz/user-review", saveDatasetHandler);
 app.post("/api/translate/document", upload.single("file"), translateDocument);
 app.post("/api/translate/text", translateText);
-app.post("/api/upload-file", upload.single("file"), uploadFile);
 app.post(
   "/api/create-checkout-session",
   async (req: Request, res: Response) => {
     try {
       const successUrl = `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
       const cancelUrl = process.env.FRONTEND_URL || "";
-      
+
       if (!successUrl.startsWith("http") || !cancelUrl.startsWith("http")) {
         console.error("⚠️ ERROR: FRONTEND_URL no está definido correctamente.");
         process.exit(1); // Detiene el servidor si no hay una URL válida
@@ -116,7 +115,7 @@ app.post(
               product_data: {
                 name: "Traducción de documento",
               },
-              unit_amount: 50,
+              unit_amount: 0,
             },
             quantity: 1,
           },
@@ -135,6 +134,53 @@ app.post(
     }
   }
 );
+app.post(
+  "/api/upload-file",
+  upload.single("file"),
+  async (req: Request, res: Response) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No se subió ningún archivo." });
+    }
+
+    const originalName = req.file.originalname;
+
+    // ✅ Usar el nombre original sin modificar
+    const safeFileName = originalName;
+
+    console.log("✅ Archivo subido con nombre original:", originalName);
+    console.log("📁 Guardando como:", safeFileName);
+
+    const uploadDir = path.join(__dirname, "uploads");
+    const newPath = path.join(uploadDir, safeFileName);
+
+    // Asegurarse de que el directorio exista
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Si multer guarda en memoria, escribir desde el buffer
+    if (req.file.buffer) {
+      fs.writeFileSync(newPath, req.file.buffer);
+    } else {
+      const oldPath = path.join(uploadDir, originalName);
+      if (fs.existsSync(oldPath)) {
+        fs.renameSync(oldPath, newPath);
+      }
+    }
+
+    res.json({ path: `/uploads/${safeFileName}` });
+  }
+);
+
+const formatearNombreArchivo = (nombre: string): string => {
+  return nombre
+    .normalize("NFD") // separa letras y tildes (e.g., á => a + ́)
+    .replace(/[\u0300-\u036f]/g, "") // elimina las tildes
+    .replace(/\s+/g, "_") // reemplaza espacios por guiones bajos
+    .replace(/[^a-zA-Z0-9._-]/g, "") // elimina caracteres especiales excepto punto, guión y guión bajo
+    .toLowerCase(); // opcional: todo en minúsculas
+};
+
 app.get("/api/download-file", (req, res) => {
   const filePath = req.query.path as string;
 
@@ -144,9 +190,11 @@ app.get("/api/download-file", (req, res) => {
 
   // Elimina cualquier barra inicial que pueda causar problemas
   const sanitizedPath = filePath.replace(/^(\.\/|\/)/, "");
-  const absolutePath = path.join(__dirname, "uploads", sanitizedPath);
+  const sanitizedPathCorrect = formatearNombreArchivo(sanitizedPath);
+  const absolutePath = path.join(__dirname, "uploads", sanitizedPathCorrect);
 
-  console.log("📁 Ruta recibida:", filePath);
+  console.log("📁 Ruta recibida:", sanitizedPath);
+  console.log("📁 Ruta ultra sana:", sanitizedPathCorrect);
   console.log("📁 Ruta absoluta generada:", absolutePath);
 
   // Verificar si el archivo realmente existe

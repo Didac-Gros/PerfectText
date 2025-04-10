@@ -7,6 +7,8 @@ import { fetchCreateSession } from "../../../services/stripe/createSessionApi";
 import { fetchUploadFile } from "../../../services/files/uploadFileApi";
 import { Eye, Send } from "lucide-react";
 import { LoadingProgress } from "../../shared/LoadingProgress";
+import path from "path";
+import slugify from "slugify";
 
 interface FileUploadedProps {
   fileName: string;
@@ -26,8 +28,26 @@ export function FileUploaded({
   const stripePromise = loadStripe(
     "pk_live_51QRAsiKIdUQC1kmZ2An7o3OBNt54xFKdlTpByQz92H4xvh1NZvonLBUMooGH8k6XRXJ7zy3LLW3AlXlfdf00sDJK00OicnLdCI"
     // "pk_test_51QRAsiKIdUQC1kmZW09sMdKMahtALxF2ePorDUxt8vadtGkEW80S2Vxa9i3kgd71HyQVTpwXsHloaYTbttnBvU2S00GmqySJHZ"
-
   ); // Tu clave pública de Stripe
+
+  const renombrarArchivo = (archivo: File, nuevoNombre: string): File => {
+    return new File([archivo], nuevoNombre, {
+      type: archivo.type,
+      lastModified: archivo.lastModified,
+      
+    });
+  };
+
+  const formatearNombreArchivo = (nombre: string): string => {
+    return nombre
+      .normalize("NFD") // separa letras y tildes (e.g., á => a + ́)
+      .replace(/[\u0300-\u036f]/g, "") // elimina las tildes
+      .replace(/\s+/g, "_") // reemplaza espacios por guiones bajos
+      .replace(/[^a-zA-Z0-9._-]/g, "") // elimina caracteres especiales excepto punto, guión y guión bajo
+      .toLowerCase(); // opcional: todo en minúsculas
+  };
+  
+
   const handleCheckout = async () => {
     setIsLoading(true);
     const stripe = await stripePromise;
@@ -37,11 +57,16 @@ export function FileUploaded({
       setIsLoading(false);
     } else {
       try {
-        await fetchUploadFile(file);
+        const originalName = file.name;
+    
+        const fileRenamed = renombrarArchivo(file, formatearNombreArchivo(originalName));
+        console.log("Renombrado:", fileRenamed.name);
+        
+        await fetchUploadFile(fileRenamed);
 
         const sessionId = await fetchCreateSession(langCode, file);
         console.log("Session ID:", sessionId);
-        
+
         const result = await stripe.redirectToCheckout({ sessionId });
 
         if (result.error) {
@@ -90,7 +115,10 @@ export function FileUploaded({
             }   flex flex-col items-center justify-center gap-2`}
           >
             {isLoading ? (
-              <LoadingProgress isLoading={isLoading} text={"Redirigiendo a pasarela de pagos..."} />
+              <LoadingProgress
+                isLoading={isLoading}
+                text={"Redirigiendo a pasarela de pagos..."}
+              />
             ) : (
               <div className="flex items-center gap-2">
                 <Send className="w-5 h-5" />
@@ -99,7 +127,6 @@ export function FileUploaded({
             )}
           </motion.button>
         </div>
-
       </div>
     </motion.div>
   );
