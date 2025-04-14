@@ -8,7 +8,7 @@ import { SummarizeTab } from "../components/summarize/SummarizeTab";
 import { CorrectTab } from "../components/correct/CorrectTab";
 import { useAuth } from "../hooks/useAuth";
 import { updateUserTokens } from "../services/firestore/firestore";
-import { TabType } from "../types/global";
+import { SidebarType, TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
@@ -17,6 +17,11 @@ import VoiceTab from "../components/voice/VoiceTab";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { AudioWindow } from "../components/home/AudioWindow";
 import { useDarkMode } from "../hooks/useDarkMode";
+import { Sidebar } from "../components/home/navigation/Sidebar";
+import { useBoardStore } from "../hooks/useBoardStore";
+import { MySpaceTab } from "../components/mySpace/MySpaceTab";
+import { BoardTab } from "../components/board/BoardTab";
+
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>(
@@ -32,6 +37,9 @@ export const HomePage: React.FC = () => {
     setTokens(tokens! - tokensToRemove);
   };
   const showedFile = useRef<boolean>(false);
+  const [currentView, setCurrentView] = useState<SidebarType>("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDark, setIsDark] = useDarkMode();
 
   const {
     recorderState,
@@ -85,13 +93,85 @@ export const HomePage: React.FC = () => {
     setRecordingTime(0);
   };
 
-  const [isDark, setIsDark] = useDarkMode();
-
   useEffect(() => {
     if (activeTab !== "voice") {
       setIsDark(false);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    console.log("currentView", currentView);
+  }, [currentView]);
+
+  if (currentView !== "") {
+    return (
+      <div className={`min-h-screen lg:pb-0 pb-20 `}>
+        {recorderState.isRecording && isMinimized && (
+          <AudioWindow
+            recordingTime={recordingTime}
+            isPaused={isPaused}
+            togglePause={togglePause}
+            handleMinimized={handleMinimized}
+            handleStopRecording={handleStopRecording}
+          ></AudioWindow>
+        )}
+
+        <div
+          className={` ${
+            sidebarOpen ? "ml-64" : "ml-0"
+          } transition-all duration-300`}
+          style={{ height: "calc(100vh - 4rem)" }}
+        >
+          <Navigation
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            user={user}
+            tokens={tokens ?? 0}
+            userStore={userStore}
+            setDarkMode={setIsDark}
+            isDarkMode={isDark}
+            toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            closeSidebar={() => {
+              setSidebarOpen(false);
+              setCurrentView("");
+            }}
+          />
+          <Sidebar
+            isOpen={sidebarOpen}
+            currentView={currentView}
+            onViewChange={(view) => {
+              setCurrentView(view);
+              setActiveTab("");
+              if (view === "boards") {
+                useBoardStore.getState().setCurrentBoard("");
+              }
+            }}
+          />
+
+          {currentView === "myspace" && (
+            <MySpaceTab onViewChange={setCurrentView} />
+          )}
+
+          {currentView === "boards" && (
+            <BoardTab/>
+          )}
+
+          {showPopUp && (
+            <div className="text-center mb-8">
+              <TokensPopUp
+                onClose={() => setShowPopUp(false)}
+                onUpdatePlan={() => {
+                  setActiveTab("plans");
+                  setShowPopUp(false);
+                }}
+                userExpirationDate={userStore!.expirationDate}
+              ></TokensPopUp>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -111,7 +191,7 @@ export const HomePage: React.FC = () => {
         ></AudioWindow>
       )}
 
-      <div className="max-w-[86rem] mx-auto px-4 md:py-6">
+      <div className="max-w-[82rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -120,6 +200,22 @@ export const HomePage: React.FC = () => {
           userStore={userStore}
           setDarkMode={setIsDark}
           isDarkMode={isDark}
+          toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          closeSidebar={() => {
+            setSidebarOpen(false);
+            setCurrentView("");
+          }}
+        />
+        <Sidebar
+          isOpen={sidebarOpen}
+          currentView={currentView}
+          onViewChange={(view) => {
+            setCurrentView(view);
+            setActiveTab("");
+            if (view === "boards") {
+              useBoardStore.getState().setCurrentBoard("");
+            }
+          }}
         />
 
         {activeTab === "home" && (

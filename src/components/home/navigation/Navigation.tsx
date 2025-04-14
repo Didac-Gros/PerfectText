@@ -9,6 +9,7 @@ import {
   Moon,
   Bell,
   Sun,
+  Menu,
 } from "lucide-react";
 import { User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +24,7 @@ import { MobileButton } from "./MobileButton";
 import { LoginButton } from "./LoginButton";
 import { useAuth } from "../../../hooks/useAuth";
 import { HiOutlineMicrophone } from "react-icons/hi";
-import { active } from "d3";
-
+import React from "react";
 interface NavigationProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
@@ -33,6 +33,8 @@ interface NavigationProps {
   tokens: number;
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
   isDarkMode: boolean;
+  toggleSidebar: () => void;
+  closeSidebar: () => void;
 }
 
 export function Navigation({
@@ -42,6 +44,8 @@ export function Navigation({
   tokens,
   setDarkMode,
   isDarkMode,
+  toggleSidebar,
+  closeSidebar,
 }: NavigationProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -66,16 +70,22 @@ export function Navigation({
   return (
     <nav className="mb-6">
       <div
-        className={`dark:bg-gray-900 bg-white w-full shadow-md dark:shadow-gray-800/50 py-4 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50`}
+        className={`dark:bg-gray-900 bg-white w-full shadow-md dark:shadow-gray-800/50 py-2 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50`}
       >
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <Icon
+          <button
+            onClick={toggleSidebar}
+            className="p-2 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+          >
+            <Menu className="w-6 h-6 text-[#38bdf8] dark:text-[#0284c7]" />
+          </button>
+          {/* <Icon
             path={mdiEmoticonWink}
             size={1.5}
             className="dark:text-blue-400 text-black"
             title="Logo"
-          />
+          /> */}
           <span className="text-xl font-bold dark:text-white text-gray-800">
             PerfectText
           </span>
@@ -159,7 +169,10 @@ export function Navigation({
         <div className="hidden md:flex flex-col md:flex-row items-center gap-2 absolute md:static w-full md:w-auto transition-transform duration-300">
           {!user && (
             <NavigationButton
-              onClick={() => onTabChange("home")}
+              onClick={() => {
+                onTabChange("home");
+                closeSidebar();
+              }}
               isActive={activeTab === "home"}
               text="Inicio"
             >
@@ -168,7 +181,10 @@ export function Navigation({
           )}
 
           <NavigationButton
-            onClick={() => onTabChange("correct")}
+            onClick={() => {
+              onTabChange("correct");
+              closeSidebar();
+            }}
             isActive={activeTab === "correct" || activeTab === "traductor"}
             text="Corrección"
           >
@@ -176,7 +192,10 @@ export function Navigation({
           </NavigationButton>
 
           <NavigationButton
-            onClick={() => onTabChange("quiz")}
+            onClick={() => {
+              onTabChange("quiz");
+              closeSidebar();
+            }}
             isActive={activeTab === "quiz"}
             text="Quiz"
           >
@@ -184,7 +203,10 @@ export function Navigation({
           </NavigationButton>
 
           <NavigationButton
-            onClick={() => onTabChange("conceptmap")}
+            onClick={() => {
+              onTabChange("conceptmap");
+              closeSidebar();
+            }}
             isActive={activeTab === "conceptmap"}
             text="Mapa"
           >
@@ -192,7 +214,10 @@ export function Navigation({
           </NavigationButton>
 
           <NavigationButton
-            onClick={() => onTabChange("voice")}
+            onClick={() => {
+              onTabChange("voice");
+              closeSidebar();
+            }}
             isActive={activeTab === "voice"}
             text="Voice"
           >
@@ -220,7 +245,6 @@ export function Navigation({
               fromMobile={false}
               handleLogout={handleLogout}
               setActiveTab={() => onTabChange("plans")}
-
             />
           ) : (
             <LoginButton handleLogin={handleLogin}></LoginButton>

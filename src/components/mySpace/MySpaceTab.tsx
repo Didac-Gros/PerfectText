@@ -1,0 +1,418 @@
+import React from 'react';
+import { Clock, CalendarClock, Users, Video, ArrowUpRight, Plus, Check, Info } from 'lucide-react';
+import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { useBoardStore } from '../../hooks/useBoardStore';
+import { EventModal } from './EventModal';
+import { useCalendarStore } from '../../hooks/useCalendarStore';
+import { AvatarCircles } from './AvatarCircles';
+import { AnimatedList } from '../shared/AnimatedList';
+import { BlurFade } from './BlurFade';
+import type { EventInput } from '@fullcalendar/core';
+import { SidebarType } from '../../types/global';
+
+interface MySpaceTabProps {
+  onViewChange: (view: SidebarType) => void;
+}
+
+const GROUPS = [
+  {
+    id: '1',
+    name: 'Equipo Diseño',
+    icon: '🎨',
+    members: 8,
+    active: true,
+    avatars: [
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=64&h=64&q=80&crop=faces&fit=crop"
+    ]
+  },
+  {
+    id: '2',
+    name: 'Desarrollo Frontend',
+    icon: '💻',
+    members: 12,
+    active: true,
+    avatars: [
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64&h=64&q=80&crop=faces&fit=crop"
+    ]
+  },
+  {
+    id: '3',
+    name: 'Marketing',
+    icon: '📢',
+    members: 6,
+    active: false,
+    avatars: [
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=64&h=64&q=80&crop=faces&fit=crop",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&crop=faces&fit=crop"
+    ]
+  }
+];
+
+const EVENT_COLORS = {
+  blue: '#3b82f6',
+  red: '#ef4444',
+  green: '#10b981',
+  purple: '#8b5cf6',
+  yellow: '#f59e0b'
+};
+
+export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
+  const { addBoard, setCurrentBoard, boards } = useBoardStore();
+  const { events, toggleEventCompletion } = useCalendarStore();
+  const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(null);
+  const [showEventModal, setShowEventModal] = React.useState(false);
+
+  // Get today's events
+  const todayEvents = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return events
+      .filter(event => {
+        const eventDate = new Date(event.start as Date);
+        return eventDate >= today && eventDate < tomorrow;
+      })
+      .sort((a, b) => {
+        const timeA = new Date(a.start as Date).getTime();
+        const timeB = new Date(b.start as Date).getTime();
+        return timeA - timeB;
+      });
+  }, [events]);
+
+  const handleCreateBoard = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newBoard = addBoard('Nueva página');
+    setCurrentBoard(newBoard.id);
+    onViewChange('boards');
+  };
+
+  const handleBoardClick = (boardId: string) => {
+    setCurrentBoard(boardId);
+    onViewChange('boards');
+  };
+
+  const handleEventClick = (event: EventInput) => {
+    setSelectedEvent(event);
+    setShowEventModal(true);
+  };
+
+  const handleViewAllBoards = () => {
+    setCurrentBoard('');
+    onViewChange('boards');
+  };
+
+  const formatEventTime = (date: Date) => {
+    if (isToday(date)) {
+      return `Hoy a las ${format(date, 'HH:mm')}`;
+    } else if (isTomorrow(date)) {
+      return `Mañana a las ${format(date, 'HH:mm')}`;
+    } else if (isYesterday(date)) {
+      return `Ayer a las ${format(date, 'HH:mm')}`;
+    }
+    return format(date, "d 'de' MMMM 'a las' HH:mm", { locale: es });
+  };
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Header */}
+        <div className="space-y-1">
+          <BlurFade delay={0.25} inView>
+            <h2 className="text-6xl font-bold tracking-tighter xl:text-7xl/none bg-gradient-to-b from-gray-900 via-gray-800 to-gray-700 dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent flex items-center gap-4">
+              Hello Didac
+              <div className="w-16 h-16 bg-black rounded-full p-1 flex-shrink-0">
+                <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
+                  <svg 
+                    viewBox="0 0 100 100" 
+                    className="w-12 h-12 text-white"
+                  >
+                    <circle cx="30" cy="35" r="8" fill="currentColor"/>
+                    <rect x="60" y="35" width="16" height="8" rx="4" fill="currentColor"/>
+                    <path
+                      d="M25,65 Q50,80 75,65"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </h2>
+          </BlurFade>
+          <BlurFade delay={0.35} inView>
+            <p className="text-3xl text-gray-600 dark:text-gray-400 xl:text-2xl/none tracking-tighter">
+              {format(new Date(), "EEEE, d 'de' MMMM yyyy", { locale: es })}
+            </p>
+          </BlurFade>
+        </div>
+
+        {/* Recent Boards */}
+        <section className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
+              <Clock className="w-5 h-5" />
+              <h2 className="text-xl font-medium">Visitados recientemente</h2>
+            </div>
+            <button 
+              onClick={handleViewAllBoards}
+              className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+            >
+              <ArrowUpRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {boards.slice(0, 3).map((board) => (
+              <div
+                key={board.id}
+                onClick={() => handleBoardClick(board.id)}
+                className="group relative bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden
+                         hover:bg-gray-100 dark:hover:bg-gray-700 
+                         transition-all duration-200 cursor-pointer
+                         hover:shadow-lg hover:-translate-y-0.5"
+              >
+                {/* Background */}
+                <div className="absolute inset-0">
+                  {board.background?.type === 'image' ? (
+                    <img
+                      src={board.background.value}
+                      alt=""
+                      className="w-full h-full object-cover opacity-40 dark:opacity-30 
+                               group-hover:opacity-50 dark:group-hover:opacity-40 
+                               transition-opacity duration-200"
+                    />
+                  ) : board.background?.type === 'gradient' ? (
+                    <div className={`absolute inset-0 opacity-40 dark:opacity-30 
+                                   group-hover:opacity-50 dark:group-hover:opacity-40 
+                                   transition-opacity duration-200 ${board.background.value}`} />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 dark:to-black/40" />
+                </div>
+
+                {/* Content */}
+                <div className="relative p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 flex items-center justify-center rounded-lg 
+                                    bg-white/10 backdrop-blur-sm border border-white/20">
+                        <span className="text-xl">{board.background?.type === 'gradient' ? '📄' : '🖼️'}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900 dark:text-white 
+                                     group-hover:text-gray-700 dark:group-hover:text-gray-300">
+                          {board.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          Última visita: hace 2h
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <button 
+              onClick={handleCreateBoard}
+              className="group relative bg-gray-50 dark:bg-gray-800 rounded-xl p-4 
+                       hover:bg-gray-100 dark:hover:bg-gray-700 
+                       transition-all duration-200 border-2 border-dashed 
+                       border-gray-200 dark:border-gray-700
+                       flex items-center justify-center
+                       hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <div className="flex flex-col items-center text-gray-400 dark:text-gray-500 
+                            group-hover:text-gray-600 dark:group-hover:text-gray-300">
+                <Plus className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">Nueva página</span>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        {/* Daily Schedule */}
+        <section className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
+              <CalendarClock className="w-5 h-5" />
+              <h2 className="text-xl font-medium">Agenda de hoy</h2>
+            </div>
+            <button 
+              onClick={() => onViewChange('calendar')}
+              className="text-primary-500 hover:text-primary-600 dark:text-primary-400 
+                       dark:hover:text-primary-300 font-medium text-sm"
+            >
+              Ver calendario completo
+            </button>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+            <AnimatedList animate={false} className="space-y-3">
+              {todayEvents.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 
+                               flex items-center justify-center">
+                    <CalendarClock className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <p className="text-lg text-gray-500 dark:text-gray-400">
+                    No hay eventos programados para hoy
+                  </p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                    ¡Disfruta de tu día libre!
+                  </p>
+                </div>
+              ) : (
+                todayEvents.map((event) => {
+                  const color = event.backgroundColor as string || EVENT_COLORS.purple;
+                  const startDate = new Date(event.start as Date);
+                  
+                  return (
+                    <div
+                      key={event.id}
+                      className="relative mx-auto w-full cursor-pointer overflow-hidden rounded-xl 
+                               bg-white dark:bg-gray-800/50 p-4 group hover:bg-gray-50 
+                               dark:hover:bg-gray-700/50 transition-all duration-200
+                               border border-gray-100 dark:border-gray-700
+                               transform-gpu hover:scale-[1.02] hover:-translate-y-0.5
+                               hover:shadow-lg dark:hover:shadow-black/20"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleEventCompletion(event.id as string);
+                          }}
+                          className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center 
+                                   justify-center transition-all duration-300 group-hover:scale-110
+                                   ${event.extendedProps?.completed
+                                     ? 'bg-green-500 text-white'
+                                     : ''
+                                   }`}
+                          style={{
+                            backgroundColor: event.extendedProps?.completed ? undefined : color,
+                            opacity: event.extendedProps?.completed ? 1 : 0.8
+                          }}
+                        >
+                          {event.extendedProps?.completed ? (
+                            <Check className="w-5 h-5" />
+                          ) : (
+                            <CalendarClock className="w-5 h-5 text-white" />
+                          )}
+                        </button>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h3 className={`font-medium text-gray-900 dark:text-white truncate
+                                       ${event.extendedProps?.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>
+                              {event.title}
+                            </h3>
+                            <span className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                              {formatEventTime(startDate)}
+                            </span>
+                          </div>
+                          {event.extendedProps?.description && (
+                            <p className={`mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2
+                                      ${event.extendedProps?.completed ? 'line-through' : ''}`}>
+                              {event.extendedProps.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEventClick(event);
+                          }}
+                          className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 
+                                   dark:text-gray-500 dark:hover:text-gray-300 rounded-lg
+                                   hover:bg-gray-100 dark:hover:bg-gray-600
+                                   transition-colors duration-200"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </AnimatedList>
+          </div>
+        </section>
+
+        {/* Groups */}
+        <section className="mt-12">
+          <div className="flex items-center space-x-2 text-gray-900 dark:text-white mb-6">
+            <Users className="w-5 h-5" />
+            <h2 className="text-xl font-medium">Grupos</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {GROUPS.map((group) => (
+              <div
+                key={group.id}
+                className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 
+                         hover:bg-gray-100 dark:hover:bg-gray-700 
+                         transition-all duration-200 cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">{group.icon}</span>
+                    <div>
+                      <h3 className="font-medium text-gray-900 dark:text-white">{group.name}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {group.members} miembros
+                      </p>
+                    </div>
+                  </div>
+                  <div className={`w-2 h-2 rounded-full ${
+                    group.active ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                  }`} />
+                </div>
+
+                <AvatarCircles
+                  avatarUrls={group.avatars}
+                  numPeople={Math.max(0, group.members - group.avatars.length)}
+                  className="mt-4"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {showEventModal && (
+        <EventModal
+          isOpen={showEventModal}
+          onClose={() => {
+            setShowEventModal(false);
+            setSelectedEvent(null);
+          }}
+          event={selectedEvent}
+          defaultDate={null}
+          onSave={async () => {
+            setShowEventModal(false);
+            setSelectedEvent(null);
+          }}
+          onDelete={async () => {
+            setShowEventModal(false);
+            setSelectedEvent(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}

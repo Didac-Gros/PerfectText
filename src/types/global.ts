@@ -64,6 +64,7 @@ export enum UserSubscription {
 }
 
 export type TabType =
+  | ""
   | "home"
   | "correct"
   | "summarize"
@@ -91,3 +92,68 @@ export interface FileData {
   mimetype: string; // El tipo de archivo (ejemplo: 'application/pdf', 'image/png')
   size: number; // El tamaño del archivo en bytes
 }
+
+export interface Board {
+  id: string;
+  title: string;
+  coverImage?: string;
+  members: string[];
+  createdAt: string;
+  updatedAt: string;
+  lists: List[];
+  dueDate?: string | null;
+  background?: {
+    type: "image" | "gradient";
+    value: string;
+  };
+}
+
+export interface List {
+  id: string;
+  title: string;
+  cards: Card[];
+  color?: string;
+}
+
+export interface Card {
+  id: string;
+  title: string;
+  description: string;
+  views: number;
+  comments: Comment[];
+  dueDate?: string | null;
+  completed?: boolean;
+  assignees: string[];
+  labels: Label[];
+  checklist: ChecklistItem[];
+}
+
+export interface Comment {
+  id: string;
+  text: string;
+  author: string;
+  createdAt: string;
+  attachments?: CommentAttachment[];
+}
+
+export interface CommentAttachment {
+  id: string;
+  type: "image" | "file";
+  url: string;
+  name: string;
+  size?: number;
+}
+
+export interface Label {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export type SidebarType = "" | "myspace" | "boards" | "calendar";

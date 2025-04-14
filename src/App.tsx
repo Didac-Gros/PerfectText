@@ -23,6 +23,7 @@ const App: React.FC = () => {
   useEffect(() => {
     ReactGA.initialize(MEASUREMENT_ID);
     ReactGA.send("pageview");
+
   }, []);
 
   return (
