@@ -421,12 +421,12 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
         </div>
         <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 pt-5 text-center">
           <div className="inline-block p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mb-1">
-            <Map className="size-8 text-white" />
+            <Map className="size-7 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
             Generador de Mapas Conceptuales
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-6 text-sm">
             Introduce un texto y generaremos un mapa conceptual interactivo
             automáticamente
           </p>
@@ -442,7 +442,7 @@ export const ConceptMapGenerator: React.FC<ConceptMapGeneratorProps> = ({
               value={userText}
               onChange={(e) => setUserText(e.target.value)}
               placeholder="Escribe o pega tu texto aquí..."
-              className="w-full h-48 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+              className="w-full h-44 text-sm p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
             />
 
             {error && (

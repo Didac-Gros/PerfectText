@@ -37,7 +37,7 @@ export function InputTextTraductor({
           value={inputText}
           onChange={(e) => onTextChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full h-44 sm:h-60 md:h-80  p-4 ${
+          className={`w-full h-44 sm:h-60  p-4 text-sm ${
             comeFromInput ? "rounded-bl-xl" : " rounded-br-xl"
           }  bg-gray-50 focus:bg-white border-2 border-gray-100 focus:border-blue-500 outline-none transition-colors resize-none`}
         />

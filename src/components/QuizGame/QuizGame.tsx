@@ -186,12 +186,12 @@ export const QuizGame: React.FC<QuizGameProps> = ({
           <div className="flex-1 bg-white rounded-2xl shadow-lg p-8 pt-5">
             <div className="text-center">
               <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-1">
-                <GamepadIcon className="size-8 text-white" />
+                <GamepadIcon className="size-7 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
                 ¡Crea tu propio Quiz!
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-6 text-sm">
                 Introduce un texto y/o un archivo y generaremos preguntas
                 automáticamente
               </p>
@@ -201,7 +201,7 @@ export const QuizGame: React.FC<QuizGameProps> = ({
                   value={userText}
                   onChange={(e) => setUserText(e.target.value)}
                   placeholder="Escribe o pega tu texto aquí..."
-                  className="w-full h-48 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full h-44 p-4 border border-gray-200 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
               </div>
 

@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../shared/ui/dialog";
 import { Input } from "./ui/input";
 import {
   Tooltip,

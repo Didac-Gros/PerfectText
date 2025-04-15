@@ -13,8 +13,8 @@ export const RecentQuizzes: React.FC<RecentQuizzesProps> = ({
   handleRecentQuiz,
 }) => {
   return (
-    <div className="h-full w-72 bg-white rounded-2xl shadow-lg p-5 border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+    <div className="h-full w-72 bg-white rounded-2xl shadow-lg p-5 px-8 border border-gray-200">
+      <h3 className="text-base font-semibold text-gray-700 mb-4">
         Quizzes Recientes
       </h3>
 
@@ -34,10 +34,10 @@ export const RecentQuizzes: React.FC<RecentQuizzesProps> = ({
                 <BookCheck className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-800">
+                <h4 className="text-xs font-medium text-gray-800">
                   {quiz.titleFile}
                 </h4>
-                <p className="text-xs text-gray-500">
+                <p className="text-[0.70rem] text-gray-500">
                   {quiz.createdAt.toDate().toLocaleDateString()}
                 </p>
               </div>

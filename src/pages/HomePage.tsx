@@ -21,12 +21,12 @@ import { Sidebar } from "../components/home/navigation/Sidebar";
 import { useBoardStore } from "../hooks/useBoardStore";
 import { MySpaceTab } from "../components/mySpace/MySpaceTab";
 import { BoardTab } from "../components/board/BoardTab";
+import { NexusTab } from "../components/nexus/NexusTab";
+import { CalendarTab } from "../components/calendar/CalendarTab";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>(
-    user ? "correct" : "home"
-  ); // Establecer home como tab inicial
+  const [activeTab, setActiveTab] = useState<TabType>(user ? "" : "home"); // Establecer home como tab inicial
   const [tokens, setTokens] = useState<number | null>(userStore?.tokens! ?? 0); // Establecer home como tab inicial
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const location = useLocation();
@@ -37,9 +37,10 @@ export const HomePage: React.FC = () => {
     setTokens(tokens! - tokensToRemove);
   };
   const showedFile = useRef<boolean>(false);
-  const [currentView, setCurrentView] = useState<SidebarType>("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<SidebarType>("myspace");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isDark, setIsDark] = useDarkMode();
+  const { currentBoard } = useBoardStore();
 
   const {
     recorderState,
@@ -148,14 +149,15 @@ export const HomePage: React.FC = () => {
             }}
           />
 
-          {currentView === "myspace" && (
+          {currentView === "myspace" ? (
             <MySpaceTab onViewChange={setCurrentView} />
+          ) : currentView === "calendar" ? (
+            <CalendarTab />
+          ) : currentBoard ? (
+            <BoardTab />
+          ) : (
+            <NexusTab />
           )}
-
-          {currentView === "boards" && (
-            <BoardTab/>
-          )}
-
           {showPopUp && (
             <div className="text-center mb-8">
               <TokensPopUp
@@ -191,7 +193,7 @@ export const HomePage: React.FC = () => {
         ></AudioWindow>
       )}
 
-      <div className="max-w-[82rem] mx-auto px-4 md:py-6">
+      <div className="max-w-[80rem] mx-auto px-4 md:py-6">
         <Navigation
           activeTab={activeTab}
           onTabChange={setActiveTab}

@@ -42,7 +42,7 @@ export function OptimizationModes({ selectedMode, onModeChange }: OptimizationMo
     <div
       className="bg-white rounded-2xl shadow-lg p-6"
     >
-      <h3 className="text-lg font-semibold text-gray-700 mb-2">Optimizar texto para...</h3>
+      <h3 className="text-base font-semibold text-gray-700 mb-2">Optimizar texto para...</h3>
       <p className="text-sm text-gray-500 mb-4">Selecciona el modo de optimización para el texto mejorado</p>
       
       <div className="space-y-3">
@@ -68,7 +68,7 @@ export function OptimizationModes({ selectedMode, onModeChange }: OptimizationMo
                 }`} />
                 <div>
                   <div className="font-medium">{mode.name}</div>
-                  <div className={`text-sm ${
+                  <div className={`text-xs ${
                     isSelected ? 'text-blue-100' : 'text-gray-500'
                   }`}>
                     {mode.description}

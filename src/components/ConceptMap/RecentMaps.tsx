@@ -13,8 +13,8 @@ export const RecentMaps: React.FC<RecentMapProps> = ({
   handleRecentMap,
 }) => {
   return (
-    <div className="h-full w-72 bg-white rounded-2xl shadow-lg p-5 overflow-y-auto border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+    <div className="h-full w-72 bg-white rounded-2xl shadow-lg p-5 px-8 overflow-y-auto border border-gray-200">
+      <h3 className="text-base font-semibold text-gray-700 mb-4">
         Mapas Recientes
       </h3>
 
@@ -34,8 +34,8 @@ export const RecentMaps: React.FC<RecentMapProps> = ({
                 <BsDiagram2 className="size-6 text-white" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-800">{map.mapTitle}</h4>
-                <p className="text-xs text-gray-500">
+                <h4 className="text-xs font-medium text-gray-800">{map.mapTitle}</h4>
+                <p className="text-[0.70rem] text-gray-500">
                   {map.createdAt.toDate().toLocaleDateString()}
                 </p>
               </div>

@@ -5,7 +5,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
+} from '../shared/ui/dialog';
 import { Settings2, Shield, UserMinus, UserCog, Trash2 } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';

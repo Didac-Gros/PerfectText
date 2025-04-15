@@ -3,7 +3,7 @@ import { Clock, CalendarClock, Users, Video, ArrowUpRight, Plus, Check, Info } f
 import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useBoardStore } from '../../hooks/useBoardStore';
-import { EventModal } from './EventModal';
+import { EventModal } from '../shared/EventModal';
 import { useCalendarStore } from '../../hooks/useCalendarStore';
 import { AvatarCircles } from './AvatarCircles';
 import { AnimatedList } from '../shared/AnimatedList';
@@ -125,7 +125,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900 pt-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="space-y-1">
@@ -354,7 +354,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
         </section>
 
         {/* Groups */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <div className="flex items-center space-x-2 text-gray-900 dark:text-white mb-6">
             <Users className="w-5 h-5" />
             <h2 className="text-xl font-medium">Grupos</h2>
@@ -391,7 +391,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
       </div>
 
       {showEventModal && (

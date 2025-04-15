@@ -133,6 +133,9 @@
   button {
     cursor: pointer;
   }
+  textarea {
+    outline: none;
+  }
 }
 
 /* Calendar Container */

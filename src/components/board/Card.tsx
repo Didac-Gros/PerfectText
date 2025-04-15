@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Card as CardType } from '../../types/global';
 import { useBoardStore } from '../../hooks/useBoardStore';
 import { CommentDialog } from './CommentDialog';
-import { DueDatePicker } from './DueDatePicker';
+import { DueDatePicker } from '../shared/DueDatePicker';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 

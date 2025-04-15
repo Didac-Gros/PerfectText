@@ -75,7 +75,7 @@ export function LanguageTraductor({
           ) : (
             <>
               <Languages className="w-4 h-4" />
-              <span className="text-sm font-medium">Detectar idioma</span>
+              <span className="text-xs font-medium">Detectar idioma</span>
             </>
           )}
           {isOpen ? (
@@ -180,7 +180,7 @@ export function LanguageTraductor({
               alt={`${lang.name} flag`}
               className="w-6 h-4 object-contain"
             />
-            <span className="text-sm font-medium">{lang.name}</span>
+            <span className="text-xs font-semibold">{lang.name}</span>
           </motion.button>
         ))}
       </div>

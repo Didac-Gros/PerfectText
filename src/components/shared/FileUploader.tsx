@@ -50,7 +50,7 @@ export function FileUploader({ onFileUpload, isLoading, resetFile }: FileUploade
     >
       <div
         {...getRootProps()}
-        className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors h-40
+        className={`relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-colors h-36
         ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'} 
         ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
@@ -62,26 +62,26 @@ export function FileUploader({ onFileUpload, isLoading, resetFile }: FileUploade
             className="flex flex-col items-center gap-2"
           >
             <div className="p-3 bg-blue-100 rounded-full">
-              <Upload className="w-6 h-6 text-blue-500" />
+              <Upload className="size-5 text-blue-500" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">
+              <h3 className="text-xs font-semibold text-gray-700 mb-1">
                 {isDragActive ? 'Suelta el archivo aquí' : 'Sube tu documento'}
               </h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-[0.70rem] text-gray-500">
                 Arrastra y suelta o haz clic
               </p>
             </div>
             <div className="flex gap-2 justify-center mt-2">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-[0.70rem] text-gray-500">
                 <FaRegFilePdf className="w-3 h-3" />
                 <span>PDF</span>
               </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-[0.70rem] text-gray-500">
                 <FaRegFileWord className="w-3 h-3" />
                 <span>Word</span>
               </div>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-[0.70rem] text-gray-500">
                 <GrDocumentTxt className="w-3 h-3" />
                 <span>Texto</span>
               </div>

@@ -18,14 +18,14 @@ export function NavigationButton({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className={`flex items-center space-x-3 px-5 py-3 rounded-full transition-all duration-300 ${
+      className={`flex items-center gap-[0.4rem] px-5 py-2 rounded-full transition-all duration-300 ${
         isActive
           ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg"
           : "dark:text-gray-300 dark:hover:text-white text-gray-600 hover:text-gray-800"
       }`}
     >
       {children}
-      <span className="hidden md:block text-base font-medium">{text}</span>
+      <span className="hidden md:block text-sm font-medium">{text}</span>
     </motion.button>
   );
 }

@@ -30,7 +30,7 @@ export function RecorderAudio({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed inset-0 dark:bg-gray-950  bg-gray-50 flex items-center justify-center"
+      className="fixed inset-0 dark:bg-gray-950 z-0  bg-gray-50 flex items-center justify-center"
     >
       {recorderState.isRecording && (
         <button

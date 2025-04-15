@@ -87,7 +87,7 @@ export const CorrectTab: React.FC<CorrectTabProps> = ({
       className="flex flex-col  "
     >
       {/* Contenido principal */}
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 text-sm">
         <div className="lg:col-span-3">
           <OptimizationModes
             selectedMode={selectedMode}

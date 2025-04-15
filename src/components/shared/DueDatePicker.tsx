@@ -221,9 +221,9 @@ export function DueDatePicker({
   return (
     <>
       {triggerComponent ? (
-        <div ref={buttonRef} onClick={handleButtonClick}>
+        <button ref={buttonRef} onClick={handleButtonClick}>
           {triggerComponent}
-        </div>
+        </button>
       ) : dueDate ? (
         <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
           <button

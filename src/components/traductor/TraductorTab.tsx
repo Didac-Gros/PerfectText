@@ -104,12 +104,12 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
       className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-180px)]  "
     >
       <div className="flex flex-col  items-center bg-white rounded-2xl shadow-lg py-6 w-full lg:w-[280px]">
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">
+        {/* <h3 className="text-base font-semibold text-gray-700 mb-2">
           Traducir texto para...
         </h3>
-        <p className="text-sm text-gray-500 mb-4 lg:w-40">
+        <p className="text-xs text-gray-500 mb-4 lg:w-40 text-center">
           Selecciona el modo de traducción que necesites
-        </p>
+        </p> */}
 
         <div className="space-y-3 w-full px-5">
           <SelectTranslate
@@ -131,7 +131,7 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-lg p-6 w-full flex-grow"
+        className="bg-white rounded-2xl shadow-lg p-8 w-full flex-grow"
       >
         {showPopUp && (
           <div className="text-center mb-8">
@@ -146,7 +146,7 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onTabChange("correct")}
-            className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
+            className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-colors ${
               activeTab === "correct"
                 ? "bg-blue-500 text-white shadow-md"
                 : "bg-gray-50 text-gray-700 hover:bg-gray-100"
@@ -159,7 +159,7 @@ export function TraductorTab({ onTabChange, activeTab }: TraductorTabProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onTabChange("traductor")}
-            className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
+            className={`flex-1 py-2 px-4 rounded-xl font-medium text-sm transition-colors ${
               activeTab === "traductor"
                 ? "bg-blue-500 text-white shadow-md"
                 : "bg-gray-50 text-gray-700 hover:bg-gray-100"

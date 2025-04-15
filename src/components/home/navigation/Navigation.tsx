@@ -68,9 +68,9 @@ export function Navigation({
   };
 
   return (
-    <nav className="mb-6">
+    <nav className="">
       <div
-        className={`dark:bg-gray-900 bg-white w-full shadow-md dark:shadow-gray-800/50 py-2 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50`}
+        className={`dark:bg-gray-900 bg-white w-full shadow-md dark:shadow-gray-800/50 py-1 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50`}
       >
         {/* Logo */}
         <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export function Navigation({
               isActive={activeTab === "home"}
               text="Inicio"
             >
-              <Home className="w-6 h-6" />
+              <Home className="size-5" />
             </NavigationButton>
           )}
 
@@ -188,7 +188,7 @@ export function Navigation({
             isActive={activeTab === "correct" || activeTab === "traductor"}
             text="Corrección"
           >
-            <Wand2 className="w-6 h-6" />
+            <Wand2 className="size-5" />
           </NavigationButton>
 
           <NavigationButton
@@ -199,7 +199,7 @@ export function Navigation({
             isActive={activeTab === "quiz"}
             text="Quiz"
           >
-            <GamepadIcon className="w-6 h-6" />
+            <GamepadIcon className="size-5" />
           </NavigationButton>
 
           <NavigationButton
@@ -210,7 +210,7 @@ export function Navigation({
             isActive={activeTab === "conceptmap"}
             text="Mapa"
           >
-            <Map className="w-6 h-6" />
+            <Map className="size-5" />
           </NavigationButton>
 
           <NavigationButton
@@ -221,7 +221,7 @@ export function Navigation({
             isActive={activeTab === "voice"}
             text="Voice"
           >
-            <HiOutlineMicrophone className="w-6 h-6" />
+            <HiOutlineMicrophone className="size-5" />
           </NavigationButton>
 
           {activeTab === "voice" && (
@@ -251,7 +251,7 @@ export function Navigation({
           )}
         </div>
       </div>
-      <div className="pt-20"></div>
+      <div className="pb-16"></div>
     </nav>
   );
 }
