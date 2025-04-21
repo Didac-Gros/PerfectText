@@ -1,10 +1,19 @@
-import React from 'react';
-import { Plus, Users, Check, X, Settings2, ZoomIn, ZoomOut, Pencil } from 'lucide-react';
-import { 
-  DndContext, 
+import React from "react";
+import {
+  Plus,
+  Users,
+  Check,
+  X,
+  Settings2,
+  ZoomIn,
+  ZoomOut,
+  Pencil,
+} from "lucide-react";
+import {
+  DndContext,
   DragOverlay,
-  useSensors, 
-  useSensor, 
+  useSensors,
+  useSensor,
   PointerSensor,
   MouseSensor,
   TouchSensor,
@@ -14,41 +23,45 @@ import {
   DragOverEvent,
   DragStartEvent,
   MeasuringStrategy,
-} from '@dnd-kit/core';
-import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { List } from './List';
-import { Card } from './Card';
-import { useBoardStore } from '../../hooks/useBoardStore';
-import { InviteMembersDialog } from './InviteMembersDialog';
-import { ProjectManagementDialog } from './ProjectManagementDialog';
-import { AnimatedTooltip, type TooltipUser } from './ui/animated-tooltip';
-import type { Card as CardType } from '../../types/global';
+} from "@dnd-kit/core";
+import { restrictToWindowEdges } from "@dnd-kit/modifiers";
+import { List } from "./List";
+import { Card } from "./Card";
+import { useBoardStore } from "../../hooks/useBoardStore";
+import { InviteMembersDialog } from "./InviteMembersDialog";
+import { ProjectManagementDialog } from "./ProjectManagementDialog";
+import { AnimatedTooltip, type TooltipUser } from "./ui/animated-tooltip";
+import type { Card as CardType } from "../../types/global";
 
 const sharedUsers: TooltipUser[] = [
   {
     id: 1,
     name: "Sara Johnson",
     role: "Project Manager",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop"
+    image:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop",
   },
   {
     id: 2,
     name: "Michael Chen",
     role: "Developer",
-    image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&q=80&crop=faces&fit=crop"
+    image:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&q=80&crop=faces&fit=crop",
   },
   {
     id: 3,
     name: "Emma Wilson",
     role: "Designer",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop"
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop",
   },
   {
     id: 4,
     name: "Alex Thompson",
     role: "Content Writer",
-    image: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64&h=64&q=80&crop=faces&fit=crop"
-  }
+    image:
+      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64&h=64&q=80&crop=faces&fit=crop",
+  },
 ];
 
 const MIN_ZOOM = 0.5;
@@ -56,16 +69,22 @@ const MAX_ZOOM = 1.5;
 const ZOOM_STEP = 0.1;
 
 export function BoardTab() {
-  const { lists, addList, moveCard, currentBoard, updateBoard } = useBoardStore();
+  const { lists, addList, moveCard, currentBoard, updateBoard } =
+    useBoardStore();
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [activeCard, setActiveCard] = React.useState<CardType | null>(null);
   const [overListId, setOverListId] = React.useState<string | null>(null);
   const [isEditingTitle, setIsEditingTitle] = React.useState(false);
-  const [title, setTitle] = React.useState(currentBoard?.title || '');
-  const [showProjectManagement, setShowProjectManagement] = React.useState(false);
+  const [title, setTitle] = React.useState(currentBoard?.title || "");
+  const [showProjectManagement, setShowProjectManagement] =
+    React.useState(false);
   const [zoom, setZoom] = React.useState(1);
   const titleInputRef = React.useRef<HTMLInputElement>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    console.log("lists", lists);
+  }, [lists]);
 
   React.useEffect(() => {
     if (currentBoard) {
@@ -96,12 +115,12 @@ export function BoardTab() {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     setActiveId(active.id as string);
-    
-    const sourceList = lists.find(list => 
-      list.cards.some(card => card.id === active.id)
+
+    const sourceList = lists.find((list) =>
+      list.cards.some((card) => card.id === active.id)
     );
-    const draggedCard = sourceList?.cards.find(card => card.id === active.id);
-      
+    const draggedCard = sourceList?.cards.find((card) => card.id === active.id);
+
     if (draggedCard) {
       setActiveCard(draggedCard);
     }
@@ -115,11 +134,12 @@ export function BoardTab() {
     const overId = over.id as string;
 
     // Find the lists involved
-    const activeList = lists.find(list => 
-      list.cards.some(card => card.id === activeId)
+    const activeList = lists.find((list) =>
+      list.cards.some((card) => card.id === activeId)
     );
-    const overList = lists.find(list => 
-      list.id === overId || list.cards.some(card => card.id === overId)
+    const overList = lists.find(
+      (list) =>
+        list.id === overId || list.cards.some((card) => card.id === overId)
     );
 
     if (!activeList || !overList) return;
@@ -130,7 +150,7 @@ export function BoardTab() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over) {
       setActiveId(null);
       setActiveCard(null);
@@ -139,15 +159,16 @@ export function BoardTab() {
     }
 
     const activeCardId = active.id as string;
-    const sourceList = lists.find(list => 
-      list.cards.some(card => card.id === activeCardId)
+    const sourceList = lists.find((list) =>
+      list.cards.some((card) => card.id === activeCardId)
     );
-    
+
     const overId = over.id as string;
-    const targetList = lists.find(list => 
-      list.id === overId || list.cards.some(card => card.id === overId)
+    const targetList = lists.find(
+      (list) =>
+        list.id === overId || list.cards.some((card) => card.id === overId)
     );
-    
+
     if (!sourceList || !targetList) {
       setActiveId(null);
       setActiveCard(null);
@@ -157,21 +178,18 @@ export function BoardTab() {
 
     // Calculate the new position
     let newPosition = targetList.cards.length;
-    const overCardId = over.data.current?.sortable?.items?.find((id: string) => id === overId);
+    const overCardId = over.data.current?.sortable?.items?.find(
+      (id: string) => id === overId
+    );
 
     if (overCardId) {
-      newPosition = targetList.cards.findIndex(card => card.id === overId);
+      newPosition = targetList.cards.findIndex((card) => card.id === overId);
       if (newPosition === -1) newPosition = targetList.cards.length;
     }
 
     // Move the card
-    moveCard(
-      activeCardId,
-      sourceList.id,
-      targetList.id,
-      newPosition
-    );
-    
+    moveCard(activeCardId, sourceList.id, targetList.id, newPosition);
+
     setActiveId(null);
     setActiveCard(null);
     setOverListId(null);
@@ -186,20 +204,20 @@ export function BoardTab() {
   };
 
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleTitleSubmit();
-    } else if (e.key === 'Escape') {
-      setTitle(currentBoard?.title || '');
+    } else if (e.key === "Escape") {
+      setTitle(currentBoard?.title || "");
       setIsEditingTitle(false);
     }
   };
 
   const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
+    setZoom((prev) => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
   };
 
   const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
+    setZoom((prev) => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
   };
 
   // Handle wheel zoom with Ctrl/Cmd key
@@ -207,7 +225,7 @@ export function BoardTab() {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       const delta = e.deltaY * -0.01;
-      setZoom(prev => Math.min(Math.max(prev + delta, MIN_ZOOM), MAX_ZOOM));
+      setZoom((prev) => Math.min(Math.max(prev + delta, MIN_ZOOM), MAX_ZOOM));
     }
   };
 
@@ -227,8 +245,8 @@ export function BoardTab() {
       modifiers={[restrictToWindowEdges]}
       measuring={{
         droppable: {
-          strategy: MeasuringStrategy.Always
-        }
+          strategy: MeasuringStrategy.Always,
+        },
       }}
     >
       <div className="flex-1 overflow-x-auto">
@@ -252,15 +270,15 @@ export function BoardTab() {
                 </form>
               ) : (
                 <div className="group relative inline-block">
-                  <h1 
+                  <h1
                     onClick={() => setIsEditingTitle(true)}
                     className="text-4xl font-bold bg-gradient-to-b from-gray-900 via-gray-800 to-gray-600 
                            dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent mb-3 cursor-pointer
                            tracking-tight leading-tight hover:opacity-80 transition-all duration-300
                            hover:scale-[1.02] transform-gpu font-sans"
                     style={{
-                      textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                      letterSpacing: '-0.025em'
+                      textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                      letterSpacing: "-0.025em",
                     }}
                   >
                     {title}
@@ -282,11 +300,13 @@ export function BoardTab() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               {/* Zoom Controls */}
-              <div className="flex items-center space-x-2 px-3 py-2 bg-white dark:bg-gray-800 
-                           rounded-lg border border-gray-200 dark:border-gray-700">
+              <div
+                className="flex items-center space-x-2 px-3 py-2 bg-white dark:bg-gray-800 
+                           rounded-lg border border-gray-200 dark:border-gray-700"
+              >
                 <button
                   onClick={handleZoomOut}
                   disabled={zoom <= MIN_ZOOM}
@@ -322,9 +342,9 @@ export function BoardTab() {
               </button>
               <InviteMembersDialog />
               <button
-                onClick={() => addList('Nueva Lista')}
-                className="flex items-center space-x-2 px-4 py-2.5 bg-primary-500 text-white 
-                         rounded-xl hover:bg-primary-600 transition-all duration-200 
+                onClick={() => addList("Nueva Lista")}
+                className="flex items-center space-x-2 px-4 py-2.5 bg-blue-500 text-white 
+                         rounded-xl hover:bg-blue-600 transition-all duration-200 
                          hover:scale-[1.02] shadow-sm hover:shadow-md"
               >
                 <Plus className="w-5 h-5" />
@@ -332,49 +352,52 @@ export function BoardTab() {
               </button>
             </div>
           </div>
-          
-          <div 
+
+          <div
             ref={boardRef}
             className="flex space-x-4 min-h-[calc(100vh-16rem)]"
             onWheel={handleWheel}
             style={{
               transform: `scale(${zoom})`,
-              transformOrigin: 'top left',
-              transition: 'transform 0.2s ease-out'
+              transformOrigin: "top left",
+              transition: "transform 0.2s ease-out",
             }}
           >
             {lists.map((list) => (
-              <List 
-                key={list.id} 
-                list={list} 
-                isOver={overListId === list.id}
-              />
+              <List key={list.id} list={list} isOver={overListId === list.id} />
             ))}
           </div>
         </div>
       </div>
 
-      <DragOverlay dropAnimation={{
-        duration: 200,
-        easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
-        sideEffects: defaultDropAnimationSideEffects({
-          styles: {
-            active: {
-              opacity: '0.4',
+      <DragOverlay
+        dropAnimation={{
+          duration: 200,
+          easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+          sideEffects: defaultDropAnimationSideEffects({
+            styles: {
+              active: {
+                opacity: "0.4",
+              },
             },
-          },
-        }),
-      }}>
+          }),
+        }}
+      >
         {activeId && activeCard ? (
-          <Card card={activeCard} listId={lists.find(list => 
-            list.cards.some(card => card.id === activeId)
-          )?.id || ''} />
+          <Card
+            card={activeCard}
+            listId={
+              lists.find((list) =>
+                list.cards.some((card) => card.id === activeId)
+              )?.id || ""
+            }
+          />
         ) : null}
       </DragOverlay>
 
-      <ProjectManagementDialog 
-        isOpen={showProjectManagement} 
-        onOpenChange={setShowProjectManagement} 
+      <ProjectManagementDialog
+        isOpen={showProjectManagement}
+        onOpenChange={setShowProjectManagement}
       />
     </DndContext>
   );

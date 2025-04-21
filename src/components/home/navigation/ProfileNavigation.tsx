@@ -46,7 +46,7 @@ export function ProfileNavigation({
             src={photoURL || ""}
             alt="Avatar"
             className={`${
-              fromMobile ? "size-9" : "size-10"
+              fromMobile ? "size-9" : "size-9"
             } rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all`}
           />
           {/* <div className="flex flex-col items-start">

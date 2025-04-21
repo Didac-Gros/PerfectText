@@ -1,38 +1,57 @@
-import React from 'react';
-import { Plus, Search, Users, Clock, Plus as PlusIcon, Trash2 } from 'lucide-react';
-import { useBoardStore } from '../../hooks/useBoardStore';
-import { DueDatePicker } from '../shared/DueDatePicker';
-import { BackgroundPicker } from './BackgroundPicker';
-import { GlareCard } from './ui/glare-card';
-import type { Board } from '../../types/global';
+import React, { useEffect } from "react";
+import {
+  Plus,
+  Search,
+  Users,
+  Clock,
+  Plus as PlusIcon,
+  Trash2,
+} from "lucide-react";
+import { useBoardStore } from "../../hooks/useBoardStore";
+import { DueDatePicker } from "../shared/DueDatePicker";
+import { BackgroundPicker } from "./BackgroundPicker";
+import { GlareCard } from "./ui/glare-card";
+import type { Board } from "../../types/global";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../shared/ui/dialog';
-
+} from "../shared/ui/dialog";
+import { auth } from "../../services/firestore/firebase";
 export function NexusTab() {
-  const { boards, addBoard, setCurrentBoard, updateBoard, updateBoardBackground, deleteBoard } = useBoardStore();
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [editingBoardId, setEditingBoardId] = React.useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = React.useState('');
-  const [showBackgroundPicker, setShowBackgroundPicker] = React.useState<string | null>(null);
+  const {
+    boards,
+    addBoard,
+    setCurrentBoard,
+    updateBoard,
+    updateBoardBackground,
+    deleteBoard,
+    fetchBoardsForUser,
+  } = useBoardStore();
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [editingBoardId, setEditingBoardId] = React.useState<string | null>(
+    null
+  );
+  const [editingTitle, setEditingTitle] = React.useState("");
+  const [showBackgroundPicker, setShowBackgroundPicker] = React.useState<
+    string | null
+  >(null);
   const [boardToDelete, setBoardToDelete] = React.useState<Board | null>(null);
   const editInputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredBoards = React.useMemo(() => {
-    return boards.filter(board => 
+    return boards.filter((board) =>
       board.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [boards, searchTerm]);
 
-  const handleCreateBoard = (e: React.MouseEvent) => {
+  const handleCreateBoard = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const newBoard = addBoard('Nueva página');
-    setCurrentBoard(newBoard.id);
+    const newBoard = await addBoard("Nueva página");
+    setCurrentBoard(newBoard!.id);
   };
 
   const handleBoardClick = (boardId: string) => {
@@ -49,15 +68,17 @@ export function NexusTab() {
   };
 
   const handleTitleSubmit = (boardId: string) => {
-    if (editingTitle.trim() !== '') {
+    if (editingTitle.trim() !== "") {
       updateBoard(boardId, editingTitle.trim());
     }
     setEditingBoardId(null);
-    setEditingTitle('');
+    setEditingTitle("");
   };
 
   const handleDeleteBoard = (board: Board, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log("Deleting board:", board);
+    
     setBoardToDelete(board);
   };
 
@@ -85,32 +106,34 @@ export function NexusTab() {
         {/* Board Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredBoards.map((board) => (
-            <div 
+            <div
               key={board.id}
               onClick={() => handleBoardClick(board.id)}
               className="cursor-pointer relative group"
             >
-              <GlareCard className="w-[320px] h-[320px]">
-                <div className="absolute inset-0 w-full h-full">
-                  {board.background?.type === 'image' ? (
+              <div className="w-[320px] h-[320px] ">
+                <div className="absolute inset-0 w-full h-full ">
+                  {board.background?.type === "image" ? (
                     <img
                       src={board.background.value}
                       alt={board.title}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover rounded-3xl"
                     />
-                  ) : board.background?.type === 'gradient' ? (
-                    <div className={`absolute inset-0 w-full h-full ${board.background.value}`} />
+                  ) : board.background?.type === "gradient" ? (
+                    <div
+                      className={`absolute rounded-3xl inset-0 w-full h-full ${board.background.value}`}
+                    />
                   ) : (
-                    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />
+                    <div className="absolute rounded-3xl inset-0 w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />
                   )}
-                  
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
-                  
+
+                  <div className="absolute inset-0 rounded-3xl bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
+
                   {/* Delete Button */}
                   <button
                     onClick={(e) => handleDeleteBoard(board, e)}
                     className="absolute top-4 right-4 p-2 rounded-lg bg-black/40 backdrop-blur-sm
-                             opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                             opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50
                              hover:bg-red-500/80 text-white"
                   >
                     <Trash2 className="w-5 h-5" />
@@ -126,10 +149,10 @@ export function NexusTab() {
                     </div>
                   </div>
                 </div>
-              </GlareCard>
+              </div>
             </div>
           ))}
-          
+
           {/* Add New Board Card */}
           <div onClick={handleCreateBoard} className="cursor-pointer">
             <GlareCard className="w-[320px] h-[320px] group">
@@ -139,7 +162,9 @@ export function NexusTab() {
                     <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors duration-300">
                       <PlusIcon className="w-8 h-8 text-white" />
                     </div>
-                    <span className="text-lg font-medium text-white">Nueva página</span>
+                    <span className="text-lg font-medium text-white">
+                      Nueva página
+                    </span>
                   </div>
                 </div>
               </div>
@@ -149,12 +174,16 @@ export function NexusTab() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={boardToDelete !== null} onOpenChange={() => setBoardToDelete(null)}>
+      <Dialog
+        open={boardToDelete !== null}
+        onOpenChange={() => setBoardToDelete(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Eliminar tablero</DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de que quieres eliminar "{boardToDelete?.title}"? Esta acción no se puede deshacer.
+              ¿Estás seguro de que quieres eliminar "{boardToDelete?.title}"?
+              Esta acción no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-3 mt-6">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Clock, CalendarClock, Users, Video, ArrowUpRight, Plus, Check, Info } from 'lucide-react';
 import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -10,6 +10,7 @@ import { AnimatedList } from '../shared/AnimatedList';
 import { BlurFade } from './BlurFade';
 import type { EventInput } from '@fullcalendar/core';
 import { SidebarType } from '../../types/global';
+import { useAuth } from '../../hooks/useAuth';
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
@@ -66,10 +67,15 @@ const EVENT_COLORS = {
 };
 
 export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
-  const { addBoard, setCurrentBoard, boards } = useBoardStore();
+  const { addBoard, setCurrentBoard, boards, fetchBoardsForUser } = useBoardStore();
   const { events, toggleEventCompletion } = useCalendarStore();
   const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(null);
   const [showEventModal, setShowEventModal] = React.useState(false);
+  const { user, userStore } = useAuth();
+
+  useEffect(() => {
+    fetchBoardsForUser(user?.uid!);
+  }, []);
 
   // Get today's events
   const todayEvents = React.useMemo(() => {
@@ -90,16 +96,16 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
       });
   }, [events]);
 
-  const handleCreateBoard = (e: React.MouseEvent) => {
+  const handleCreateBoard = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const newBoard = addBoard('Nueva página');
-    setCurrentBoard(newBoard.id);
+    const newBoard = await addBoard('Nueva página');
+    setCurrentBoard(newBoard!.id);
     onViewChange('boards');
   };
 
   const handleBoardClick = (boardId: string) => {
-    setCurrentBoard(boardId);
+    setCurrentBoard(boardId);    
     onViewChange('boards');
   };
 

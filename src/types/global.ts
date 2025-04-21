@@ -96,8 +96,8 @@ export interface FileData {
 export interface Board {
   id: string;
   title: string;
-  coverImage?: string;
-  members: string[];
+  // coverImage?: string;
+  members: Member[];
   createdAt: string;
   updatedAt: string;
   lists: List[];
@@ -106,6 +106,12 @@ export interface Board {
     type: "image" | "gradient";
     value: string;
   };
+}
+
+export interface Member {
+  userId: string;
+  rol: string;
+  isAdmin: boolean;
 }
 
 export interface List {
@@ -123,9 +129,9 @@ export interface Card {
   comments: Comment[];
   dueDate?: string | null;
   completed?: boolean;
-  assignees: string[];
-  labels: Label[];
-  checklist: ChecklistItem[];
+  // assignees: string[];
+  // labels: Label[];
+  // checklist: ChecklistItem[];
 }
 
 export interface Comment {
@@ -133,7 +139,7 @@ export interface Comment {
   text: string;
   author: string;
   createdAt: string;
-  attachments?: CommentAttachment[];
+  // attachments?: CommentAttachment[];
 }
 
 export interface CommentAttachment {
