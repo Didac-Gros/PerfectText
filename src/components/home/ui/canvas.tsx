@@ -1,180 +1,234 @@
-"use client";
-
-function Oscillator(options: { phase?: number; amplitude?: number; frequency?: number; offset?: number }) {
-  this.init(options || {});
+// @ts-ignore
+function n(e) {
+  // @ts-ignore
+  this.init(e || {});
 }
-
-Oscillator.prototype = {
-  init: function(options: { phase?: number; amplitude?: number; frequency?: number; offset?: number }) {
-    this.phase = options.phase || 0;
-    this.offset = options.offset || 0;
-    this.frequency = options.frequency || 0.001;
-    this.amplitude = options.amplitude || 1;
+n.prototype = {
+  // @ts-ignore
+  init: function (e) {
+    // @ts-ignore
+    this.phase = e.phase || 0;
+    // @ts-ignore
+    this.offset = e.offset || 0;
+    // @ts-ignore
+    this.frequency = e.frequency || 0.001;
+    // @ts-ignore
+    this.amplitude = e.amplitude || 1;
   },
-  update: function() {
-    this.phase += this.frequency;
-    return this.offset + Math.sin(this.phase) * this.amplitude;
-  }
+  update: function () {
+    return (
+      // @ts-ignore
+      (this.phase += this.frequency),
+      // @ts-ignore
+      (e = this.offset + Math.sin(this.phase) * this.amplitude)
+    );
+  },
+  value: function () {
+    return e;
+  },
 };
 
-interface Node {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+// @ts-ignore
+function Line(e) {
+  // @ts-ignore
+  this.init(e || {});
 }
 
-class Line {
-  spring: number;
-  friction: number;
-  nodes: Node[];
-
-  constructor(options: { spring: number }) {
-    this.spring = options.spring + 0.1 * Math.random() - 0.05;
-    this.friction = config.friction + 0.01 * Math.random() - 0.005;
+Line.prototype = {
+  // @ts-ignore
+  init: function (e) {
+    // @ts-ignore
+    this.spring = e.spring + 0.1 * Math.random() - 0.05;
+    // @ts-ignore
+    this.friction = E.friction + 0.01 * Math.random() - 0.005;
+    // @ts-ignore
     this.nodes = [];
-    
-    for (let i = 0; i < config.size; i++) {
-      this.nodes.push({
-        x: mousePos.x,
-        y: mousePos.y,
-        vx: 0,
-        vy: 0
-      });
+    for (var t, n = 0; n < E.size; n++) {
+      t = new Node();
+      // @ts-ignore
+      t.x = pos.x;
+      // @ts-ignore
+      t.y = pos.y;
+      // @ts-ignore
+      this.nodes.push(t);
     }
-  }
-
-  update() {
-    let spring = this.spring;
-    let node = this.nodes[0];
-    
-    node.vx += (mousePos.x - node.x) * spring;
-    node.vy += (mousePos.y - node.y) * spring;
-
-    for (let i = 1, n = this.nodes.length; i < n; i++) {
-      node = this.nodes[i];
-      const prev = this.nodes[i - 1];
-      
-      node.vx += (prev.x - node.x) * spring;
-      node.vy += (prev.y - node.y) * spring;
-      node.vx += prev.vx * config.dampening;
-      node.vy += prev.vy * config.dampening;
-      
-      node.vx *= this.friction;
-      node.vy *= this.friction;
-      node.x += node.vx;
-      node.y += node.vy;
-      
-      spring *= config.tension;
-    }
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    let x = this.nodes[0].x, 
-        y = this.nodes[0].y;
-    
+  },
+  update: function () {
+    // @ts-ignore
+    let e = this.spring,
+      // @ts-ignore
+      t = this.nodes[0];
+    // @ts-ignore
+    t.vx += (pos.x - t.x) * e;
+    // @ts-ignore
+    t.vy += (pos.y - t.y) * e;
+    // @ts-ignore
+    for (var n, i = 0, a = this.nodes.length; i < a; i++)
+      // @ts-ignore
+      (t = this.nodes[i]),
+        0 < i &&
+          // @ts-ignore
+          ((n = this.nodes[i - 1]),
+          (t.vx += (n.x - t.x) * e),
+          (t.vy += (n.y - t.y) * e),
+          (t.vx += n.vx * E.dampening),
+          (t.vy += n.vy * E.dampening)),
+        // @ts-ignore
+        (t.vx *= this.friction),
+        // @ts-ignore
+        (t.vy *= this.friction),
+        (t.x += t.vx),
+        (t.y += t.vy),
+        (e *= E.tension);
+  },
+  draw: function () {
+    let e,
+      t,
+      // @ts-ignore
+      n = this.nodes[0].x,
+      // @ts-ignore
+      i = this.nodes[0].y;
+    // @ts-ignore
     ctx.beginPath();
-    ctx.moveTo(x, y);
-    
-    for (let i = 1, n = this.nodes.length - 2; i < n; i++) {
-      const a = this.nodes[i];
-      const b = this.nodes[i + 1];
-      x = (a.x + b.x) * 0.5;
-      y = (a.y + b.y) * 0.5;
-      ctx.quadraticCurveTo(a.x, a.y, x, y);
+    // @ts-ignore
+    ctx.moveTo(n, i);
+    // @ts-ignore
+    for (var a = 1, o = this.nodes.length - 2; a < o; a++) {
+      // @ts-ignore
+      e = this.nodes[a];
+      // @ts-ignore
+      t = this.nodes[a + 1];
+      n = 0.5 * (e.x + t.x);
+      i = 0.5 * (e.y + t.y);
+      // @ts-ignore
+      ctx.quadraticCurveTo(e.x, e.y, n, i);
     }
-    
-    const a = this.nodes[this.nodes.length - 2];
-    const b = this.nodes[this.nodes.length - 1];
-    ctx.quadraticCurveTo(a.x, a.y, b.x, b.y);
+    // @ts-ignore
+    e = this.nodes[a];
+    // @ts-ignore
+    t = this.nodes[a + 1];
+    // @ts-ignore
+    ctx.quadraticCurveTo(e.x, e.y, t.x, t.y);
+    // @ts-ignore
     ctx.stroke();
+    // @ts-ignore
     ctx.closePath();
-  }
-}
-
-const config = {
-  friction: 0.5,
-  trails: 30,
-  size: 50,
-  dampening: 0.25,
-  tension: 0.98
+  },
 };
 
-let lines: Line[] = [];
-let mousePos = { x: 0, y: 0 };
-let oscillator: any;
-
-function createLines() {
-  lines = [];
-  for (let i = 0; i < config.trails; i++) {
-    lines.push(new Line({ spring: 0.45 + (i / config.trails) * 0.025 }));
+// @ts-ignore
+function onMousemove(e) {
+  function o() {
+    lines = [];
+    for (let e = 0; e < E.trails; e++)
+      lines.push(new Line({ spring: 0.45 + (e / E.trails) * 0.025 }));
   }
+  // @ts-ignore
+  function c(e) {
+    e.touches
+      ? // @ts-ignore
+        ((pos.x = e.touches[0].pageX), (pos.y = e.touches[0].pageY))
+      : // @ts-ignore
+        ((pos.x = e.clientX), (pos.y = e.clientY)),
+      e.preventDefault();
+  }
+  // @ts-ignore
+  function l(e) {
+    // @ts-ignore
+    1 == e.touches.length &&
+      ((pos.x = e.touches[0].pageX), (pos.y = e.touches[0].pageY));
+  }
+  document.removeEventListener("mousemove", onMousemove),
+    document.removeEventListener("touchstart", onMousemove),
+    document.addEventListener("mousemove", c),
+    document.addEventListener("touchmove", c),
+    document.addEventListener("touchstart", l),
+    c(e),
+    o(),
+    render();
 }
 
-function render(ctx: CanvasRenderingContext2D & { running?: boolean; frame?: number }) {
+function render() {
+  // @ts-ignore
   if (ctx.running) {
-    ctx.globalCompositeOperation = 'source-over';
+    // @ts-ignore
+    ctx.globalCompositeOperation = "source-over";
+    // @ts-ignore
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.strokeStyle = `hsla(${Math.round(oscillator.update())},100%,50%,0.1)`;
-    ctx.lineWidth = 1;
-
-    for (let i = 0; i < config.trails; i++) {
-      lines[i].update();
-      lines[i].draw(ctx);
+    // @ts-ignore
+    ctx.globalCompositeOperation = "lighter";
+    // @ts-ignore
+    ctx.strokeStyle = "hsla(" + Math.round(f.update()) + ",100%,50%,0.025)";
+    // @ts-ignore
+    ctx.lineWidth = 10;
+    for (var e, t = 0; t < E.trails; t++) {
+      // @ts-ignore
+      (e = lines[t]).update();
+      e.draw();
     }
-
-    ctx.frame = (ctx.frame || 0) + 1;
-    window.requestAnimationFrame(() => render(ctx));
+    // @ts-ignore
+    ctx.frame++;
+    window.requestAnimationFrame(render);
   }
 }
 
-export const renderCanvas = () => {
-  const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-  if (!canvas) return;
+function resizeCanvas() {
+  // @ts-ignore
+  ctx.canvas.width = window.innerWidth - 20;
+  // @ts-ignore
+  ctx.canvas.height = window.innerHeight;
+}
 
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D & { running?: boolean; frame?: number };
+// @ts-ignore
+var ctx,
+  // @ts-ignore
+  f,
+  e = 0,
+  pos = {},
+  // @ts-ignore
+  lines = [],
+  E = {
+    debug: true,
+    friction: 0.5,
+    trails: 80,
+    size: 50,
+    dampening: 0.025,
+    tension: 0.99,
+  };
+
+function Node() {
+  this.x = 0;
+  this.y = 0;
+  this.vy = 0;
+  this.vx = 0;
+}
+
+export const renderCanvas = function () {
+  // @ts-ignore
+  ctx = document.getElementById("canvas").getContext("2d");
   ctx.running = true;
   ctx.frame = 1;
-
-  oscillator = new Oscillator({
+  f = new n({
     phase: Math.random() * 2 * Math.PI,
     amplitude: 85,
     frequency: 0.0015,
     offset: 285,
   });
-
-  const handlePointer = (e: MouseEvent | TouchEvent) => {
-    if ('touches' in e) {
-      mousePos.x = e.touches[0].pageX;
-      mousePos.y = e.touches[0].pageY;
-    } else {
-      mousePos.x = e.clientX;
-      mousePos.y = e.clientY;
-    }
-    e.preventDefault();
-  };
-
-  const resizeCanvas = () => {
-    ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = window.innerHeight;
-  };
-
-  document.addEventListener('mousemove', handlePointer);
-  document.addEventListener('touchmove', handlePointer);
-  document.addEventListener('touchstart', handlePointer);
-  window.addEventListener('resize', resizeCanvas);
-  window.addEventListener('focus', () => {
+  document.addEventListener("mousemove", onMousemove);
+  document.addEventListener("touchstart", onMousemove);
+  document.body.addEventListener("orientationchange", resizeCanvas);
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("focus", () => {
+    // @ts-ignore
     if (!ctx.running) {
+      // @ts-ignore
       ctx.running = true;
-      render(ctx);
+      render();
     }
   });
-  window.addEventListener('blur', () => {
-    ctx.running = false;
+  window.addEventListener("blur", () => {
+    // @ts-ignore
+    ctx.running = true;
   });
-
   resizeCanvas();
-  createLines();
-  render(ctx);
 };

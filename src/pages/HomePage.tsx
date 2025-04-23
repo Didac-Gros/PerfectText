@@ -21,7 +21,7 @@ import { MySpaceTab } from "../components/mySpace/MySpaceTab";
 import { BoardTab } from "../components/board/BoardTab";
 import { NexusTab } from "../components/nexus/NexusTab";
 import { CalendarTab } from "../components/calendar/CalendarTab";
-import { Hero } from "../components/home/hero";
+import { Hero } from "../components/home/Hero";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();

@@ -118,7 +118,7 @@ export function Hero({ onAccessClick }: HeroProps) {
         </div>
       </section>
       <canvas
-        className="fixed inset-0 w-full h-full pointer-events-none -z-10"
+        className="fixed inset-0 w-full h-full pointer-events-none z-50"
         id="canvas"
       ></canvas>
     </div>
