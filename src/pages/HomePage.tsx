@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Hero } from "../components/home/hero"; // Importación del Hero
-import { PricingSection } from "../components/home/PricingSection"; // Importación del PricingSection
 import { Navigation } from "../components/home/navigation/Navigation";
 import { QuizGame } from "../components/QuizGame/QuizGame";
 import { ConceptMapGenerator } from "../components/ConceptMap/ConceptMapGenerator";
@@ -12,7 +10,7 @@ import { SidebarType, TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import VoiceTab from "../components/voice/VoiceTab";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { AudioWindow } from "../components/home/AudioWindow";
@@ -23,6 +21,7 @@ import { MySpaceTab } from "../components/mySpace/MySpaceTab";
 import { BoardTab } from "../components/board/BoardTab";
 import { NexusTab } from "../components/nexus/NexusTab";
 import { CalendarTab } from "../components/calendar/CalendarTab";
+import { Hero } from "../components/home/hero";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -37,10 +36,13 @@ export const HomePage: React.FC = () => {
     setTokens(tokens! - tokensToRemove);
   };
   const showedFile = useRef<boolean>(false);
-  const [currentView, setCurrentView] = useState<SidebarType>("myspace");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentView, setCurrentView] = useState<SidebarType>(
+    user ? "myspace" : ""
+  );
+  const [sidebarOpen, setSidebarOpen] = useState(user ? true : false);
   const [isDark, setIsDark] = useDarkMode();
   const { currentBoard } = useBoardStore();
+  const navigate = useNavigate();
 
   const {
     recorderState,
@@ -100,9 +102,13 @@ export const HomePage: React.FC = () => {
     }
   }, [activeTab]);
 
-  useEffect(() => {
-    console.log("currentView", currentView);
-  }, [currentView]);
+  const handleLogin = async () => {
+    try {
+      navigate("/login");
+    } catch (error) {
+      console.error("Error al entrar en login:", (error as Error).message);
+    }
+  };
 
   if (currentView !== "") {
     return (
@@ -222,8 +228,9 @@ export const HomePage: React.FC = () => {
 
         {activeTab === "home" && (
           <>
-            <Hero onTabChange={setActiveTab} />
-            <PricingSection />
+            {/* <Hero onTabChange={setActiveTab} />
+            <PricingSection /> */}
+            <Hero onAccessClick={handleLogin}></Hero>
           </>
         )}
 

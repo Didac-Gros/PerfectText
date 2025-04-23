@@ -1,134 +1,126 @@
-import { motion } from "framer-motion";
-import { BookOpen, Brain, FileText, ArrowRight, Zap } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { TabType } from "../../types/global";
-import { useState } from "react";
-import { LoginPopUp } from "../shared/LoginPopUp";
-import VideoPlayer from "./VideoPlayer";
+"use client";
+
+import { useEffect } from "react";
+import { renderCanvas } from "./ui/canvas";
+import { ArrowRight, Plus, Shapes, LogIn, Calendar, LayoutGrid, Pen } from "lucide-react";
+import { GetStartedButton } from "./ui/get-started-button";
+import { TypingAnimation } from "./ui/typing-animation";
+import { TestimonialsCarousel } from "./ui/testimonial-carousel";
 
 interface HeroProps {
-  onTabChange: (tab: TabType) => void;
+  onAccessClick: () => void;
 }
 
-export function Hero({ onTabChange }: HeroProps): JSX.Element {
-  const navigate = useNavigate();
-  const [showPopUp, setShowPopUp] = useState(false);
+export function Hero({ onAccessClick }: HeroProps) {
+  useEffect(() => {
+    renderCanvas();
+  }, []);
 
-  const handleLogin = async () => {
-    try {
-      navigate("/login");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white mt-[-10px]">
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAzNGgLTJWMTZoMnYxOHoiIGZpbGw9IiNEREUxRTYiLz48L2c+PC9zdmc+')] opacity-5" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
-      </div>
-
-      <div className="relative max-w-[95rem] mx-auto px-4 md:px-6 md:px-8 md:pt-8 pt-4  pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <VideoPlayer></VideoPlayer>
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleLogin}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
-            >
-              Empezar gratis
-              <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </div>
-
-          {showPopUp && (
-            <LoginPopUp
-              onClose={() => setShowPopUp(false)}
-              onLogin={handleLogin}
-            ></LoginPopUp>
-          )}
-
-          {/* Feature cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                icon: BookOpen,
-                title: "Resúmenes Inteligentes",
-                description:
-                  "Obtén resúmenes concisos y relevantes en segundos",
-                color: "from-blue-500 to-blue-600",
-              },
-              {
-                icon: Brain,
-                title: "Mapas Conceptuales",
-                description: "Visualiza las relaciones entre conceptos clave",
-                color: "from-purple-500 to-purple-600",
-              },
-              {
-                icon: FileText,
-                title: "Quizzes Personalizados",
-                description: "Practica con preguntas generadas por IA",
-                color: "from-pink-500 to-pink-600",
-              },
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 * (index + 1) }}
-                whileHover={{ y: -5 }}
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                <div
-                  className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-6`}
-                >
-                  <feature.icon className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Stats section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-24 text-center">
-          {[
-            { value: "50K+", label: "Estudiantes" },
-            { value: "1M+", label: "Documentos" },
-            { value: "4.9/5", label: "Valoración" },
-          ].map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 * index }}
-            >
-              <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">
-                {stat.value}
+    <div className="relative min-h-screen overflow-y-auto">
+      <section id="home" className="relative z-10">
+        <div className="animation-delay-8 animate-fadeIn mt-10 flex flex-col items-center justify-center px-4 text-center">
+          {/* <div className="z-10 mb-6 sm:justify-center md:mb-4">
+            <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-primary/60">
+              <Shapes className="h-5 p-1" /> Introducing PerfectText.
+              <div className="hover:text-primary ml-1 flex items-center font-semibold">
+                <div className="absolute inset-0 flex" aria-hidden="true" />
+                Beta Version{" "}
+                <span aria-hidden="true">
+                  <ArrowRight className="h-4 w-4" />
+                </span>
               </div>
-              <div className="text-gray-600">{stat.label}</div>
-            </motion.div>
-          ))}
+            </div>
+          </div> */}
+
+          <div className="mb-10">
+            <div className="px-2">
+              <div className="border-primary relative mx-auto h-full max-w-7xl border p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)] md:px-12 md:py-12">
+                <h1 className="flex select-none flex-col px-3 py-2 text-center text-4xl font-semibold leading-none tracking-tight md:text-6xl lg:text-7xl">
+                  <Plus
+                    strokeWidth={4}
+                    className="text-primary absolute -left-5 -top-5 h-10 w-10"
+                  />
+                  <Plus
+                    strokeWidth={4}
+                    className="text-primary absolute -bottom-5 -left-5 h-10 w-10"
+                  />
+                  <Plus
+                    strokeWidth={4}
+                    className="text-primary absolute -right-5 -top-5 h-10 w-10"
+                  />
+                  <Plus
+                    strokeWidth={4}
+                    className="text-primary absolute -bottom-5 -right-5 h-10 w-10"
+                  />
+                  <TypingAnimation 
+                    text="Your complete platform for Learning and Collaboration."
+                    duration={100}
+                    className="min-h-[1.2em]"
+                  />
+                </h1>
+                <div className="flex items-center justify-center gap-2 cursor-pointer mt-4" onClick={onAccessClick}>
+                  <span className="relative flex h-3 w-3 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                  </span>
+                  <p className="text-xs text-green-500">Available Now</p>
+                  <LogIn className="h-4 w-4 text-green-500 hover:text-green-600 transition-colors" />
+                </div>
+              </div>
+            </div>
+
+            <p className="md:text-md mx-auto mb-8 mt-6 max-w-2xl px-6 text-sm text-primary/60 sm:px-6 md:max-w-4xl lg:text-lg">
+              Learn, practice, and perfect your skills with our comprehensive learning platform.
+              Perfect for students, educators, and lifelong learners.
+            </p>
+
+            <div className="flex justify-center mb-12">
+              <GetStartedButton onClick={onAccessClick} />
+            </div>
+
+            {/* Features Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
+              <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <Pen className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Interactive Learning</h3>
+                <p className="text-gray-600">
+                  Engage with interactive exercises, quizzes, and practice sessions designed to enhance your learning experience.
+                </p>
+              </div>
+
+              <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <Calendar className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Study Planner</h3>
+                <p className="text-gray-600">
+                  Plan your study sessions, track progress, and manage your learning goals with our integrated calendar.
+                </p>
+              </div>
+
+              <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <LayoutGrid className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Progress Board</h3>
+                <p className="text-gray-600">
+                  Track your learning journey with our intuitive progress board, perfect for monitoring your achievements.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Testimonials Section */}
+          <TestimonialsCarousel />
         </div>
-      </div>
+      </section>
+      <canvas
+        className="fixed inset-0 w-full h-full pointer-events-none -z-10"
+        id="canvas"
+      ></canvas>
     </div>
   );
 }

@@ -61,6 +61,7 @@ export function Navigation({
   const handleLogout = async () => {
     try {
       await logout();
+      closeSidebar();
       onTabChange("home");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -74,12 +75,15 @@ export function Navigation({
       >
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleSidebar}
-            className="p-2 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-          >
-            <Menu className="w-6 h-6 text-[#38bdf8] dark:text-[#0284c7]" />
-          </button>
+          {user && (
+            <button
+              onClick={toggleSidebar}
+              className="p-2 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+            >
+              <Menu className="w-6 h-6 text-[#38bdf8] dark:text-[#0284c7]" />
+            </button>
+          )}
+
           {/* <Icon
             path={mdiEmoticonWink}
             size={1.5}
