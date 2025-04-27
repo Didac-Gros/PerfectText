@@ -21,9 +21,9 @@ export function Hero({ onAccessClick }: HeroProps) {
       <section id="home" className="relative z-10">
         <div className="animation-delay-8 animate-fadeIn mt-10 flex flex-col items-center justify-center px-4 text-center">
           {/* <div className="z-10 mb-6 sm:justify-center md:mb-4">
-            <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-primary/60">
+            <div className="relative flex items-center whitespace-nowrap rounded-full border bg-popover px-3 py-1 text-xs leading-6 text-[#3B82F6]/60">
               <Shapes className="h-5 p-1" /> Introducing PerfectText.
-              <div className="hover:text-primary ml-1 flex items-center font-semibold">
+              <div className="hover:text-[#3B82F6] ml-1 flex items-center font-semibold">
                 <div className="absolute inset-0 flex" aria-hidden="true" />
                 Beta Version{" "}
                 <span aria-hidden="true">
@@ -35,28 +35,28 @@ export function Hero({ onAccessClick }: HeroProps) {
 
           <div className="mb-10">
             <div className="px-2">
-              <div className="border-primary relative mx-auto h-full max-w-7xl border p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)] md:px-12 md:py-12">
+              <div className="border-[#3B82F6] relative mx-auto h-full max-w-7xl border p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)] md:px-12 md:py-12">
                 <h1 className="flex select-none flex-col px-3 py-2 text-center text-4xl font-semibold leading-none tracking-tight md:text-6xl lg:text-7xl">
                   <Plus
                     strokeWidth={4}
-                    className="text-primary absolute -left-5 -top-5 h-10 w-10"
+                    className="text-[#3B82F6] absolute -left-5 -top-5 h-10 w-10"
                   />
                   <Plus
                     strokeWidth={4}
-                    className="text-primary absolute -bottom-5 -left-5 h-10 w-10"
+                    className="text-[#3B82F6] absolute -bottom-5 -left-5 h-10 w-10"
                   />
                   <Plus
                     strokeWidth={4}
-                    className="text-primary absolute -right-5 -top-5 h-10 w-10"
+                    className="text-[#3B82F6] absolute -right-5 -top-5 h-10 w-10"
                   />
                   <Plus
                     strokeWidth={4}
-                    className="text-primary absolute -bottom-5 -right-5 h-10 w-10"
+                    className="text-[#3B82F6] absolute -bottom-5 -right-5 h-10 w-10"
                   />
                   <TypingAnimation 
                     text="Your complete platform for Learning and Collaboration."
                     duration={100}
-                    className="min-h-[1.2em]"
+                    className="min-h-[1.2em] text-4xl md:text-5xl lg:text-7xl font-semibold"
                   />
                 </h1>
                 <div className="flex items-center justify-center gap-2 cursor-pointer mt-4" onClick={onAccessClick}>
@@ -70,7 +70,7 @@ export function Hero({ onAccessClick }: HeroProps) {
               </div>
             </div>
 
-            <p className="md:text-md mx-auto mb-8 mt-6 max-w-2xl px-6 text-sm text-primary/60 sm:px-6 md:max-w-4xl lg:text-lg">
+            <p className="md:text-md mx-auto mb-8 mt-6 max-w-2xl px-6 text-sm text-[#3B82F6] sm:px-6 md:max-w-4xl lg:text-sm">
               Learn, practice, and perfect your skills with our comprehensive learning platform.
               Perfect for students, educators, and lifelong learners.
             </p>

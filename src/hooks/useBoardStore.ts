@@ -584,26 +584,41 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     if (!cardToMove) return;
 
     const updatedLists = state.lists.map((list) => {
+      // 🔵 Si estem movent dins la mateixa llista
+      if (list.id === fromListId && fromListId === toListId) {
+        const cards = [...list.cards];
+        const oldIndex = cards.findIndex((card) => card.id === cardId);
+
+        // Extreure i reposicionar la carta
+        const [movedCard] = cards.splice(oldIndex, 1);
+        cards.splice(newPosition, 0, movedCard);
+
+        return { ...list, cards };
+      }
+
+      // 🟢 Si estem movent entre dues llistes diferents
       if (list.id === fromListId) {
         return {
           ...list,
           cards: list.cards.filter((card) => card.id !== cardId),
         };
       }
+
       if (list.id === toListId) {
         const newCards = [...list.cards];
         newCards.splice(newPosition, 0, cardToMove);
         return { ...list, cards: newCards };
       }
+
       return list;
     });
-
-    await updateBoardLists(board.id, updatedLists);
 
     set({
       lists: updatedLists,
       currentBoard: { ...board, lists: updatedLists },
     });
+
+    await updateBoardLists(board.id, updatedLists);
   },
 
   addComment: async (cardId: string, text: string, attachments?: File[]) => {

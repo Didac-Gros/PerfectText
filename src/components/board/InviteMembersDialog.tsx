@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "../../lib/utils";
+import { sendInviteEmail } from "../../services/resend/sendInviteEmail";
 import {
   Dialog,
   DialogContent,
@@ -44,13 +45,29 @@ export function InviteMembersDialog() {
     }
   };
 
+  const handleInvite = async () => {
+      try {
+        await sendInviteEmail({
+          email: 'didacgros85@gmail.com',
+          boardId: 'HFaSapXUSpT7us9jyzDf',
+          userId: 'aCVjI687ihbEwzaqF17WOBAiX2C2',
+        });
+        alert('Invitació enviada!');
+      } catch (error) {
+        alert('Error enviant la invitació.');
+      }
+  }
+
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
+        <button
+          className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
                        bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
                        hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 
-                       hover:scale-[1.02] shadow-sm hover:shadow group">
+                       hover:scale-[1.02] shadow-sm hover:shadow group"
+        >
           <UserRoundPlus className="w-5 h-5 group-hover:text-primary-500 transition-colors" />
           <span className="font-medium">Invitar participantes</span>
         </button>
@@ -109,6 +126,7 @@ export function InviteMembersDialog() {
             type="button"
             className="w-full px-4 py-2 bg-primary-500 text-white rounded-lg 
                      hover:bg-primary-600 transition-colors"
+            onClick={handleInvite}
           >
             Enviar invitaciones
           </button>

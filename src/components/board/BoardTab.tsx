@@ -83,10 +83,6 @@ export function BoardTab() {
   const boardRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    console.log("lists", lists);
-  }, [lists]);
-
-  React.useEffect(() => {
     if (currentBoard) {
       setTitle(currentBoard.title);
     }
@@ -188,6 +184,11 @@ export function BoardTab() {
     }
 
     // Move the card
+    console.log("Active card", activeCardId);
+    console.log("Source list", sourceList.id);
+    console.log("Target list", targetList.id); 
+    console.log("New position", newPosition);
+    
     moveCard(activeCardId, sourceList.id, targetList.id, newPosition);
 
     setActiveId(null);

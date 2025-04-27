@@ -7,6 +7,7 @@ import { generateConceptMap } from "./controllers/openai/conceptMapController";
 import { checkPayment } from "./controllers/stripe/checkPaymentController";
 import { saveDatasetHandler } from "./controllers/openai/userReviewController";
 import { uploadFile } from "./controllers/files/uploadFileController";
+import { sendInvite } from "./controllers/resend/sendInviteController";
 import { errorHandler } from "./middleware/errorHandler";
 import compression from "compression";
 import { stripeWebhook } from "./controllers/stripe/stripeWebHookController";
@@ -33,7 +34,7 @@ const app = express();
 
 // Security and performance configuration
 const corsOptions = {
-  origin: 'https://perfecttext.ai',
+  // origin: 'https://perfecttext.ai',
   // origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -94,6 +95,7 @@ app.post("/api/webhook", stripeWebhook);
 app.post("/api/quiz/user-review", saveDatasetHandler);
 app.post("/api/translate/document", upload.single("file"), translateDocument);
 app.post("/api/translate/text", translateText);
+app.post("/api/send-invite", sendInvite);
 app.post(
   "/api/create-checkout-session",
   async (req: Request, res: Response) => {

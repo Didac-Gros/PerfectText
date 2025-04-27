@@ -241,8 +241,7 @@ export function Card({ card, listId }: CardProps) {
               isOpen={showDueDatePicker}
               onOpenChange={setShowDueDatePicker}
               triggerComponent={
-                <button
-                  type="button"
+                <div
                   className={`p-1.5 rounded-lg transition-all duration-200
                            hover:bg-gray-100 dark:hover:bg-gray-600`}
                   onClick={(e) => {
@@ -251,7 +250,7 @@ export function Card({ card, listId }: CardProps) {
                   }}
                 >
                   <Calendar className={`w-4 h-4 ${card.dueDate ? 'text-primary-500 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                </button>
+                </div>
               }
             />
             <button
