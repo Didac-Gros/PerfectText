@@ -11,9 +11,11 @@ import { BlurFade } from './BlurFade';
 import type { EventInput } from '@fullcalendar/core';
 import { SidebarType } from '../../types/global';
 import { useAuth } from '../../hooks/useAuth';
+import { delay } from 'framer-motion';
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
+  boardId?: string;
 }
 
 const GROUPS = [
@@ -66,15 +68,20 @@ const EVENT_COLORS = {
   yellow: '#f59e0b'
 };
 
-export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
+export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
   const { addBoard, setCurrentBoard, boards, fetchBoardsForUser } = useBoardStore();
   const { events, toggleEventCompletion } = useCalendarStore();
   const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(null);
   const [showEventModal, setShowEventModal] = React.useState(false);
   const { user, userStore } = useAuth();
 
-  useEffect(() => {
+  useEffect(() => {    
     fetchBoardsForUser(user?.uid!);
+
+    // if(boardId) {
+    //   setCurrentBoard(boardId);
+    //   onViewChange('boards');
+    // } 
   }, []);
 
   // Get today's events

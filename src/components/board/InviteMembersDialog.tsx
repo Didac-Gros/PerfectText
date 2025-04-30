@@ -1,6 +1,9 @@
 "use client";
 
+import { useAuth } from "../../hooks/useAuth";
+import { useBoardStore } from "../../hooks/useBoardStore";
 import { cn } from "../../lib/utils";
+import { addMemberToBoard } from "../../services/firestore/boardsRepository";
 import { sendInviteEmail } from "../../services/resend/sendInviteEmail";
 import {
   Dialog,
@@ -26,7 +29,8 @@ export function InviteMembersDialog() {
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastInputRef = useRef<HTMLInputElement>(null);
-
+  const {currentBoard} = useBoardStore();
+  const {user} = useAuth();
   const addEmail = () => {
     setEmails([...emails, ""]);
   };
@@ -46,18 +50,21 @@ export function InviteMembersDialog() {
   };
 
   const handleInvite = async () => {
-      try {
+    try {
+      for (const email of emails) {
         await sendInviteEmail({
-          email: 'didacgros85@gmail.com',
-          boardId: 'HFaSapXUSpT7us9jyzDf',
-          userId: 'aCVjI687ihbEwzaqF17WOBAiX2C2',
+          email: email,
+          boardId: currentBoard!.id,
+          userId: user?.uid,
         });
-        alert('Invitació enviada!');
-      } catch (error) {
-        alert('Error enviant la invitació.');
+      
       }
-  }
 
+      alert("Invitació enviada!");
+    } catch (error) {
+      alert("Error enviant la invitació.");
+    }
+  };
 
   return (
     <Dialog>

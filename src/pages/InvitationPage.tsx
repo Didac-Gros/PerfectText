@@ -1,14 +1,25 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { getDoc, doc } from "firebase/firestore";
-import { db } from "../services/firestore/firebase";
+import { Board, User } from "../types/global";
+import {
+  addMemberToBoard,
+  getBoardById,
+} from "../services/firestore/boardsRepository";
+import { getUserById } from "../services/firestore/userRepository";
+import { use } from "marked";
+import { useAuth } from "../hooks/useAuth";
+import { useBoardStore } from "../hooks/useBoardStore";
 
 export default function InvitePage() {
   const [searchParams] = useSearchParams();
-  const [board, setBoard] = useState<any>(null);
-  const [inviter, setInviter] = useState<any>(null);
+  const [board, setBoard] = useState<Board | null>(null);
+  const [inviter, setInviter] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const token = searchParams.get("userId");
+  const { user, userStore } = useAuth();
+  const navigate = useNavigate();
+  const { setCurrentBoard } = useBoardStore();
+  const boardId = searchParams.get("boardId");
 
   useEffect(() => {
     const boardId = searchParams.get("boardId");
@@ -19,17 +30,14 @@ export default function InvitePage() {
 
       try {
         // 🔥 1. Recuperar info del board
-        const boardDoc = await getDoc(doc(db, "boards", boardId));
-        const boardData = boardDoc.data();
-
+        setBoard(await getBoardById(boardId));
         // 🔥 2. Recuperar info de la invitació (qui ha convidat)
-        const inviteDoc = await getDoc(doc(db, "users", userId));
-        const inviteData = inviteDoc.data();
+        setInviter(await getUserById(userId));
 
-        if (boardData && inviteData) {
-          setBoard(boardData);
-          setInviter(inviteData);
-        }
+        // if (boardData && inviteData) {
+        //   setBoard(boardData);
+        //   setInviter(inviteData);
+        // }
       } catch (error) {
         console.error("Error loading invite data", error);
       } finally {
@@ -56,25 +64,40 @@ export default function InvitePage() {
     );
   }
 
-  const handleAccept = () => {
-    console.log("Acceptat!");
-    // Aquí faries l'API call per afegir l'usuari al board
+  const handleAccept = async () => {
+    try {
+      const newMember = {
+        userId: userStore?.uid!,
+        rol: "member",
+        isAdmin: false,
+      };
+
+      await addMemberToBoard(boardId!, newMember);
+      navigate("/", {
+        state: { boardId: boardId },
+      });
+    } catch (error) {
+      console.error("Error al entrar en el login: ", (error as Error).message);
+    }
   };
 
   const handleDecline = () => {
-    console.log("Rebutjat!");
-    // Redirigir o mostrar missatge
+    try {
+      navigate("/");
+    } catch (error) {
+      console.error("Error al entrar en el login: ", (error as Error).message);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
       <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8 text-center">
         <img
-          src={inviter.avatarUrl || "/default-avatar.png"} // assegura que tens una url o una imatge per defecte
+          src={user?.photoURL || "/default-avatar.png"} // assegura que tens una url o una imatge per defecte
           alt="User Avatar"
           className="w-24 h-24 rounded-full mx-auto mb-4"
         />
-        <h1 className="text-2xl font-bold mb-2">T'has unit a un tauler!</h1>
+        <h1 className="text-2xl font-bold mb-2">Has rebut una invitació!</h1>
         <p className="text-gray-600 mb-4">
           <span className="font-semibold">{inviter.name}</span> t'ha convidat a
           unir-te al tauler <span className="font-semibold">{board.title}</span>

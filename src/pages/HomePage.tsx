@@ -22,6 +22,7 @@ import { BoardTab } from "../components/board/BoardTab";
 import { NexusTab } from "../components/nexus/NexusTab";
 import { CalendarTab } from "../components/calendar/CalendarTab";
 import { Hero } from "../components/home/Hero";
+import { delay } from "framer-motion";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -31,6 +32,7 @@ export const HomePage: React.FC = () => {
   const location = useLocation();
   const fileURL = location.state?.fileURL;
   const fileName = location.state?.fileName || "archivo_traducido.pdf";
+  const { boardId } = location.state || {};
   const removeTokens = async (tokensToRemove: number) => {
     await updateUserTokens(tokensToRemove);
     setTokens(tokens! - tokensToRemove);
@@ -61,6 +63,10 @@ export const HomePage: React.FC = () => {
     setRecorderState,
     setIsPaused,
   } = useAudioRecorder();
+
+  useEffect(() => {
+    const { boardId } = location.state || {};
+  }, []);
 
   useEffect(() => {
     const alreadyDownloaded = sessionStorage.getItem("documentDownloaded");
@@ -156,7 +162,7 @@ export const HomePage: React.FC = () => {
           />
 
           {currentView === "myspace" ? (
-            <MySpaceTab onViewChange={setCurrentView} />
+            <MySpaceTab onViewChange={setCurrentView} boardId={boardId} />
           ) : currentView === "calendar" ? (
             <CalendarTab />
           ) : currentBoard ? (

@@ -96,7 +96,6 @@ export interface FileData {
 export interface Board {
   id: string;
   title: string;
-  // coverImage?: string;
   members: Member[];
   createdAt: string;
   updatedAt: string;
