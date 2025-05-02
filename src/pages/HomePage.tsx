@@ -5,7 +5,7 @@ import { ConceptMapGenerator } from "../components/ConceptMap/ConceptMapGenerato
 import { SummarizeTab } from "../components/summarize/SummarizeTab";
 import { CorrectTab } from "../components/correct/CorrectTab";
 import { useAuth } from "../hooks/useAuth";
-import { updateUserTokens } from "../services/firestore/firestore";
+import { updateFirestoreField, updateUserTokens } from "../services/firestore/firestore";
 import { SidebarType, TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
@@ -23,6 +23,8 @@ import { NexusTab } from "../components/nexus/NexusTab";
 import { CalendarTab } from "../components/calendar/CalendarTab";
 import { Hero } from "../components/home/Hero";
 import { delay } from "framer-motion";
+import { syncUserPhotoURL } from "../services/firestore/userRepository";
+import { createDefaultBoards } from "../services/firestore/boardsRepository";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -64,8 +66,25 @@ export const HomePage: React.FC = () => {
     setIsPaused,
   } = useAudioRecorder();
 
-  useEffect(() => {
-    const { boardId } = location.state || {};
+  useEffect(() => {    
+    if(user && userStore && userStore.profileImage === null) {
+        syncUserPhotoURL();
+    }
+    
+    // if(user && userStore && (userStore.boardsCreated === false || userStore.boardsCreated === undefined)) {      
+    //   console.log("Creando tableros por defecto para el usuario:", userStore.uid);
+    //   const fetchData = async () => {
+    //     try {
+    //       await updateFirestoreField("users", userStore.uid, "boardsCreated", true)
+    //       await createDefaultBoards();
+    //       userStore.boardsCreated = true; // Actualiza el estado local
+
+    //     } catch (error) {
+    //       console.error('Error fetching data:', error);
+    //     }
+    //   };
+    //   fetchData();
+    // }
   }, []);
 
   useEffect(() => {

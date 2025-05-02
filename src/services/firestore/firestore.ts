@@ -63,6 +63,8 @@ export const findUserByEmail = async (
         email: userData.email,
         subscription: userData.subscription as UserSubscription,
         tokens: userData.tokens,
+        profileImage: userData.profileImage ?? null,
+        boardsCreated: userData.boardsCreated,
       };
     }
 

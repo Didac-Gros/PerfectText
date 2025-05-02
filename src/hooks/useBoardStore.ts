@@ -307,8 +307,10 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       members: [
         {
           userId: user.uid,
-          rol: "admin",
+          role: "admin",
           isAdmin: true,
+          image: user.photoURL || "/default_avatar.jpg",
+          name: user.displayName || "Usuario",
         },
       ],
       createdAt: new Date().toISOString(),

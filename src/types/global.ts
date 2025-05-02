@@ -52,6 +52,8 @@ export interface User {
   customerId: string | null;
   subscription: UserSubscription;
   tokens: number | null;
+  profileImage: string;
+  boardsCreated: boolean;
 }
 
 export enum UserSubscription {
@@ -104,13 +106,15 @@ export interface Board {
   background?: {
     type: "image" | "gradient";
     value: string;
-  };
+  } | null;
 }
 
 export interface Member {
   userId: string;
-  rol: string;
+  role: string;
   isAdmin: boolean;
+  image: string;
+  name: string;
 }
 
 export interface List {

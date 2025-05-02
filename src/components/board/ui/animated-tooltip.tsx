@@ -7,22 +7,16 @@ import {
   useSpring,
 } from "framer-motion";
 import { cn } from "../../../lib/utils";
-
-export interface TooltipUser {
-  id: number;
-  name: string;
-  role: string;
-  image: string;
-}
+import { Member } from "../../../types/global";
 
 export const AnimatedTooltip = ({
   items,
   className,
 }: {
-  items: TooltipUser[];
+  items: Member[];
   className?: string;
 }) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<string | null>(null);
   const springConfig = { stiffness: 100, damping: 5 };
   const x = useMotionValue(0);
   const rotate = useSpring(
@@ -44,12 +38,12 @@ export const AnimatedTooltip = ({
       {items.map((item, index) => (
         <div
           className="-mr-4 relative group"
-          key={item.id}
-          onMouseEnter={() => setHoveredIndex(item.id)}
+          key={item.userId}
+          onMouseEnter={() => setHoveredIndex(item.userId)}
           onMouseLeave={() => setHoveredIndex(null)}
         >
           <AnimatePresence mode="wait">
-            {hoveredIndex === item.id && (
+            {hoveredIndex === item.userId && (
               <motion.div
                 initial={{ opacity: 0, y: 20, scale: 0.6 }}
                 animate={{
@@ -85,11 +79,9 @@ export const AnimatedTooltip = ({
           </AnimatePresence>
           <img
             onMouseMove={handleMouseMove}
-            height={40}
-            width={40}
-            src={item.image}
+            src={item.image || "/public/default_avatar.jpg"}
             alt={item.name}
-            className="object-cover !m-0 !p-0 object-top rounded-full h-10 w-10 border-2 
+            className="object-cover !m-0 !p-0 object-top rounded-full size-7 border-2 
                      group-hover:scale-105 group-hover:z-30 border-white dark:border-gray-800 
                      relative transition duration-500"
           />

@@ -1,17 +1,28 @@
-import React, { useEffect } from 'react';
-import { Clock, CalendarClock, Users, Video, ArrowUpRight, Plus, Check, Info } from 'lucide-react';
-import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { useBoardStore } from '../../hooks/useBoardStore';
-import { EventModal } from '../shared/EventModal';
-import { useCalendarStore } from '../../hooks/useCalendarStore';
-import { AvatarCircles } from './AvatarCircles';
-import { AnimatedList } from '../shared/AnimatedList';
-import { BlurFade } from './BlurFade';
-import type { EventInput } from '@fullcalendar/core';
-import { SidebarType } from '../../types/global';
-import { useAuth } from '../../hooks/useAuth';
-import { delay } from 'framer-motion';
+import React, { useEffect } from "react";
+import {
+  Clock,
+  CalendarClock,
+  Users,
+  Video,
+  ArrowUpRight,
+  Plus,
+  Check,
+  Info,
+} from "lucide-react";
+import { format, isToday, isTomorrow, isYesterday } from "date-fns";
+import { es } from "date-fns/locale";
+import { useBoardStore } from "../../hooks/useBoardStore";
+import { EventModal } from "../shared/EventModal";
+import { useCalendarStore } from "../../hooks/useCalendarStore";
+import { AvatarCircles } from "./AvatarCircles";
+import { AnimatedList } from "../shared/AnimatedList";
+import { BlurFade } from "./BlurFade";
+import type { EventInput } from "@fullcalendar/core";
+import { SidebarType } from "../../types/global";
+import { useAuth } from "../../hooks/useAuth";
+import { delay } from "framer-motion";
+import { createDefaultBoards } from "../../services/firestore/boardsRepository";
+import { updateFirestoreField } from "../../services/firestore/firestore";
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
@@ -20,22 +31,22 @@ interface MySpaceTabProps {
 
 const GROUPS = [
   {
-    id: '1',
-    name: 'Equipo Diseño',
-    icon: '🎨',
+    id: "1",
+    name: "Equipo Diseño",
+    icon: "🎨",
     members: 8,
     active: true,
     avatars: [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop",
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=64&h=64&q=80&crop=faces&fit=crop",
       "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=64&h=64&q=80&crop=faces&fit=crop"
-    ]
+      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=64&h=64&q=80&crop=faces&fit=crop",
+    ],
   },
   {
-    id: '2',
-    name: 'Desarrollo Frontend',
-    icon: '💻',
+    id: "2",
+    name: "Desarrollo Frontend",
+    icon: "💻",
     members: 12,
     active: true,
     avatars: [
@@ -43,45 +54,75 @@ const GROUPS = [
       "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64&h=64&q=80&crop=faces&fit=crop",
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&q=80&crop=faces&fit=crop",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64&h=64&q=80&crop=faces&fit=crop"
-    ]
+      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64&h=64&q=80&crop=faces&fit=crop",
+    ],
   },
   {
-    id: '3',
-    name: 'Marketing',
-    icon: '📢',
+    id: "3",
+    name: "Marketing",
+    icon: "📢",
     members: 6,
     active: false,
     avatars: [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=64&h=64&q=80&crop=faces&fit=crop",
       "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&crop=faces&fit=crop"
-    ]
-  }
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&crop=faces&fit=crop",
+    ],
+  },
 ];
 
 const EVENT_COLORS = {
-  blue: '#3b82f6',
-  red: '#ef4444',
-  green: '#10b981',
-  purple: '#8b5cf6',
-  yellow: '#f59e0b'
+  blue: "#3b82f6",
+  red: "#ef4444",
+  green: "#10b981",
+  purple: "#8b5cf6",
+  yellow: "#f59e0b",
 };
 
 export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
-  const { addBoard, setCurrentBoard, boards, fetchBoardsForUser } = useBoardStore();
+  const { addBoard, setCurrentBoard, boards, fetchBoardsForUser } =
+    useBoardStore();
   const { events, toggleEventCompletion } = useCalendarStore();
-  const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(null);
+  const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(
+    null
+  );
   const [showEventModal, setShowEventModal] = React.useState(false);
   const { user, userStore } = useAuth();
 
-  useEffect(() => {    
-    fetchBoardsForUser(user?.uid!);
+  useEffect(() => {
+    if (
+      user &&
+      userStore &&
+      (userStore.boardsCreated === false ||
+        userStore.boardsCreated === undefined)
+    ) {
+      console.log(
+        "Creando tableros por defecto para el usuario:",
+        userStore.uid
+      );
+      const fetchData = async () => {
+        try {
+          await updateFirestoreField(
+            "users",
+            userStore.uid,
+            "boardsCreated",
+            true
+          );
+          await createDefaultBoards();
+          await fetchBoardsForUser(user?.uid!);
+
+          userStore.boardsCreated = true; // Actualiza el estado local
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+      fetchData();
+    } else fetchBoardsForUser(user?.uid!);
 
     // if(boardId) {
     //   setCurrentBoard(boardId);
     //   onViewChange('boards');
-    // } 
+    // }
   }, []);
 
   // Get today's events
@@ -92,7 +133,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     return events
-      .filter(event => {
+      .filter((event) => {
         const eventDate = new Date(event.start as Date);
         return eventDate >= today && eventDate < tomorrow;
       })
@@ -106,14 +147,14 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
   const handleCreateBoard = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const newBoard = await addBoard('Nueva página');
+    const newBoard = await addBoard("Nueva página");
     setCurrentBoard(newBoard!.id);
-    onViewChange('boards');
+    onViewChange("boards");
   };
 
   const handleBoardClick = (boardId: string) => {
-    setCurrentBoard(boardId);    
-    onViewChange('boards');
+    setCurrentBoard(boardId);
+    onViewChange("boards");
   };
 
   const handleEventClick = (event: EventInput) => {
@@ -122,17 +163,17 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
   };
 
   const handleViewAllBoards = () => {
-    setCurrentBoard('');
-    onViewChange('boards');
+    setCurrentBoard("");
+    onViewChange("boards");
   };
 
   const formatEventTime = (date: Date) => {
     if (isToday(date)) {
-      return `Hoy a las ${format(date, 'HH:mm')}`;
+      return `Hoy a las ${format(date, "HH:mm")}`;
     } else if (isTomorrow(date)) {
-      return `Mañana a las ${format(date, 'HH:mm')}`;
+      return `Mañana a las ${format(date, "HH:mm")}`;
     } else if (isYesterday(date)) {
-      return `Ayer a las ${format(date, 'HH:mm')}`;
+      return `Ayer a las ${format(date, "HH:mm")}`;
     }
     return format(date, "d 'de' MMMM 'a las' HH:mm", { locale: es });
   };
@@ -147,12 +188,16 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
               Hello Didac
               <div className="w-16 h-16 bg-black rounded-full p-1 flex-shrink-0">
                 <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
-                  <svg 
-                    viewBox="0 0 100 100" 
-                    className="w-12 h-12 text-white"
-                  >
-                    <circle cx="30" cy="35" r="8" fill="currentColor"/>
-                    <rect x="60" y="35" width="16" height="8" rx="4" fill="currentColor"/>
+                  <svg viewBox="0 0 100 100" className="w-12 h-12 text-white">
+                    <circle cx="30" cy="35" r="8" fill="currentColor" />
+                    <rect
+                      x="60"
+                      y="35"
+                      width="16"
+                      height="8"
+                      rx="4"
+                      fill="currentColor"
+                    />
                     <path
                       d="M25,65 Q50,80 75,65"
                       fill="none"
@@ -179,7 +224,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
               <Clock className="w-5 h-5" />
               <h2 className="text-xl font-medium">Visitados recientemente</h2>
             </div>
-            <button 
+            <button
               onClick={handleViewAllBoards}
               className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
             >
@@ -199,7 +244,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
               >
                 {/* Background */}
                 <div className="absolute inset-0">
-                  {board.background?.type === 'image' ? (
+                  {board.background?.type === "image" ? (
                     <img
                       src={board.background.value}
                       alt=""
@@ -207,10 +252,12 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                                group-hover:opacity-50 dark:group-hover:opacity-40 
                                transition-opacity duration-200"
                     />
-                  ) : board.background?.type === 'gradient' ? (
-                    <div className={`absolute inset-0 opacity-40 dark:opacity-30 
+                  ) : board.background?.type === "gradient" ? (
+                    <div
+                      className={`absolute inset-0 opacity-40 dark:opacity-30 
                                    group-hover:opacity-50 dark:group-hover:opacity-40 
-                                   transition-opacity duration-200 ${board.background.value}`} />
+                                   transition-opacity duration-200 ${board.background.value}`}
+                    />
                   ) : null}
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 dark:to-black/40" />
                 </div>
@@ -219,13 +266,19 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                 <div className="relative p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 flex items-center justify-center rounded-lg 
-                                    bg-white/10 backdrop-blur-sm border border-white/20">
-                        <span className="text-xl">{board.background?.type === 'gradient' ? '📄' : '🖼️'}</span>
+                      <div
+                        className="w-10 h-10 flex items-center justify-center rounded-lg 
+                                    bg-white/10 backdrop-blur-sm border border-white/20"
+                      >
+                        <span className="text-xl">
+                          {board.background?.type === "gradient" ? "📄" : "🖼️"}
+                        </span>
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white 
-                                     group-hover:text-gray-700 dark:group-hover:text-gray-300">
+                        <h3
+                          className="font-medium text-gray-900 dark:text-white 
+                                     group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        >
                           {board.title}
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -238,7 +291,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
               </div>
             ))}
 
-            <button 
+            <button
               onClick={handleCreateBoard}
               className="group relative bg-gray-50 dark:bg-gray-800 rounded-xl p-4 
                        hover:bg-gray-100 dark:hover:bg-gray-700 
@@ -247,8 +300,10 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                        flex items-center justify-center
                        hover:shadow-lg hover:-translate-y-0.5"
             >
-              <div className="flex flex-col items-center text-gray-400 dark:text-gray-500 
-                            group-hover:text-gray-600 dark:group-hover:text-gray-300">
+              <div
+                className="flex flex-col items-center text-gray-400 dark:text-gray-500 
+                            group-hover:text-gray-600 dark:group-hover:text-gray-300"
+              >
                 <Plus className="w-6 h-6 mb-2" />
                 <span className="text-sm font-medium">Nueva página</span>
               </div>
@@ -263,8 +318,8 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
               <CalendarClock className="w-5 h-5" />
               <h2 className="text-xl font-medium">Agenda de hoy</h2>
             </div>
-            <button 
-              onClick={() => onViewChange('calendar')}
+            <button
+              onClick={() => onViewChange("calendar")}
               className="text-primary-500 hover:text-primary-600 dark:text-primary-400 
                        dark:hover:text-primary-300 font-medium text-sm"
             >
@@ -276,8 +331,10 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
             <AnimatedList animate={false} className="space-y-3">
               {todayEvents.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 
-                               flex items-center justify-center">
+                  <div
+                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 
+                               flex items-center justify-center"
+                  >
                     <CalendarClock className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                   </div>
                   <p className="text-lg text-gray-500 dark:text-gray-400">
@@ -289,9 +346,10 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                 </div>
               ) : (
                 todayEvents.map((event) => {
-                  const color = event.backgroundColor as string || EVENT_COLORS.purple;
+                  const color =
+                    (event.backgroundColor as string) || EVENT_COLORS.purple;
                   const startDate = new Date(event.start as Date);
-                  
+
                   return (
                     <div
                       key={event.id}
@@ -311,13 +369,16 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                           }}
                           className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center 
                                    justify-center transition-all duration-300 group-hover:scale-110
-                                   ${event.extendedProps?.completed
-                                     ? 'bg-green-500 text-white'
-                                     : ''
+                                   ${
+                                     event.extendedProps?.completed
+                                       ? "bg-green-500 text-white"
+                                       : ""
                                    }`}
                           style={{
-                            backgroundColor: event.extendedProps?.completed ? undefined : color,
-                            opacity: event.extendedProps?.completed ? 1 : 0.8
+                            backgroundColor: event.extendedProps?.completed
+                              ? undefined
+                              : color,
+                            opacity: event.extendedProps?.completed ? 1 : 0.8,
                           }}
                         >
                           {event.extendedProps?.completed ? (
@@ -329,8 +390,10 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-2">
-                            <h3 className={`font-medium text-gray-900 dark:text-white truncate
-                                       ${event.extendedProps?.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>
+                            <h3
+                              className={`font-medium text-gray-900 dark:text-white truncate
+                                       ${event.extendedProps?.completed ? "line-through text-gray-500 dark:text-gray-400" : ""}`}
+                            >
                               {event.title}
                             </h3>
                             <span className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
@@ -338,8 +401,10 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                             </span>
                           </div>
                           {event.extendedProps?.description && (
-                            <p className={`mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2
-                                      ${event.extendedProps?.completed ? 'line-through' : ''}`}>
+                            <p
+                              className={`mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2
+                                      ${event.extendedProps?.completed ? "line-through" : ""}`}
+                            >
                               {event.extendedProps.description}
                             </p>
                           )}

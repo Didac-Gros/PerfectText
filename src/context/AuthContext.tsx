@@ -51,6 +51,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: firestoreUserData.email,
               subscription: firestoreUserData.subscription,
               tokens: firestoreUserData.tokens,
+              profileImage: firestoreUserData.profileImage,
+              boardsCreated: firestoreUserData.boardsCreated,
             };
 
             setuserStore(formattedUser); // Actualiza el estado con los datos del usuario de Firestore
@@ -63,6 +65,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: currentUser.email!,
               subscription: UserSubscription.FREE,
               tokens: UserSubscription.TOKENSFREE as number,
+              profileImage: currentUser.photoURL!,
+              boardsCreated: false,
             };
             await addUserToFirestore(formattedUser); // Agrega al usuario en Firestore
             setuserStore(formattedUser); // Si no se encuentra el usuario, establece null

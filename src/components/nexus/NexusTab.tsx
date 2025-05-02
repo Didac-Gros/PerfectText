@@ -6,6 +6,7 @@ import {
   Clock,
   Plus as PlusIcon,
   Trash2,
+  Edit,
 } from "lucide-react";
 import { useBoardStore } from "../../hooks/useBoardStore";
 import { DueDatePicker } from "../shared/DueDatePicker";
@@ -20,6 +21,7 @@ import {
   DialogTitle,
 } from "../shared/ui/dialog";
 import { auth } from "../../services/firestore/firebase";
+import { useAuth } from "../../hooks/useAuth";
 export function NexusTab() {
   const {
     boards,
@@ -40,6 +42,7 @@ export function NexusTab() {
   >(null);
   const [boardToDelete, setBoardToDelete] = React.useState<Board | null>(null);
   const editInputRef = React.useRef<HTMLInputElement>(null);
+  const {userStore} = useAuth();
 
   const filteredBoards = React.useMemo(() => {
     return boards.filter((board) =>
@@ -89,19 +92,42 @@ export function NexusTab() {
     }
   };
 
+  const handleEditBg = (board: Board, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowBackgroundPicker(board.id);
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#161616] p-6">
       <div className="max-w-[1400px] mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-1">
           <h1 className="text-3xl font-medium text-gray-900 dark:text-white">
-            Buenas noches, Usuario
+            Buenas noches, {userStore?.name || "Usuario"}
           </h1>
           <h2 className="flex items-center space-x-2 text-lg text-gray-500 dark:text-white/60">
             <Clock className="w-5 h-5" />
             <span>Visitadas recientemente</span>
           </h2>
         </div>
+
+        {showBackgroundPicker && (
+          <BackgroundPicker
+            onClose={() => setShowBackgroundPicker(null)}
+            onSelect={(background) => {
+              if (showBackgroundPicker) {
+                updateBoardBackground(showBackgroundPicker, background);
+              }
+              setShowBackgroundPicker(null);
+            }}
+            currentBackground={
+              boards.find((board) => board.id === showBackgroundPicker)
+                ?.background || null
+            }
+          />
+        )}
+
 
         {/* Board Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -129,7 +155,16 @@ export function NexusTab() {
 
                   <div className="absolute inset-0 rounded-3xl bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
 
-                  {/* Delete Button */}
+                  {/* Buttons */}
+                  <button
+                    onClick={(e) => handleEditBg(board, e)}
+                    className="absolute top-4 left-4 p-2 rounded-lg bg-black/40 backdrop-blur-sm
+                             opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50
+                             hover:bg-blue-500/80 text-white"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+
                   <button
                     onClick={(e) => handleDeleteBoard(board, e)}
                     className="absolute top-4 right-4 p-2 rounded-lg bg-black/40 backdrop-blur-sm

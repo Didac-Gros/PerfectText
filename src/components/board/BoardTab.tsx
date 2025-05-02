@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Plus,
   Users,
@@ -8,6 +8,7 @@ import {
   ZoomIn,
   ZoomOut,
   Pencil,
+  Calendar,
 } from "lucide-react";
 import {
   DndContext,
@@ -30,39 +31,11 @@ import { Card } from "./Card";
 import { useBoardStore } from "../../hooks/useBoardStore";
 import { InviteMembersDialog } from "./InviteMembersDialog";
 import { ProjectManagementDialog } from "./ProjectManagementDialog";
-import { AnimatedTooltip, type TooltipUser } from "./ui/animated-tooltip";
 import type { Card as CardType } from "../../types/global";
-
-const sharedUsers: TooltipUser[] = [
-  {
-    id: 1,
-    name: "Sara Johnson",
-    role: "Project Manager",
-    image:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop",
-  },
-  {
-    id: 2,
-    name: "Michael Chen",
-    role: "Developer",
-    image:
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&q=80&crop=faces&fit=crop",
-  },
-  {
-    id: 3,
-    name: "Emma Wilson",
-    role: "Designer",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop",
-  },
-  {
-    id: 4,
-    name: "Alex Thompson",
-    role: "Content Writer",
-    image:
-      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64&h=64&q=80&crop=faces&fit=crop",
-  },
-];
+import { AnimatedTooltip } from "./ui/animated-tooltip";
+import { DueDatePicker } from "../shared/DueDatePicker";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 1.5;
@@ -81,8 +54,10 @@ export function BoardTab() {
   const [zoom, setZoom] = React.useState(1);
   const titleInputRef = React.useRef<HTMLInputElement>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
+  const members = currentBoard?.members || [];
+  const [showDueDatePicker, setShowDueDatePicker] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentBoard) {
       setTitle(currentBoard.title);
     }
@@ -186,9 +161,9 @@ export function BoardTab() {
     // Move the card
     console.log("Active card", activeCardId);
     console.log("Source list", sourceList.id);
-    console.log("Target list", targetList.id); 
+    console.log("Target list", targetList.id);
     console.log("New position", newPosition);
-    
+
     moveCard(activeCardId, sourceList.id, targetList.id, newPosition);
 
     setActiveId(null);
@@ -211,6 +186,11 @@ export function BoardTab() {
       setTitle(currentBoard?.title || "");
       setIsEditingTitle(false);
     }
+  };
+
+  const handleDueDateChange = (dueDate: string | null) => {
+    const updatedBoard = { ...currentBoard, dueDate };
+    updateBoard(updatedBoard.id!, updatedBoard?.title!, updatedBoard.dueDate);
   };
 
   const handleZoomIn = () => {
@@ -293,11 +273,41 @@ export function BoardTab() {
               )}
               <div className="flex items-center space-x-6 text-sm">
                 <span className="text-gray-600 dark:text-gray-400 font-medium">
-                  Fecha límite: 15 de Mayo
+                  Fecha límite:{" "}
+                  <span>
+                    {currentBoard?.dueDate
+                      ? format(
+                          new Date(currentBoard.dueDate),
+                          "dd 'de' MMMM yyyy",
+                          { locale: es }
+                        )
+                      : "Sin fecha"}
+                  </span>
                 </span>
+                <DueDatePicker
+                  dueDate={currentBoard!.dueDate!}
+                  onDateChange={handleDueDateChange}
+                  isCompleted={undefined}
+                  isOpen={showDueDatePicker}
+                  onOpenChange={setShowDueDatePicker}
+                  triggerComponent={
+                    <div
+                      className={`p-1.5 rounded-lg transition-all duration-200
+                                           hover:bg-gray-100 dark:hover:bg-gray-600`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDueDatePicker(true);
+                      }}
+                    >
+                      <Calendar
+                        className={`w-4 h-4 ${currentBoard!.dueDate ? "text-primary-500 dark:text-primary-400" : "text-gray-400 dark:text-gray-500"}`}
+                      />
+                    </div>
+                  }
+                />
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <AnimatedTooltip items={sharedUsers} />
+                  <AnimatedTooltip items={members} />
                 </div>
               </div>
             </div>
@@ -305,8 +315,8 @@ export function BoardTab() {
             <div className="flex items-center space-x-3">
               {/* Zoom Controls */}
               <div
-                className="flex items-center space-x-2 px-3 py-2 bg-white dark:bg-gray-800 
-                           rounded-lg border border-gray-200 dark:border-gray-700"
+                className="flex items-center space-x-2 px-2 py-1 bg-white dark:bg-gray-800 
+                           rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"
               >
                 <button
                   onClick={handleZoomOut}
@@ -336,7 +346,7 @@ export function BoardTab() {
                 className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
                          bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
                          hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 
-                         hover:scale-[1.02] shadow-sm hover:shadow group"
+                         hover:scale-[1.02] shadow-sm hover:shadow group text-sm"
               >
                 <Settings2 className="w-5 h-5 group-hover:text-primary-500 transition-colors" />
                 <span className="font-medium">Administrar</span>
@@ -346,10 +356,10 @@ export function BoardTab() {
                 onClick={() => addList("Nueva Lista")}
                 className="flex items-center space-x-2 px-4 py-2.5 bg-blue-500 text-white 
                          rounded-xl hover:bg-blue-600 transition-all duration-200 
-                         hover:scale-[1.02] shadow-sm hover:shadow-md"
+                         hover:scale-[1.02] shadow-sm hover:shadow-md text-sm"
               >
                 <Plus className="w-5 h-5" />
-                <span className="font-medium">Nueva Lista</span>
+                <span className="font-medium ">Nueva Lista</span>
               </button>
             </div>
           </div>

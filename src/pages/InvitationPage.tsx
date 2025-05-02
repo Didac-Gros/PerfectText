@@ -68,8 +68,10 @@ export default function InvitePage() {
     try {
       const newMember = {
         userId: userStore?.uid!,
-        rol: "member",
+        role: "member",
         isAdmin: false,
+        image: userStore?.profileImage || "/default-avatar.jpg",
+        name: userStore?.name || "Usuari",
       };
 
       await addMemberToBoard(boardId!, newMember);
