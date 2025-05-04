@@ -230,7 +230,6 @@ export async function createDefaultBoards() {
         members: [
           {
             userId: user.uid,
-            role: "admin",
             isAdmin: true,
             image: user.photoURL!,
             name: user.displayName!,
@@ -238,6 +237,7 @@ export async function createDefaultBoards() {
         ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        lastViewed: new Date().toISOString(),
         lists: createStudyTemplate(),
       },
       {
@@ -247,7 +247,6 @@ export async function createDefaultBoards() {
         members: [
           {
             userId: user.uid,
-            role: "admin",
             isAdmin: true,
             image: user.photoURL!,
             name: user.displayName!,
@@ -255,6 +254,7 @@ export async function createDefaultBoards() {
         ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        lastViewed: new Date().toISOString(),
         lists: createGroupWorkTemplate(),
       },
       {
@@ -264,7 +264,6 @@ export async function createDefaultBoards() {
         members: [
           {
             userId: user.uid,
-            role: "admin",
             isAdmin: true,
             image: user.photoURL!,
             name: user.displayName!,
@@ -272,6 +271,7 @@ export async function createDefaultBoards() {
         ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        lastViewed: new Date().toISOString(),
         lists: [],
       },
     ];
@@ -325,6 +325,7 @@ export async function getBoardsForUser(userId: string): Promise<Board[]> {
         lists: data.lists || [],
         dueDate: data.dueDate || null,
         background: data.background || undefined,
+        lastViewed: data.lastViewed,
       };
 
       userBoards.push(board);
@@ -405,3 +406,55 @@ export async function addMemberToBoard(
     console.error("Error afegint el membre:", (error as Error).message);
   }
 }
+
+export const removeMemberFromBoard = async (boardId: string, userId: string) => {
+  try {
+    const boardRef = doc(db, "boards", boardId);
+    const boardSnap = await getDoc(boardRef);
+
+    if (!boardSnap.exists()) {
+      throw new Error("El board no existeix");
+    }
+
+    const boardData = boardSnap.data() as Board;
+
+    const updatedMembers = boardData.members.filter(
+      (member) => member.userId !== userId
+    );
+
+    await updateDoc(boardRef, {
+      members: updatedMembers,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error eliminant el membre:", error);
+    throw error;
+  }
+};
+
+export const toggleAdminStatus = async (boardId: string, memberId: string) => {
+  try {
+    const boardRef = doc(db, "boards", boardId);
+    const boardSnap = await getDoc(boardRef);
+
+    if (!boardSnap.exists()) {
+      throw new Error("El board no existeix");
+    }
+
+    const boardData = boardSnap.data() as Board;
+
+    const updatedMembers = boardData.members.map((member) =>
+      member.userId === memberId
+        ? { ...member, isAdmin: !member.isAdmin }
+        : member
+    );
+
+    await updateDoc(boardRef, {
+      members: updatedMembers,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error alternant estat d'admin:", error);
+    throw error;
+  }
+};

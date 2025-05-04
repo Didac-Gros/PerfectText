@@ -1,19 +1,23 @@
-import React from 'react';
-import { Plus, MoreHorizontal, Copy, Trash2, Palette } from 'lucide-react';
-import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import type { List as ListType } from '../../types/global';
-import { Card } from './Card';
-import { useBoardStore } from '../../hooks/useBoardStore';
-import { ColorInput } from './ui/color-input';
-import { AnimatedList } from '../shared/AnimatedList';
+import React from "react";
+import { Plus, MoreHorizontal, Copy, Trash2, Palette } from "lucide-react";
+import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import type { List as ListType } from "../../types/global";
+import { Card } from "./Card";
+import { useBoardStore } from "../../hooks/useBoardStore";
+import { ColorInput } from "./ui/color-input";
+import { AnimatedList } from "../shared/AnimatedList";
 
 interface ListProps {
   list: ListType;
   isOver: boolean;
+  isCurrentAdmin: boolean;
 }
 
-export function List({ list, isOver }: ListProps) {
+export function List({ list, isOver, isCurrentAdmin }: ListProps) {
   const { addCard, updateList, deleteList, duplicateList } = useBoardStore();
   const [isEditing, setIsEditing] = React.useState(false);
   const [title, setTitle] = React.useState(list.title);
@@ -24,9 +28,9 @@ export function List({ list, isOver }: ListProps) {
   const { setNodeRef } = useDroppable({
     id: list.id,
     data: {
-      type: 'list',
+      type: "list",
       listId: list.id,
-    }
+    },
   });
 
   React.useEffect(() => {
@@ -38,7 +42,7 @@ export function List({ list, isOver }: ListProps) {
   }, [isOver]);
 
   const handleAddCard = () => {
-    addCard(list.id, 'Nueva tarjeta');
+    addCard(list.id, "Nueva tarjeta");
   };
 
   const handleTitleSubmit = (e: React.FormEvent) => {
@@ -66,16 +70,19 @@ export function List({ list, isOver }: ListProps) {
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showActions && !(event.target as Element).closest('.list-actions')) {
+      if (showActions && !(event.target as Element).closest(".list-actions")) {
         setShowActions(false);
       }
-      if (showColorPicker && !(event.target as Element).closest('.color-picker')) {
+      if (
+        showColorPicker &&
+        !(event.target as Element).closest(".color-picker")
+      ) {
         setShowColorPicker(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showActions, showColorPicker]);
 
   return (
@@ -85,11 +92,11 @@ export function List({ list, isOver }: ListProps) {
                  backdrop-blur-sm shadow-lg border border-gray-200/20 dark:border-gray-700/20
                  transition-all duration-300 ease-out transform
                  flex flex-col min-h-[100px] max-h-[calc(100vh-2rem)] self-start
-                 ${isOver ? 'ring-2 ring-primary-400/60 bg-primary-50/30 dark:bg-primary-900/20 scale-[1.02]' : ''}
-                 ${isDropAnimating ? 'scale-[1.01]' : ''}`}
+                 ${isOver ? "ring-2 ring-primary-400/60 bg-primary-50/30 dark:bg-primary-900/20 scale-[1.02]" : ""}
+                 ${isDropAnimating ? "scale-[1.01]" : ""}`}
       style={{
-        backgroundColor: list.color || 'rgb(243 244 246 / 0.9)', // bg-gray-100/90
-        color: list.color ? 'white' : undefined
+        backgroundColor: list.color || "rgb(243 244 246 / 0.9)", // bg-gray-100/90
+        color: list.color ? "white" : undefined,
       }}
     >
       <div className="flex-shrink-0 px-4 pt-4 pb-2">
@@ -104,7 +111,7 @@ export function List({ list, isOver }: ListProps) {
                   className={`w-full px-3 py-2 text-lg font-semibold rounded-lg 
                            focus:outline-none focus:ring-2 focus:ring-primary-400/60
                            bg-white dark:bg-gray-800 
-                           ${list.color ? 'text-gray-900' : 'text-gray-900 dark:text-white'}
+                           ${list.color ? "text-gray-900" : "text-gray-900 dark:text-white"}
                            border border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm`}
                   autoFocus
                   onBlur={handleTitleSubmit}
@@ -114,17 +121,21 @@ export function List({ list, isOver }: ListProps) {
               <div className="flex items-center space-x-3 flex-1">
                 <h2
                   className={`text-xl font-semibold cursor-pointer tracking-tight hover:opacity-80 transition-opacity ${
-                    list.color ? 'text-white' : 'bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent'
+                    list.color
+                      ? "text-white"
+                      : "bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent"
                   }`}
                   onClick={() => setIsEditing(true)}
                 >
                   {list.title}
                 </h2>
-                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                  list.color 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-gray-200/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300'
-                }`}>
+                <span
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                    list.color
+                      ? "bg-white/20 text-white"
+                      : "bg-gray-200/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300"
+                  }`}
+                >
                   {list.cards.length}
                 </span>
               </div>
@@ -133,29 +144,33 @@ export function List({ list, isOver }: ListProps) {
               <div className="flex items-center space-x-1">
                 <button
                   className={`p-1.5 rounded-lg transition-colors duration-200 ${
-                    list.color 
-                      ? 'hover:bg-white/20 text-white/80 hover:text-white' 
-                      : 'hover:bg-gray-200/80 dark:hover:bg-gray-700/80 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    list.color
+                      ? "hover:bg-white/20 text-white/80 hover:text-white"
+                      : "hover:bg-gray-200/80 dark:hover:bg-gray-700/80 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                   onClick={() => setShowColorPicker(!showColorPicker)}
                 >
                   <Palette className="w-5 h-5" />
                 </button>
-                <button
-                  className={`p-1.5 rounded-lg transition-colors duration-200 ${
-                    list.color 
-                      ? 'hover:bg-white/20 text-white/80 hover:text-white' 
-                      : 'hover:bg-gray-200/80 dark:hover:bg-gray-700/80 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  onClick={() => setShowActions(!showActions)}
-                >
-                  <MoreHorizontal className="w-5 h-5" />
-                </button>
+                {isCurrentAdmin && (
+                  <button
+                    className={`p-1.5 rounded-lg transition-colors duration-200 ${
+                      list.color
+                        ? "hover:bg-white/20 text-white/80 hover:text-white"
+                        : "hover:bg-gray-200/80 dark:hover:bg-gray-700/80 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                    onClick={() => setShowActions(!showActions)}
+                  >
+                    <MoreHorizontal className="w-5 h-5" />
+                  </button>
+                )}
               </div>
-              
+
               {showActions && (
-                <div className="absolute right-0 top-full mt-1 w-48 py-1 bg-white dark:bg-gray-800 
-                           rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                <div
+                  className="absolute right-0 top-full mt-1 w-48 py-1 bg-white dark:bg-gray-800 
+                           rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                >
                   <button
                     onClick={handleDuplicateList}
                     className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 
@@ -190,15 +205,19 @@ export function List({ list, isOver }: ListProps) {
           </div>
         </div>
       </div>
-      
-      <SortableContext items={list.cards.map(card => card.id)} strategy={verticalListSortingStrategy}>
+
+      <SortableContext
+        items={list.cards.map((card) => card.id)}
+        strategy={verticalListSortingStrategy}
+      >
         <div className="flex-1 px-4 overflow-y-auto space-y-3 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
           <AnimatedList animate={false} className="space-y-3">
             {list.cards.map((card) => (
-              <Card 
-                key={card.id} 
-                card={card} 
+              <Card
+                key={card.id}
+                card={card}
                 listId={list.id}
+                isCurrentAdmin={isCurrentAdmin}
               />
             ))}
           </AnimatedList>
@@ -213,8 +232,8 @@ export function List({ list, isOver }: ListProps) {
                    border border-dashed backdrop-blur-sm shadow-sm hover:shadow-md
                    group ${
                      list.color
-                       ? 'border-white/30 text-white/80 hover:text-white bg-white/10 hover:bg-white/20'
-                       : 'border-gray-200/50 dark:border-gray-600/50 text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-700/50 hover:bg-white/90 dark:hover:bg-gray-700/70'
+                       ? "border-white/30 text-white/80 hover:text-white bg-white/10 hover:bg-white/20"
+                       : "border-gray-200/50 dark:border-gray-600/50 text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-700/50 hover:bg-white/90 dark:hover:bg-gray-700/70"
                    }`}
         >
           <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />

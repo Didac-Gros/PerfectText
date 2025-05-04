@@ -23,6 +23,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { delay } from "framer-motion";
 import { createDefaultBoards } from "../../services/firestore/boardsRepository";
 import { updateFirestoreField } from "../../services/firestore/firestore";
+import { getRelativeTime } from "../../utils/utils";
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
@@ -233,63 +234,72 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {boards.slice(0, 3).map((board) => (
-              <div
-                key={board.id}
-                onClick={() => handleBoardClick(board.id)}
-                className="group relative bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden
+            {[...boards]
+              .sort(
+                (a, b) =>
+                  new Date(b.lastViewed).getTime() -
+                  new Date(a.lastViewed).getTime()
+              )
+              .slice(0, 3)
+              .map((board) => (
+                <div
+                  key={board.id}
+                  onClick={() => handleBoardClick(board.id)}
+                  className="group relative bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden
                          hover:bg-gray-100 dark:hover:bg-gray-700 
                          transition-all duration-200 cursor-pointer
                          hover:shadow-lg hover:-translate-y-0.5"
-              >
-                {/* Background */}
-                <div className="absolute inset-0">
-                  {board.background?.type === "image" ? (
-                    <img
-                      src={board.background.value}
-                      alt=""
-                      className="w-full h-full object-cover opacity-40 dark:opacity-30 
+                >
+                  {/* Background */}
+                  <div className="absolute inset-0">
+                    {board.background?.type === "image" ? (
+                      <img
+                        src={board.background.value}
+                        alt=""
+                        className="w-full h-full object-cover opacity-40 dark:opacity-30 
                                group-hover:opacity-50 dark:group-hover:opacity-40 
                                transition-opacity duration-200"
-                    />
-                  ) : board.background?.type === "gradient" ? (
-                    <div
-                      className={`absolute inset-0 opacity-40 dark:opacity-30 
+                      />
+                    ) : board.background?.type === "gradient" ? (
+                      <div
+                        className={`absolute inset-0 opacity-40 dark:opacity-30 
                                    group-hover:opacity-50 dark:group-hover:opacity-40 
                                    transition-opacity duration-200 ${board.background.value}`}
-                    />
-                  ) : null}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 dark:to-black/40" />
-                </div>
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 dark:to-black/40" />
+                  </div>
 
-                {/* Content */}
-                <div className="relative p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className="w-10 h-10 flex items-center justify-center rounded-lg 
+                  {/* Content */}
+                  <div className="relative p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className="w-10 h-10 flex items-center justify-center rounded-lg 
                                     bg-white/10 backdrop-blur-sm border border-white/20"
-                      >
-                        <span className="text-xl">
-                          {board.background?.type === "gradient" ? "📄" : "🖼️"}
-                        </span>
-                      </div>
-                      <div>
-                        <h3
-                          className="font-medium text-gray-900 dark:text-white 
-                                     group-hover:text-gray-700 dark:group-hover:text-gray-300"
                         >
-                          {board.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Última visita: hace 2h
-                        </p>
+                          <span className="text-xl">
+                            {board.background?.type === "gradient"
+                              ? "📄"
+                              : "🖼️"}
+                          </span>
+                        </div>
+                        <div>
+                          <h3
+                            className="font-medium text-gray-900 dark:text-white 
+                                     group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                          >
+                            {board.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            Última visita: {getRelativeTime(board.lastViewed)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
             <button
               onClick={handleCreateBoard}

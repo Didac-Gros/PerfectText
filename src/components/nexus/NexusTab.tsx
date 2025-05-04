@@ -22,6 +22,7 @@ import {
 } from "../shared/ui/dialog";
 import { auth } from "../../services/firestore/firebase";
 import { useAuth } from "../../hooks/useAuth";
+import { getRelativeTime } from "../../utils/utils";
 export function NexusTab() {
   const {
     boards,
@@ -42,7 +43,7 @@ export function NexusTab() {
   >(null);
   const [boardToDelete, setBoardToDelete] = React.useState<Board | null>(null);
   const editInputRef = React.useRef<HTMLInputElement>(null);
-  const {userStore} = useAuth();
+  const { userStore } = useAuth();
 
   const filteredBoards = React.useMemo(() => {
     return boards.filter((board) =>
@@ -81,7 +82,7 @@ export function NexusTab() {
   const handleDeleteBoard = (board: Board, e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("Deleting board:", board);
-    
+
     setBoardToDelete(board);
   };
 
@@ -96,7 +97,6 @@ export function NexusTab() {
     e.stopPropagation();
     setShowBackgroundPicker(board.id);
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#161616] p-6">
@@ -127,7 +127,6 @@ export function NexusTab() {
             }
           />
         )}
-
 
         {/* Board Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -180,7 +179,7 @@ export function NexusTab() {
                     </h3>
                     <div className="flex items-center space-x-2 mt-3 text-sm text-white/80">
                       <Clock className="w-4 h-4" />
-                      <span>Última visita: hace 2 días</span>
+                      <span>Última visita: {getRelativeTime(board.lastViewed)}</span>
                     </div>
                   </div>
                 </div>

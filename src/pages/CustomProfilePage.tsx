@@ -5,6 +5,7 @@ import { FaRegUser } from "react-icons/fa";
 import { updateProfile } from "firebase/auth";
 import { auth } from "../services/firestore/firebase";
 import { useNavigate } from "react-router-dom";
+import { updateFirestoreField } from "../services/firestore/firestore";
 
 export const CustomProfilePage: React.FC = () => {
   const user = auth.currentUser;
@@ -34,6 +35,8 @@ export const CustomProfilePage: React.FC = () => {
           displayName: name,
           photoURL: selectedAvatar || undefined,
         });
+        await updateFirestoreField("users", user.uid, "name", name);
+        await updateFirestoreField("users", user.uid, "profileImage", selectedAvatar);
         navigate("/");
       } catch (error) {
         console.error("Error al actualizar: ", (error as Error).message);

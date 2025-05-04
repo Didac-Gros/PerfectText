@@ -36,6 +36,8 @@ import { AnimatedTooltip } from "./ui/animated-tooltip";
 import { DueDatePicker } from "../shared/DueDatePicker";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useAuth } from "../../hooks/useAuth";
+import { updateFirestoreField } from "../../services/firestore/firestore";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 1.5;
@@ -54,8 +56,23 @@ export function BoardTab() {
   const [zoom, setZoom] = React.useState(1);
   const titleInputRef = React.useRef<HTMLInputElement>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   const members = currentBoard?.members || [];
+  const currentMember = members.find((m) => m.userId === user?.uid);
+  const isCurrentUserAdmin = currentMember?.isAdmin ?? false;
   const [showDueDatePicker, setShowDueDatePicker] = React.useState(false);
+
+  useEffect(() => {
+    const checkViewed = async () => {
+      await updateFirestoreField(
+        "boards",
+        currentBoard!.id,
+        "lastViewed",
+        new Date().toISOString()
+      );
+    };
+    checkViewed();
+  }, []);
 
   useEffect(() => {
     if (currentBoard) {
@@ -84,6 +101,8 @@ export function BoardTab() {
   );
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (!isCurrentUserAdmin) return; // 👈 bloqueja accés si no és admin
+
     const { active } = event;
     setActiveId(active.id as string);
 
@@ -98,6 +117,8 @@ export function BoardTab() {
   };
 
   const handleDragOver = (event: DragOverEvent) => {
+    if (!isCurrentUserAdmin) return; // 👈 bloqueja accés si no és admin
+
     const { active, over } = event;
     if (!over) return;
 
@@ -120,6 +141,8 @@ export function BoardTab() {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!isCurrentUserAdmin) return; // 👈 bloqueja accés si no és admin
+
     const { active, over } = event;
 
     if (!over) {
@@ -284,27 +307,30 @@ export function BoardTab() {
                       : "Sin fecha"}
                   </span>
                 </span>
-                <DueDatePicker
-                  dueDate={currentBoard!.dueDate!}
-                  onDateChange={handleDueDateChange}
-                  isCompleted={undefined}
-                  isOpen={showDueDatePicker}
-                  onOpenChange={setShowDueDatePicker}
-                  triggerComponent={
-                    <div
-                      className={`p-1.5 rounded-lg transition-all duration-200
-                                           hover:bg-gray-100 dark:hover:bg-gray-600`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowDueDatePicker(true);
-                      }}
-                    >
-                      <Calendar
-                        className={`w-4 h-4 ${currentBoard!.dueDate ? "text-primary-500 dark:text-primary-400" : "text-gray-400 dark:text-gray-500"}`}
-                      />
-                    </div>
-                  }
-                />
+                {isCurrentUserAdmin && (
+                  <DueDatePicker
+                    dueDate={currentBoard!.dueDate!}
+                    onDateChange={handleDueDateChange}
+                    isCompleted={undefined}
+                    isOpen={showDueDatePicker}
+                    onOpenChange={setShowDueDatePicker}
+                    triggerComponent={
+                      <div
+                        className={`p-1.5 rounded-lg transition-all duration-200
+                          hover:bg-gray-100 dark:hover:bg-gray-600`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDueDatePicker(true);
+                        }}
+                      >
+                        <Calendar
+                          className={`w-4 h-4 ${currentBoard!.dueDate ? "text-primary-500 dark:text-primary-400" : "text-gray-400 dark:text-gray-500"}`}
+                        />
+                      </div>
+                    }
+                  />
+                )}
+
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <AnimatedTooltip items={members} />
@@ -340,17 +366,19 @@ export function BoardTab() {
                   <ZoomIn className="w-5 h-5" />
                 </button>
               </div>
+              {isCurrentUserAdmin && (
+                <button
+                  onClick={() => setShowProjectManagement(true)}
+                  className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
+            bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
+            hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 
+            hover:scale-[1.02] shadow-sm hover:shadow group text-sm"
+                >
+                  <Settings2 className="w-5 h-5 group-hover:text-primary-500 transition-colors" />
+                  <span className="font-medium">Administrar</span>
+                </button>
+              )}
 
-              <button
-                onClick={() => setShowProjectManagement(true)}
-                className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
-                         bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
-                         hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 
-                         hover:scale-[1.02] shadow-sm hover:shadow group text-sm"
-              >
-                <Settings2 className="w-5 h-5 group-hover:text-primary-500 transition-colors" />
-                <span className="font-medium">Administrar</span>
-              </button>
               <InviteMembersDialog />
               <button
                 onClick={() => addList("Nueva Lista")}
@@ -375,7 +403,7 @@ export function BoardTab() {
             }}
           >
             {lists.map((list) => (
-              <List key={list.id} list={list} isOver={overListId === list.id} />
+              <List key={list.id} list={list} isOver={overListId === list.id} isCurrentAdmin={isCurrentUserAdmin} />
             ))}
           </div>
         </div>
@@ -402,6 +430,7 @@ export function BoardTab() {
                 list.cards.some((card) => card.id === activeId)
               )?.id || ""
             }
+            isCurrentAdmin={isCurrentUserAdmin}
           />
         ) : null}
       </DragOverlay>
@@ -409,6 +438,7 @@ export function BoardTab() {
       <ProjectManagementDialog
         isOpen={showProjectManagement}
         onOpenChange={setShowProjectManagement}
+        projectMembers={members}
       />
     </DndContext>
   );

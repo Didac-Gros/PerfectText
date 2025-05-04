@@ -502,3 +502,20 @@ export function formatTokens(num: number): string {
 export function generateUUID(): string {
   return uuidv4();
 }
+
+export const getRelativeTime = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (seconds < 60) return "hace unos segundos";
+  if (minutes < 60) return `hace ${minutes} min`;
+  if (hours < 24) return `hace ${hours} h`;
+  if (days === 1) return "hace 1 dia";
+  return `hace ${days} dias`;
+};

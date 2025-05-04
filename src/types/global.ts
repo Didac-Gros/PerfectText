@@ -103,6 +103,7 @@ export interface Board {
   updatedAt: string;
   lists: List[];
   dueDate?: string | null;
+  lastViewed: string;
   background?: {
     type: "image" | "gradient";
     value: string;
@@ -111,7 +112,6 @@ export interface Board {
 
 export interface Member {
   userId: string;
-  role: string;
   isAdmin: boolean;
   image: string;
   name: string;

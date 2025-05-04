@@ -254,35 +254,7 @@ const createGroupWorkTemplate = (): List[] => [
 ];
 
 export const useBoardStore = create<BoardState>((set, get) => ({
-  boards: [
-    // {
-    //   id: '1',
-    //   title: 'Examen',
-    //   background: defaultBackgrounds[0],
-    //   members: ['1'],
-    //   createdAt: new Date().toISOString(),
-    //   updatedAt: new Date().toISOString(),
-    //   lists: createStudyTemplate()
-    // },
-    // {
-    //   id: '2',
-    //   title: 'Trabajo en Grupo',
-    //   background: defaultBackgrounds[1],
-    //   members: ['1'],
-    //   createdAt: new Date().toISOString(),
-    //   updatedAt: new Date().toISOString(),
-    //   lists: createGroupWorkTemplate()
-    // },
-    // {
-    //   id: '3',
-    //   title: 'Notas - Tareas',
-    //   background: defaultBackgrounds[2],
-    //   members: ['1'],
-    //   createdAt: new Date().toISOString(),
-    //   updatedAt: new Date().toISOString(),
-    //   lists: []
-    // }
-  ],
+  boards: [],
   currentBoard: null,
   lists: [],
 
@@ -307,7 +279,6 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       members: [
         {
           userId: user.uid,
-          role: "admin",
           isAdmin: true,
           image: user.photoURL || "/default_avatar.jpg",
           name: user.displayName || "Usuario",
@@ -315,6 +286,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       ],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      lastViewed: new Date().toISOString(),
       lists: [],
     };
 
