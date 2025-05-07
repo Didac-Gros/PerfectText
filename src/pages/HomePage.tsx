@@ -167,6 +167,11 @@ export const HomePage: React.FC = () => {
               setSidebarOpen(false);
               setCurrentView("");
             }}
+            goToMySpace={() => {
+              setCurrentView("myspace");
+              setActiveTab("");
+              setSidebarOpen(false);
+            }}
           />
           <Sidebar
             isOpen={sidebarOpen}
@@ -237,6 +242,11 @@ export const HomePage: React.FC = () => {
           closeSidebar={() => {
             setSidebarOpen(false);
             setCurrentView("");
+          }}
+          goToMySpace={() => {
+            setCurrentView("myspace");
+            setActiveTab("");
+            setSidebarOpen(false);
           }}
         />
         <Sidebar

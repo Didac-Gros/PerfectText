@@ -2,14 +2,15 @@ import React, { useEffect } from "react";
 import {
   Plus,
   Users,
-  Check,
-  X,
   Settings2,
   ZoomIn,
   ZoomOut,
   Pencil,
   Calendar,
+  Group,
 } from "lucide-react";
+import { GrGroup } from "react-icons/gr";
+
 import {
   DndContext,
   DragOverlay,
@@ -38,6 +39,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useAuth } from "../../hooks/useAuth";
 import { updateFirestoreField } from "../../services/firestore/firestore";
+import { MdCardMembership } from "react-icons/md";
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 1.5;
@@ -366,7 +368,7 @@ export function BoardTab() {
                   <ZoomIn className="w-5 h-5" />
                 </button>
               </div>
-              {isCurrentUserAdmin && (
+              {isCurrentUserAdmin ? (
                 <button
                   onClick={() => setShowProjectManagement(true)}
                   className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
@@ -376,6 +378,17 @@ export function BoardTab() {
                 >
                   <Settings2 className="w-5 h-5 group-hover:text-primary-500 transition-colors" />
                   <span className="font-medium">Administrar</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowProjectManagement(true)}
+                  className="flex items-center space-x-2 px-4 py-2.5 text-gray-700 dark:text-gray-300 
+        bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 
+        hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 
+        hover:scale-[1.02] shadow-sm hover:shadow group text-sm"
+                >
+                  <GrGroup className="w-5 h-5 group-hover:text-primary-500 transition-colors" />
+                  <span className="font-medium">Ver participantes</span>
                 </button>
               )}
 
@@ -403,7 +416,12 @@ export function BoardTab() {
             }}
           >
             {lists.map((list) => (
-              <List key={list.id} list={list} isOver={overListId === list.id} isCurrentAdmin={isCurrentUserAdmin} />
+              <List
+                key={list.id}
+                list={list}
+                isOver={overListId === list.id}
+                isCurrentAdmin={isCurrentUserAdmin}
+              />
             ))}
           </div>
         </div>
@@ -439,6 +457,7 @@ export function BoardTab() {
         isOpen={showProjectManagement}
         onOpenChange={setShowProjectManagement}
         projectMembers={members}
+        isCurrentAdmin={isCurrentUserAdmin}
       />
     </DndContext>
   );

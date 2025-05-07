@@ -21,6 +21,8 @@ export async function getUserById(userId: string): Promise<User | null> {
       customerId: data.customerId || null,
       subscription: data.subscription,
       tokens: data.tokens || null,
+      profileImage: data.profileImage || null,
+      
     } as User;
   } catch (error) {
     console.error("Error recuperant el user:", error);

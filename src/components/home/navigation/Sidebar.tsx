@@ -59,17 +59,6 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
             </button>
           ))}
         </div>
-
-        <div className="mt-auto">
-          <button
-            className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 
-                     dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 
-                     rounded-lg transition-colors duration-200"
-          >
-            <Settings className="size-5" />
-            <span className="text-sm font-medium">Configuración</span>
-          </button>
-        </div>
       </div>
     </aside>
   );

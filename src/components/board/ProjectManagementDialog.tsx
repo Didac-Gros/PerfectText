@@ -12,18 +12,23 @@ import { Label } from "./ui/label";
 import { useBoardStore } from "../../hooks/useBoardStore";
 import { Member } from "../../types/global";
 import { useAuth } from "../../hooks/useAuth";
-import { removeMemberFromBoard, toggleAdminStatus } from "../../services/firestore/boardsRepository";
+import {
+  removeMemberFromBoard,
+  toggleAdminStatus,
+} from "../../services/firestore/boardsRepository";
 
 interface ProjectManagementDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   projectMembers: Member[];
+  isCurrentAdmin: boolean;
 }
 
 export function ProjectManagementDialog({
   isOpen,
   onOpenChange,
   projectMembers,
+  isCurrentAdmin,
 }: ProjectManagementDialogProps) {
   const [members, setMembers] = React.useState<Member[]>(projectMembers);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
@@ -61,24 +66,26 @@ export function ProjectManagementDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <div className="flex flex-col gap-6">
-          <div className="flex items-center space-x-3">
-            <div
-              className="w-11 h-11 flex items-center justify-center rounded-full 
-                         bg-primary-50 dark:bg-primary-900/20"
-            >
-              <Settings2 className="w-6 h-6 text-primary-500 dark:text-primary-400" />
+          {isCurrentAdmin && (
+            <div className="flex items-center space-x-3">
+              <div
+                className="w-11 h-11 flex items-center justify-center rounded-full 
+                             bg-primary-50 dark:bg-primary-900/20"
+              >
+                <Settings2 className="w-6 h-6 text-primary-500 dark:text-primary-400" />
+              </div>
+              <div>
+                <DialogHeader>
+                  <DialogTitle className="text-xl">
+                    Administrar proyecto
+                  </DialogTitle>
+                  <DialogDescription>
+                    Gestiona los miembros y permisos del proyecto
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
             </div>
-            <div>
-              <DialogHeader>
-                <DialogTitle className="text-xl">
-                  Administrar proyecto
-                </DialogTitle>
-                <DialogDescription>
-                  Gestiona los miembros y permisos del proyecto
-                </DialogDescription>
-              </DialogHeader>
-            </div>
-          </div>
+          )}
 
           <div className="space-y-6">
             <div className="space-y-4">
@@ -88,7 +95,9 @@ export function ProjectManagementDialog({
                     Miembros del proyecto
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Administra los miembros y sus roles en el proyecto
+                    {isCurrentAdmin
+                      ? "Administra los miembros y sus roles en el proyecto"
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -118,32 +127,35 @@ export function ProjectManagementDialog({
                           )}
                         </h4>
                       </div>
-                      {member.userId !== user!.uid && (
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id={`admin-${member.userId}`}
-                              checked={member.isAdmin}
-                              onCheckedChange={() => toggleAdmin(member.userId)}
-                            />
-                            <Label
-                              htmlFor={`admin-${member.userId}`}
-                              className="text-xs text-gray-600 dark:text-gray-300 cursor-pointer"
-                            >
-                              Admin
-                            </Label>
-                          </div>
+                      {member.userId !== user!.uid ||
+                        (isCurrentAdmin && (
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id={`admin-${member.userId}`}
+                                checked={member.isAdmin}
+                                onCheckedChange={() =>
+                                  toggleAdmin(member.userId)
+                                }
+                              />
+                              <Label
+                                htmlFor={`admin-${member.userId}`}
+                                className="text-xs text-gray-600 dark:text-gray-300 cursor-pointer"
+                              >
+                                Admin
+                              </Label>
+                            </div>
 
-                          <button
-                            onClick={() => removeMember(member.userId)}
-                            className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 
+                            <button
+                              onClick={() => removeMember(member.userId)}
+                              className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 
             dark:hover:text-red-400 rounded-lg hover:bg-red-50 
             dark:hover:bg-red-900/20 transition-colors"
-                          >
-                            <UserMinus className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
+                            >
+                              <UserMinus className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
                     </div>
                   );
                 })}
@@ -151,55 +163,59 @@ export function ProjectManagementDialog({
             </div>
 
             {/* Delete Board Section */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              {showDeleteConfirm ? (
-                <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-9 h-9 flex items-center justify-center rounded-full 
+            {isCurrentAdmin && (
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                {showDeleteConfirm ? (
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className="w-9 h-9 flex items-center justify-center rounded-full 
                                 bg-red-100 dark:bg-red-900/40"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-red-600 dark:text-red-400">
+                          ¿Estás seguro?
+                        </h4>
+                        <p className="text-xs text-red-600/80 dark:text-red-400/80">
+                          Esta acción no se puede deshacer
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium text-red-600 dark:text-red-400">
-                        ¿Estás seguro?
-                      </h4>
-                      <p className="text-xs text-red-600/80 dark:text-red-400/80">
-                        Esta acción no se puede deshacer
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-end space-x-3">
-                    <button
-                      onClick={() => setShowDeleteConfirm(false)}
-                      className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 
+                    <div className="flex items-center justify-end space-x-3">
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 
                                bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 
                                dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={handleDeleteBoard}
-                      className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleDeleteBoard}
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 
                                rounded-lg hover:bg-red-700 transition-colors"
-                    >
-                      Eliminar tablero
-                    </button>
+                      >
+                        Eliminar tablero
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="flex items-center space-x-2 px-4 py-2.5 w-full text-red-600 
+                ) : (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="flex items-center space-x-2 px-4 py-2.5 w-full text-red-600 
                            dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg 
                            hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="font-medium text-sm">Eliminar tablero</span>
-                </button>
-              )}
-            </div>
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="font-medium text-sm">
+                      Eliminar tablero
+                    </span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

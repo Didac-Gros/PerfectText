@@ -35,6 +35,7 @@ interface NavigationProps {
   isDarkMode: boolean;
   toggleSidebar: () => void;
   closeSidebar: () => void;
+  goToMySpace: () => void; // Added goToMySpace property
 }
 
 export function Navigation({
@@ -46,10 +47,10 @@ export function Navigation({
   isDarkMode,
   toggleSidebar,
   closeSidebar,
+  goToMySpace,
 }: NavigationProps) {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-
+  const { logout, userStore } = useAuth();
   const handleLogin = async () => {
     try {
       navigate("/login");
@@ -90,7 +91,10 @@ export function Navigation({
             className="dark:text-blue-400 text-black"
             title="Logo"
           /> */}
-          <span className="text-xl font-bold dark:text-white text-gray-800">
+          <span
+            className="text-xl font-bold dark:text-white text-gray-800 cursor-pointer"
+            onClick={goToMySpace}
+          >
             PerfectText
           </span>
 
@@ -109,8 +113,8 @@ export function Navigation({
           <div className="md:hidden fixed right-0">
             {user ? (
               <ProfileNavigation
-                photoURL={user.photoURL}
-                name={user.displayName}
+                photoURL={userStore!.profileImage}
+                name={userStore!.name}
                 tokens={formatTokens(tokens)}
                 fromMobile
                 handleLogout={handleLogout}
@@ -243,8 +247,8 @@ export function Navigation({
 
           {user ? (
             <ProfileNavigation
-              photoURL={user.photoURL}
-              name={user.displayName}
+              photoURL={userStore!.profileImage}
+              name={userStore!.name}
               tokens={formatTokens(tokens)}
               fromMobile={false}
               handleLogout={handleLogout}

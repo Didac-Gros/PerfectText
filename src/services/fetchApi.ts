@@ -23,10 +23,12 @@ export async function fetchAPI<T>(
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
     // Determinar si estamos enviando un FormData o JSON
-    
+
     const response = await fetch(`${API_URL}/${endpoint}`, {
       method: "POST",
-      headers: data.isFormData ? undefined : { "Content-Type": "application/json" },
+      headers: data.isFormData
+        ? undefined
+        : { "Content-Type": "application/json" },
       body: data.isFormData ? data.formData : JSON.stringify(data),
       signal: controller.signal,
     });

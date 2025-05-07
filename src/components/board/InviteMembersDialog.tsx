@@ -5,6 +5,7 @@ import { useBoardStore } from "../../hooks/useBoardStore";
 import { cn } from "../../lib/utils";
 import { addMemberToBoard } from "../../services/firestore/boardsRepository";
 import { sendInviteEmail } from "../../services/resend/sendInviteEmail";
+import LoadingButton from "../register/SubmitButton";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +30,9 @@ export function InviteMembersDialog() {
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastInputRef = useRef<HTMLInputElement>(null);
-  const {currentBoard} = useBoardStore();
-  const {user} = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { currentBoard } = useBoardStore();
+  const { user, userStore } = useAuth();
   const addEmail = () => {
     setEmails([...emails, ""]);
   };
@@ -51,18 +53,20 @@ export function InviteMembersDialog() {
 
   const handleInvite = async () => {
     try {
+      setIsLoading(true);
       for (const email of emails) {
+        if (email.trim() === "") continue; // Skip empty emails
         await sendInviteEmail({
           email: email,
           boardId: currentBoard!.id,
-          userId: user?.uid,
+          userId: user!.uid,
         });
-      
       }
-
-      alert("Invitació enviada!");
     } catch (error) {
       alert("Error enviant la invitació.");
+    } finally {
+      setEmails(["", ""]);
+      setIsLoading(false);
     }
   };
 
@@ -131,11 +135,38 @@ export function InviteMembersDialog() {
           </div>
           <button
             type="button"
-            className="w-full px-4 py-2 bg-primary-500 text-white rounded-lg 
-                     hover:bg-primary-600 transition-colors"
+            disabled={isLoading}
+            className={`w-full px-4 py-2  rounded-lg 
+                      transition-colors ${isLoading ? "bg-green-500 text-white hover:bg-green-600 py-3 disabled:opacity-50 disabled:cursor-not-allowed" : " bg-primary-500 text-white hover:bg-primary-600"} `}
             onClick={handleInvite}
           >
-            Enviar invitaciones
+            {isLoading ? (
+              <center className="flex items-center justify-center text-xs font-medium">
+                <svg
+                  className="animate-spin size-4 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M12 2a10 10 0 104.9 18.4l-.4-1.2a8 8 0 11-4.5-15.4V2z"
+                  ></path>
+                </svg>
+                Enviando...
+              </center>
+            ) : (
+              "Enviar invitaciones"
+            )}
           </button>
         </form>
 
@@ -154,7 +185,7 @@ export function InviteMembersDialog() {
               id={id}
               className="pr-9"
               type="text"
-              defaultValue="https://perfecttext.app/invite/87689"
+              defaultValue={`http://localhost:5175/invite?boardId=${currentBoard!.id}&userId=${user!.uid}`}
               readOnly
             />
             <TooltipProvider delayDuration={0}>

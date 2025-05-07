@@ -42,7 +42,7 @@ export const AnimatedTooltip = ({
           onMouseEnter={() => setHoveredIndex(item.userId)}
           onMouseLeave={() => setHoveredIndex(null)}
         >
-          <AnimatePresence mode="wait">
+          {/* <AnimatePresence mode="wait">
             {hoveredIndex === item.userId && (
               <motion.div
                 initial={{ opacity: 0, y: 20, scale: 0.6 }}
@@ -73,7 +73,7 @@ export const AnimatedTooltip = ({
                 </div>
               </motion.div>
             )}
-          </AnimatePresence>
+          </AnimatePresence> */}
           <img
             onMouseMove={handleMouseMove}
             src={item.image || "/public/default_avatar.jpg"}

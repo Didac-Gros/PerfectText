@@ -3,9 +3,7 @@ import { API_URL_LOCAL } from "../../utils/constants";
 interface SendInvitePayload {
     email: string;
     boardId: string;
-    userId?: string; // opcional si vols afegir més camps
-    userName?: string;
-    avatarUrl?: string;
+    userId: string;
   }
   
   export async function sendInviteEmail(payload: SendInvitePayload) {

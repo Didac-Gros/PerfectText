@@ -95,7 +95,7 @@ export default function InvitePage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
       <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8 text-center">
         <img
-          src={user?.photoURL || "/default-avatar.png"} // assegura que tens una url o una imatge per defecte
+          src={inviter?.profileImage || "/default-avatar.png"} // assegura que tens una url o una imatge per defecte
           alt="User Avatar"
           className="w-24 h-24 rounded-full mx-auto mb-4"
         />
