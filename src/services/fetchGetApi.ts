@@ -8,7 +8,7 @@ export async function fetchGetApi<T>(endpoint: string, expectBlob: boolean): Pro
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-    const response = await fetch(`${API_URL}/${endpoint}`, {
+    const response = await fetch(`${API_URL_LOCAL}/${endpoint}`, {
       method: "GET",
       signal: controller.signal,
     });

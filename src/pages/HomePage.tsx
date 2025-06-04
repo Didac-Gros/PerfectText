@@ -5,7 +5,10 @@ import { ConceptMapGenerator } from "../components/ConceptMap/ConceptMapGenerato
 import { SummarizeTab } from "../components/summarize/SummarizeTab";
 import { CorrectTab } from "../components/correct/CorrectTab";
 import { useAuth } from "../hooks/useAuth";
-import { updateFirestoreField, updateUserTokens } from "../services/firestore/firestore";
+import {
+  updateFirestoreField,
+  updateUserTokens,
+} from "../services/firestore/firestore";
 import { SidebarType, TabType } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
@@ -25,6 +28,7 @@ import { Hero } from "../components/home/Hero";
 import { delay } from "framer-motion";
 import { syncUserPhotoURL } from "../services/firestore/userRepository";
 import { createDefaultBoards } from "../services/firestore/boardsRepository";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -47,6 +51,8 @@ export const HomePage: React.FC = () => {
   const [isDark, setIsDark] = useDarkMode();
   const { currentBoard } = useBoardStore();
   const navigate = useNavigate();
+  const clientId = '1083738059485-12qpql1f6dg6jndnj6rjjilee17d5189.apps.googleusercontent.com';
+
 
   const {
     recorderState,
@@ -66,12 +72,12 @@ export const HomePage: React.FC = () => {
     setIsPaused,
   } = useAudioRecorder();
 
-  useEffect(() => {    
-    if(user && userStore && userStore.profileImage === null) {
-        syncUserPhotoURL();
+  useEffect(() => {
+    if (user && userStore && userStore.profileImage === null) {
+      syncUserPhotoURL();
     }
-    
-    // if(user && userStore && (userStore.boardsCreated === false || userStore.boardsCreated === undefined)) {      
+
+    // if(user && userStore && (userStore.boardsCreated === false || userStore.boardsCreated === undefined)) {
     //   console.log("Creando tableros por defecto para el usuario:", userStore.uid);
     //   const fetchData = async () => {
     //     try {
@@ -188,7 +194,10 @@ export const HomePage: React.FC = () => {
           {currentView === "myspace" ? (
             <MySpaceTab onViewChange={setCurrentView} boardId={boardId} />
           ) : currentView === "calendar" ? (
-            <CalendarTab />
+            <GoogleOAuthProvider clientId={clientId}>
+              {" "}
+              <CalendarTab />
+            </GoogleOAuthProvider>
           ) : currentBoard ? (
             <BoardTab />
           ) : (

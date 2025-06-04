@@ -7,6 +7,8 @@ import { generateConceptMap } from "./controllers/openai/conceptMapController";
 import { checkPayment } from "./controllers/stripe/checkPaymentController";
 import { saveDatasetHandler } from "./controllers/openai/userReviewController";
 import { uploadFile } from "./controllers/files/uploadFileController";
+import { exchangeCode } from "./controllers/google/exchangeCodeController";
+import { refreshToken } from "./controllers/google/refreshTokenController";
 import { sendInvite } from "./controllers/resend/sendInviteController";
 import { errorHandler } from "./middleware/errorHandler";
 import compression from "compression";
@@ -95,6 +97,8 @@ app.post("/api/webhook", stripeWebhook);
 app.post("/api/quiz/user-review", saveDatasetHandler);
 app.post("/api/translate/document", upload.single("file"), translateDocument);
 app.post("/api/translate/text", translateText);
+app.post("/api/google/exchange-code", exchangeCode);
+app.post("/api/google/refresh-token", refreshToken);
 app.post("/api/send-invite", sendInvite);
 app.post(
   "/api/create-checkout-session",

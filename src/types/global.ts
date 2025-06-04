@@ -165,4 +165,10 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
+export type GoogleUser = {
+  name: string;
+  email: string;
+  picture: string;
+};
+
 export type SidebarType = "" | "myspace" | "boards" | "calendar";

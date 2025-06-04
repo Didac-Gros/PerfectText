@@ -1,40 +1,53 @@
-import { create } from 'zustand';
-import type { EventInput } from '@fullcalendar/core';
-import { addDays, addWeeks, addMonths } from 'date-fns';
+import { create } from "zustand";
+import type { EventInput } from "@fullcalendar/core";
+import { addDays, addWeeks, addMonths } from "date-fns";
+import {
+  createGoogleEvent,
+  deleteGoogleEvent,
+  updateGoogleEvent,
+} from "../services/google/googleCalendarService";
 
 interface CalendarState {
   events: EventInput[];
-  addEvent: (event: EventInput) => Promise<void>;
-  updateEvent: (event: Partial<EventInput>) => Promise<void>;
-  deleteEvent: (eventId: string) => Promise<void>;
+  addEvent: (event: EventInput, accessToken?: string) => Promise<void>;
+  updateEvent: (
+    event: Partial<EventInput>,
+    accessToken: string
+  ) => Promise<void>;
+  deleteEvent: (eventId: string, accessToken?: string) => Promise<void>;
   toggleEventCompletion: (eventId: string) => Promise<void>;
   syncWithGoogle: (accessToken: string) => Promise<void>;
+  clearEvents: () => void;
 }
 
 const EVENT_COLORS = {
   blue: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#2563eb',
+    backgroundColor: "#3b82f6",
+    borderColor: "#2563eb",
   },
   red: {
-    backgroundColor: '#ef4444',
-    borderColor: '#dc2626',
+    backgroundColor: "#ef4444",
+    borderColor: "#dc2626",
   },
   green: {
-    backgroundColor: '#10b981',
-    borderColor: '#059669',
+    backgroundColor: "#10b981",
+    borderColor: "#059669",
   },
   purple: {
-    backgroundColor: '#8b5cf6',
-    borderColor: '#7c3aed',
+    backgroundColor: "#8b5cf6",
+    borderColor: "#7c3aed",
   },
   yellow: {
-    backgroundColor: '#f59e0b',
-    borderColor: '#d97706',
+    backgroundColor: "#f59e0b",
+    borderColor: "#d97706",
   },
 } as const;
 
-const generateRecurringEvents = (event: EventInput, repeat: string, until: Date): EventInput[] => {
+const generateRecurringEvents = (
+  event: EventInput,
+  repeat: string,
+  until: Date
+): EventInput[] => {
   const events: EventInput[] = [];
   const startDate = new Date(event.start as Date);
   const endDate = new Date(event.end as Date);
@@ -58,13 +71,13 @@ const generateRecurringEvents = (event: EventInput, repeat: string, until: Date)
     events.push(newEvent);
 
     switch (repeat) {
-      case 'daily':
+      case "daily":
         currentDate = addDays(currentDate, 1);
         break;
-      case 'weekly':
+      case "weekly":
         currentDate = addWeeks(currentDate, 1);
         break;
-      case 'monthly':
+      case "monthly":
         currentDate = addMonths(currentDate, 1);
         break;
       default:
@@ -78,41 +91,43 @@ const generateRecurringEvents = (event: EventInput, repeat: string, until: Date)
 export const useCalendarStore = create<CalendarState>((set, get) => ({
   events: [],
 
-  addEvent: async (event: EventInput) => {
-    const newEvent: EventInput = {
-      ...event,
-      id: crypto.randomUUID(),
-      backgroundColor: event.backgroundColor || EVENT_COLORS.purple.backgroundColor,
-      borderColor: event.borderColor || EVENT_COLORS.purple.borderColor,
-      display: 'block',
-      extendedProps: {
-        ...event.extendedProps,
-        completed: false,
+  addEvent: async (event: EventInput, accessToken?: string) => {
+    try {
+      let googleEventId = crypto.randomUUID();
+
+      if (accessToken) {
+        const googleEvent = await createGoogleEvent(event, accessToken);
+        googleEventId = googleEvent.id;
       }
-    };
 
-    if (event.extendedProps?.repeat && event.extendedProps?.repeat !== 'none' && event.extendedProps?.repeatUntil) {
-      const recurringEvents = generateRecurringEvents(
-        newEvent,
-        event.extendedProps.repeat,
-        new Date(event.extendedProps.repeatUntil)
-      );
+      const newEvent: EventInput = {
+        ...event,
+        id: googleEventId,
+        backgroundColor:
+          event.backgroundColor || EVENT_COLORS.purple.backgroundColor,
+        borderColor: event.borderColor || EVENT_COLORS.purple.borderColor,
+        display: "block",
+        extendedProps: {
+          ...event.extendedProps,
+          googleCalendarId: accessToken ? googleEventId : undefined,
+          completed: false,
+        },
+      };
 
-      set((state) => ({
-        events: [...state.events, ...recurringEvents],
-      }));
-    } else {
       set((state) => ({
         events: [...state.events, newEvent],
       }));
+    } catch (err) {
+      console.error("Error creant esdeveniment:", err);
     }
   },
 
-  updateEvent: async (event: Partial<EventInput>) => {
+  updateEvent: async (event: Partial<EventInput>, accessToken: string) => {
     if (!event.id) return;
 
-    const currentEvent = get().events.find(e => e.id === event.id);
+    const currentEvent = get().events.find((e) => e.id === event.id);
     if (!currentEvent) return;
+    await updateGoogleEvent(event, accessToken);
 
     // Create a new event object with the updated properties
     const updatedEvent: EventInput = {
@@ -120,7 +135,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       ...event,
       backgroundColor: event.backgroundColor || currentEvent.backgroundColor,
       borderColor: event.borderColor || currentEvent.borderColor,
-      display: 'block',
+      display: "block",
       extendedProps: {
         ...currentEvent.extendedProps,
         ...event.extendedProps,
@@ -167,57 +182,56 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         }),
       }));
     } else {
+      // 🔁 Actualitza a Google Calendar
+      if (updatedEvent.extendedProps?.googleCalendarId) {
+        try {
+          await updateGoogleEvent(updatedEvent, accessToken);
+        } catch (error) {
+          console.error("Error actualitzant a Google:", error);
+        }
+      }
       // If it's a single event, just update it
       set((state) => ({
-        events: state.events.map((e) =>
-          e.id === event.id ? updatedEvent : e
-        ),
+        events: state.events.map((e) => (e.id === event.id ? updatedEvent : e)),
       }));
     }
   },
 
-  deleteEvent: async (eventId: string) => {
-    const eventToDelete = get().events.find(e => e.id === eventId);
+  deleteEvent: async (eventId: string, accessToken?: string) => {
+    const eventToDelete = get().events.find((e) => e.id === eventId);
     if (!eventToDelete) return;
 
-    if (eventToDelete.extendedProps?.recurringEventId) {
-      const recurringId = eventToDelete.extendedProps.recurringEventId;
-      const selectedDate = new Date(eventToDelete.start as Date);
-      selectedDate.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
+    const googleId = eventToDelete.extendedProps?.googleCalendarId;
 
-      set((state) => ({
-        events: state.events.filter((e) => {
-          if (e.extendedProps?.recurringEventId === recurringId) {
-            const eventDate = new Date(e.start as Date);
-            eventDate.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
-            return eventDate < selectedDate; // Keep only events before the selected date
-          }
-          return true;
-        }),
-      }));
-    } else {
-      set((state) => ({
-        events: state.events.filter((e) => e.id !== eventId),
-      }));
+    if (accessToken && googleId) {
+      try {
+        await deleteGoogleEvent(googleId, accessToken);
+      } catch (error) {
+        console.error("Error esborrant de Google:", error);
+      }
     }
+
+    set((state) => ({
+      events: state.events.filter((e) => e.id !== eventId),
+    }));
   },
 
   toggleEventCompletion: async (eventId: string) => {
-    const eventToToggle = get().events.find(e => e.id === eventId);
+    const eventToToggle = get().events.find((e) => e.id === eventId);
     if (!eventToToggle) return;
 
     const isCompleted = !eventToToggle.extendedProps?.completed;
 
     const updatedEvent: EventInput = {
       ...eventToToggle,
-      backgroundColor: isCompleted ? '#10b981' : eventToToggle.backgroundColor,
-      borderColor: isCompleted ? '#059669' : eventToToggle.borderColor,
-      display: 'block',
-      classNames: isCompleted ? ['completed-event'] : [],
+      backgroundColor: isCompleted ? "#10b981" : eventToToggle.backgroundColor,
+      borderColor: isCompleted ? "#059669" : eventToToggle.borderColor,
+      display: "block",
+      classNames: isCompleted ? ["completed-event"] : [],
       extendedProps: {
         ...eventToToggle.extendedProps,
-        completed: isCompleted
-      }
+        completed: isCompleted,
+      },
     };
 
     set((state) => ({
@@ -230,7 +244,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
   syncWithGoogle: async (accessToken: string) => {
     try {
       const response = await fetch(
-        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        "https://www.googleapis.com/calendar/v3/calendars/primary/events",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -239,23 +253,23 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch Google Calendar events');
+        throw new Error("Failed to fetch Google Calendar events");
       }
 
       const data = await response.json();
-      
+
       const googleEvents: EventInput[] = data.items.map((item: any) => ({
         id: item.id,
         title: item.summary,
         start: item.start.dateTime || item.start.date,
         end: item.end.dateTime || item.end.date,
         description: item.description,
-        backgroundColor: '#3b82f6',
-        borderColor: '#3b82f6',
-        display: 'block',
+        backgroundColor: "#3b82f6",
+        borderColor: "#3b82f6",
+        display: "block",
         extendedProps: {
           googleCalendarId: item.id,
-          completed: false
+          completed: false,
         },
       }));
 
@@ -266,8 +280,9 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
         ],
       }));
     } catch (error) {
-      console.error('Error syncing with Google Calendar:', error);
+      console.error("Error syncing with Google Calendar:", error);
       throw error;
     }
   },
+  clearEvents: () => set({ events: [] }), // 🔥 Aquí afegim el mètode
 }));
