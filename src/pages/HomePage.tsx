@@ -28,11 +28,11 @@ import { Hero } from "../components/home/Hero";
 import { delay } from "framer-motion";
 import { syncUserPhotoURL } from "../services/firestore/userRepository";
 import { createDefaultBoards } from "../services/firestore/boardsRepository";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>(user ? "" : "home"); // Establecer home como tab inicial
+  const [activeTab, setActiveTab] = useState<TabType>(user ? "correct" : "home"); // Establecer home como tab inicial
   const [tokens, setTokens] = useState<number | null>(userStore?.tokens! ?? 0); // Establecer home como tab inicial
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
   const location = useLocation();
@@ -45,14 +45,14 @@ export const HomePage: React.FC = () => {
   };
   const showedFile = useRef<boolean>(false);
   const [currentView, setCurrentView] = useState<SidebarType>(
-    user ? "myspace" : ""
+    user ? "" : ""
   );
-  const [sidebarOpen, setSidebarOpen] = useState(user ? true : false);
+  const [sidebarOpen, setSidebarOpen] = useState(user ? false : false);
   const [isDark, setIsDark] = useDarkMode();
   const { currentBoard } = useBoardStore();
   const navigate = useNavigate();
-  const clientId =
-    "1083738059485-12qpql1f6dg6jndnj6rjjilee17d5189.apps.googleusercontent.com";
+  const clientId = '1083738059485-12qpql1f6dg6jndnj6rjjilee17d5189.apps.googleusercontent.com';
+
 
   const {
     recorderState,
