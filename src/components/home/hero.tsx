@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { renderCanvas } from "./ui/canvas";
-import { ArrowRight, Plus, Shapes, LogIn, Calendar, LayoutGrid, Pen } from "lucide-react";
+import { Plus, LogIn, Calendar, LayoutGrid, Pen } from "lucide-react";
 import { GetStartedButton } from "./ui/get-started-button";
 import { TypingAnimation } from "./ui/typing-animation";
 import { TestimonialsCarousel } from "./ui/testimonial-carousel";
