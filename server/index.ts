@@ -23,6 +23,7 @@ import path from "path";
 import session from "express-session";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import OpenAI from "openai";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -36,8 +37,8 @@ const app = express();
 
 // Security and performance configuration
 const corsOptions = {
-  // origin: 'https://perfecttext.ai',
-  origin: "*",
+  origin: 'https://perfecttext.ai',
+  // origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
@@ -100,6 +101,98 @@ app.post("/api/translate/text", translateText);
 app.post("/api/google/exchange-code", exchangeCode);
 app.post("/api/google/refresh-token", refreshToken);
 app.post("/api/send-invite", sendInvite);
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY as string,
+});
+
+const storage2 = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".wav"; // o el que correspongui
+    const filename = `${Date.now()}${ext}`;
+    cb(null, filename);
+  },
+});
+export const upload2 = multer({ storage: storage2 });
+
+app.post(
+  "/api/voice/transcribe",
+  upload2.single("audio"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: "No se subió ningún archivo de audio." });
+        return;
+      }
+      console.log("Archivo recibido:", {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        path: req.file.path,
+      });
+
+      const filePath: string = req.file.path;
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: fs.createReadStream(filePath),
+        model: "whisper-1",
+      });
+
+      const notesResponse = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `Actúa como un estudiante experto en tomar apuntes de clase... (instrucciones completas aquí, igual que las que ya tienes)`,
+          },
+          {
+            role: "user",
+            content: transcription.text,
+          },
+        ],
+        temperature: 0.8,
+        max_tokens: 15000,
+      });
+
+      fs.unlinkSync(filePath);
+      res.json({ notes: notesResponse.choices[0].message.content || "" });
+    } catch (error) {
+      console.error("Error en /api/transcribe", error);
+      res.status(500).json({ error: "Error al transcribir el audio" });
+    }
+  }
+);
+
+app.post(
+  "/api/voice/summarize",
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { text }: { text: string } = req.body;
+
+      const summaryResponse = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `Actúa como un experto en análisis y resumen de transcripciones... (texto del system igual que ya tienes)`,
+          },
+          {
+            role: "user",
+            content: text,
+          },
+        ],
+        temperature: 0.8,
+        max_tokens: 15000,
+      });
+
+      res.json({ summary: summaryResponse.choices[0].message.content || "" });
+    } catch (error) {
+      console.error("Error en /api/summarize", error);
+      res.status(500).json({ error: "Error al generar resumen" });
+    }
+  }
+);
 app.post(
   "/api/create-checkout-session",
   async (req: Request, res: Response) => {

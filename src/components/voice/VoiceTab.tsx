@@ -23,6 +23,8 @@ import { downloadMarkdownAsHtml } from "../../utils/utils";
 import { TbReload } from "react-icons/tb";
 import { Game } from "./game/Game";
 import { AudioSummary } from "./audioSummary/AudioSummary";
+import { fetchTranscribeAudio } from "../../services/openai/transcribeAudio";
+import { fetchSummarizeAudio } from "../../services/openai/summarizeAudio";
 interface VoiceTabProps {
   isMinimized: boolean;
   setIsMinimized: (IsCookieFunction: boolean) => void;
@@ -120,7 +122,7 @@ export default function VoiceTab({
       setProcessingProgress(60);
       setProcessingStatus("🔍 Extrayendo detalles importantes...");
 
-      const text = await transcribeAudio(audioBlob);
+      const text = await fetchTranscribeAudio(audioBlob);
       setProcessingProgress(80);
 
       if (text.trim()) {
@@ -153,7 +155,7 @@ export default function VoiceTab({
     setIsGeneratingSummary(true);
     try {
       setProcessingStatus("🗒️ Generando resumen...");
-      const summaryText = await generateSummary(text ?? summary);
+      const summaryText = await fetchSummarizeAudio(text ?? summary);
       setSummary(summaryText);
 
       // Intentar extraer los datos estructurados del resumen
