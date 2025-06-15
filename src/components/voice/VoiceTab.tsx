@@ -9,11 +9,6 @@ import {
   Target,
   ChevronDown,
 } from "lucide-react";
-import {
-  transcribeAudio,
-  generateSummary,
-  SummaryResponse,
-} from "../../utils/openai";
 import { formatTime } from "../../utils/audio";
 import { RecorderAudio } from "./RecorderAudio";
 import { AudioPreview } from "./AudioPreview";
@@ -49,6 +44,12 @@ interface VoiceTabProps {
   setIsPaused: (isPaused: boolean) => void;
   setRecorderState: (state: AudioRecorderState) => void;
   restartAudio: () => void;
+}
+
+export interface SummaryResponse {
+  resumen: string;
+  puntos_clave: string[];
+  conclusiones: string;
 }
 
 export default function VoiceTab({
