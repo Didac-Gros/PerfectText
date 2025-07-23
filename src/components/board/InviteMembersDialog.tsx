@@ -185,7 +185,7 @@ export function InviteMembersDialog() {
               id={id}
               className="pr-9"
               type="text"
-              defaultValue={`http://localhost:5175/invite?boardId=${currentBoard!.id}&userId=${user!.uid}`}
+              defaultValue={`${window.location.origin}/invite?boardId=${currentBoard!.id}&userId=${user!.uid}`}
               readOnly
             />
             <TooltipProvider delayDuration={0}>

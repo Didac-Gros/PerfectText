@@ -20,7 +20,7 @@ export async function fetchGetApi<T>(endpoint: string, expectBlob: boolean): Pro
       throw new Error(errorData.error || `Error en la llamada a ${endpoint}`);
     }
 
-    const toReturn = expectBlob ? await response : await response.json();
+    const toReturn = expectBlob ? response : await response.json();
     return toReturn;
 
     // return await response.json();

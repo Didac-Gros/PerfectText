@@ -196,7 +196,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "calendar" ? (
             <GoogleOAuthProvider clientId={clientId}>
               {" "}
-              <CalendarTab />
+              <CalendarTab sidebarOpen={sidebarOpen}/>
             </GoogleOAuthProvider>
           ) : currentBoard ? (
             <BoardTab />

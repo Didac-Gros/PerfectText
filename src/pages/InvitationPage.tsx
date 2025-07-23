@@ -15,6 +15,7 @@ export default function InvitePage() {
   const [board, setBoard] = useState<Board | null>(null);
   const [inviter, setInviter] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const token = searchParams.get("userId");
   const { user, userStore } = useAuth();
   const navigate = useNavigate();
@@ -33,11 +34,6 @@ export default function InvitePage() {
         setBoard(await getBoardById(boardId));
         // 🔥 2. Recuperar info de la invitació (qui ha convidat)
         setInviter(await getUserById(userId));
-
-        // if (boardData && inviteData) {
-        //   setBoard(boardData);
-        //   setInviter(inviteData);
-        // }
       } catch (error) {
         console.error("Error loading invite data", error);
       } finally {
@@ -45,7 +41,9 @@ export default function InvitePage() {
       }
     };
 
-    fetchData();
+    if (!user) {
+      navigate("/login");
+    } else fetchData();
   }, [searchParams]);
 
   if (loading) {
@@ -74,7 +72,11 @@ export default function InvitePage() {
         name: userStore?.name || "Usuari",
       };
 
-      await addMemberToBoard(boardId!, newMember);
+      const errorType = await addMemberToBoard(boardId!, newMember);
+      if (errorType) {
+        setError(messageError(errorType));
+        return;
+      }
       navigate("/", {
         state: { boardId: boardId },
       });
@@ -88,6 +90,19 @@ export default function InvitePage() {
       navigate("/");
     } catch (error) {
       console.error("Error al entrar en el login: ", (error as Error).message);
+    }
+  };
+
+  const messageError = (errorType: string): string => {
+    switch (errorType) {
+      case "memberExists":
+        return "Ja ets membre d'aquest tauler.";
+      case "notExists":
+        return "El tauler no existeix.";
+      case "error":
+        return "Ha ocorregut un error inesperat. Si us plau, torna-ho a intentar més tard.";
+      default:
+        return "";
     }
   };
 
@@ -119,6 +134,9 @@ export default function InvitePage() {
             Rebutjar
           </button>
         </div>
+        <p className="mt-4 text-center text-sm font-medium text-red-600">
+          {error}
+        </p>{" "}
       </div>
     </div>
   );

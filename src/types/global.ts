@@ -172,3 +172,6 @@ export type GoogleUser = {
 };
 
 export type SidebarType = "" | "myspace" | "boards" | "calendar";
+
+export type AcceptInvitationError = "" | "memberExists" | "notExists" | "error";
+

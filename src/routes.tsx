@@ -5,6 +5,8 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { CustomProfilePage } from "./pages/CustomProfilePage";
 import { SuccessPaymentPage } from "./pages/SuccessPaymentPage";
 import InvitationPage from "./pages/InvitationPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 
 // Configuración de las rutas
 const routes: RouteObject[] = [
@@ -31,6 +33,14 @@ const routes: RouteObject[] = [
   {
     path: "/invite",
     element: <InvitationPage />,
+  },
+  {
+    path: "/privacy",
+    element: <PrivacyPage />,
+  },
+    {
+    path: "/terms",
+    element: <TermsPage />,
   },
 ];
 

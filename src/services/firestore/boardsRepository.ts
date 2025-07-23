@@ -8,7 +8,7 @@ import {
   deleteDoc,
   getDoc,
 } from "firebase/firestore";
-import { Board, List, Member } from "../../types/global"; // ajusta el path a tu archivo de interfaces
+import { AcceptInvitationError, Board, List, Member } from "../../types/global"; // ajusta el path a tu archivo de interfaces
 import { getAuth } from "firebase/auth";
 
 const db = getFirestore();
@@ -373,13 +373,14 @@ export async function getBoardById(boardId: string): Promise<Board | null> {
 export async function addMemberToBoard(
   boardId: string,
   newMember: Member
-): Promise<void> {
+): Promise<AcceptInvitationError> {
   try {
     const boardRef = doc(db, "boards", boardId);
     const snapshot = await getDoc(boardRef);
 
     if (!snapshot.exists()) {
-      throw new Error("El tauler no existeix");
+      console.error("El tauler no existeix");
+      return "notExists";
     }
 
     const boardData = snapshot.data();
@@ -391,7 +392,7 @@ export async function addMemberToBoard(
     );
     if (alreadyExists) {
       console.warn("Aquest usuari ja és membre del tauler.");
-      return;
+      return "memberExists";
     }
 
     const updatedMembers = [...currentMembers, newMember];
@@ -402,8 +403,10 @@ export async function addMemberToBoard(
     });
 
     console.log("Membre afegit correctament al tauler.");
+    return "";
   } catch (error) {
     console.error("Error afegint el membre:", (error as Error).message);
+    return "error";
   }
 }
 

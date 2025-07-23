@@ -186,7 +186,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
         <div className="space-y-1">
           <BlurFade delay={0.25} inView>
             <h2 className="text-6xl font-bold tracking-tighter xl:text-7xl/none bg-gradient-to-b from-gray-900 via-gray-800 to-gray-700 dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent flex items-center gap-4">
-              Hello Didac
+              Hello {userStore?.name}
               <div className="w-16 h-16 bg-black rounded-full p-1 flex-shrink-0">
                 <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
                   <svg viewBox="0 0 100 100" className="w-12 h-12 text-white">

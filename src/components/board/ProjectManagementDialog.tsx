@@ -127,7 +127,7 @@ export function ProjectManagementDialog({
                           )}
                         </h4>
                       </div>
-                      {member.userId !== user!.uid ||
+                      {(member.userId !== user!.uid) &&
                         (isCurrentAdmin && (
                           <div className="flex items-center space-x-3">
                             <div className="flex items-center space-x-2">

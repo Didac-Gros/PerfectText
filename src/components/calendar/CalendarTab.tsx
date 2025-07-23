@@ -60,7 +60,11 @@ const ZOOM_STEP = 0.1;
 
 const BASE_SLOT_HEIGHT = 48; // Base height in pixels for time slots
 
-export function CalendarTab() {
+export interface CalendarTabProps {
+  sidebarOpen: boolean;
+}
+
+export function CalendarTab({ sidebarOpen }: CalendarTabProps) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(
@@ -88,7 +92,7 @@ export function CalendarTab() {
     deleteEvent,
     toggleEventCompletion,
     syncWithGoogle,
-    clearEvents
+    clearEvents,
   } = useCalendarStore();
 
   // Update slot height when zoom changes
@@ -99,6 +103,12 @@ export function CalendarTab() {
       `${BASE_SLOT_HEIGHT * zoom}px`
     );
   }, [zoom]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      sidebarOpen ? handleZoomOut() : handleZoomIn();
+    }, 170);
+  }, [sidebarOpen]);
 
   const handleViewDidMount = (arg: { view: ViewApi }) => {
     const date = arg.view.currentStart;
@@ -284,17 +294,28 @@ export function CalendarTab() {
           picture: integration.picture,
         });
 
-        const newTokens = await fetchRefreshToken(integration.refreshToken);
+        try {
+          const newTokens = await fetchRefreshToken(integration.refreshToken);
 
-        setAccessToken(newTokens.access_token);
-        await updateCalendarAccessToken(
-          user.uid,
-          newTokens.access_token,
-          newTokens.expiry_date
-        );
+          setAccessToken(newTokens.access_token);
+          await updateCalendarAccessToken(
+            user.uid,
+            newTokens.access_token,
+            newTokens.expiry_date
+          );
 
-        await syncWithGoogle(newTokens.access_token);
-        setIsSynced(true);
+          await syncWithGoogle(newTokens.access_token);
+          setIsSynced(true);
+        } catch (error) {
+          console.error(
+            "🔁 Error refrescando token, forzando nuevo login:",
+            error
+          );
+          // 👉 Limpia la integración antigua para forzar login
+          await deleteCalendarIntegration(user.uid);
+          // 🔄 Redirige o abre el login de Google otra vez
+          login(); // <-- esto ejecuta useGoogleLogin
+        }
       }
       setIsSyncing(false);
     };
@@ -313,6 +334,7 @@ export function CalendarTab() {
       setIsSyncing(true);
 
       const tokens = await fetchExchangeCode(code);
+      console.log("🔐 TOKENS:", tokens);
 
       setAccessToken(tokens.access_token);
 

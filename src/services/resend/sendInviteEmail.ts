@@ -1,4 +1,4 @@
-import { API_URL_LOCAL } from "../../utils/constants";
+import { API_URL_LOCAL, API_URL } from "../../utils/constants";
 
 interface SendInvitePayload {
     email: string;
@@ -8,7 +8,7 @@ interface SendInvitePayload {
   
   export async function sendInviteEmail(payload: SendInvitePayload) {
     try {
-    const response = await fetch(`${API_URL_LOCAL}/send-invite`, {
+    const response = await fetch(`${API_URL}/send-invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

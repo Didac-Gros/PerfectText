@@ -275,9 +275,11 @@ export function BoardTab() {
                   />
                 </form>
               ) : (
-                <div className="group relative inline-block">
+                <div
+                  className="group relative inline-block"
+                  onClick={() => setIsEditingTitle(true)}
+                >
                   <h1
-                    onClick={() => setIsEditingTitle(true)}
                     className="text-4xl font-bold bg-gradient-to-b from-gray-900 via-gray-800 to-gray-600 
                            dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent mb-3 cursor-pointer
                            tracking-tight leading-tight hover:opacity-80 transition-all duration-300
@@ -291,7 +293,7 @@ export function BoardTab() {
                   </h1>
                   <div className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="p-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                      <Pencil className="w-4 h-4 text-gray-400" />
+                      <Pencil className="w-4 h-4 text-gray-400 cursor-pointer" />
                     </div>
                   </div>
                 </div>
