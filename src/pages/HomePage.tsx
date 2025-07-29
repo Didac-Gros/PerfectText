@@ -45,7 +45,7 @@ export const HomePage: React.FC = () => {
   };
   const showedFile = useRef<boolean>(false);
   const [currentView, setCurrentView] = useState<SidebarType>(
-    user ? "" : ""
+    user ? "myspace" : ""
   );
   const [sidebarOpen, setSidebarOpen] = useState(user ? false : false);
   const [isDark, setIsDark] = useDarkMode();

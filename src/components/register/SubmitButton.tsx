@@ -1,22 +1,26 @@
 import React from "react";
 
 type LoadingButtonProps = {
-  onClick: (e: React.FormEvent) => void; // Función que se ejecuta al hacer clic
+  onClick: () => void; // Función que se ejecuta al hacer clic
   isLoading: boolean; // Indica si el botón está en estado de carga
   text?: string; // Texto opcional del botón
 };
 
-const LoadingButton: React.FC<LoadingButtonProps> = ({
+export const LoadingButton: React.FC<LoadingButtonProps> = ({
   onClick,
   isLoading,
-  text = "→" }) => {
+  text = "→",
+}) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full bg-blue-500 text-white py-2 px-4 rounded-lg ${isLoading ? "cursor-not-allowed bg-blue-400" : "hover:bg-blue-600"
-        }`}
+      className={`w-full bg-blue-500 text-white py-2 px-4 rounded-lg ${
+        isLoading ? "cursor-not-allowed bg-blue-400" : "hover:bg-blue-600"
+      }`}
       disabled={isLoading}
+      aria-busy={isLoading}
+      aria-disabled={isLoading}
     >
       {isLoading ? (
         <span className="flex justify-center items-center">
@@ -48,5 +52,3 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
     </button>
   );
 };
-
-export default LoadingButton;

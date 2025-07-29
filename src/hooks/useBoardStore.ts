@@ -17,6 +17,7 @@ import {
 } from "../services/firestore/boardsRepository";
 import { auth } from "../services/firestore/firebase";
 import { getAuth } from "firebase/auth";
+import { color } from "framer-motion";
 
 interface BoardState {
   boards: Board[];
@@ -374,6 +375,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       id: crypto.randomUUID(),
       title,
       cards: [],
+      color: "#f8f9fa"
     };
 
     const updatedLists = [...state.lists, newList];

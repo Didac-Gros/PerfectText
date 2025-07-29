@@ -6,18 +6,22 @@ import { updateProfile } from "firebase/auth";
 import { auth } from "../services/firestore/firebase";
 import { useNavigate } from "react-router-dom";
 import { updateFirestoreField } from "../services/firestore/firestore";
+import { motion } from "framer-motion";
+import { useAuth } from "../hooks/useAuth";
 
 export const CustomProfilePage: React.FC = () => {
   const user = auth.currentUser;
   const [name, setName] = useState<string>(user?.displayName || "");
   const navigate = useNavigate();
-  const avatars = Array.from({ length: 25 }, (_, i) =>
-    `https://api.dicebear.com/6.x/pixel-art/svg?seed=user${i + 1}`
+  const avatars = Array.from(
+    { length: 25 },
+    (_, i) => `https://api.dicebear.com/6.x/pixel-art/svg?seed=user${i + 1}`
   );
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(
-    avatars[0]
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(
+    user?.photoURL || avatars[0]
   );
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
+  const { customProfile } = useAuth();
 
   const handleAvatarClick = (avatar: string) => {
     setSelectedAvatar(avatar);
@@ -31,12 +35,18 @@ export const CustomProfilePage: React.FC = () => {
   const handleSubmit = async () => {
     if (user && name.trim()) {
       try {
-        await updateProfile(user, {
-          displayName: name,
-          photoURL: selectedAvatar || undefined,
-        });
-        await updateFirestoreField("users", user.uid, "name", name);
-        await updateFirestoreField("users", user.uid, "profileImage", selectedAvatar);
+        await customProfile(name, selectedAvatar || avatars[0]);
+        // await updateProfile(user, {
+        //   displayName: name,
+        //   photoURL: selectedAvatar || undefined,
+        // });
+        // await updateFirestoreField("users", user.uid, "name", name);
+        // await updateFirestoreField(
+        //   "users",
+        //   user.uid,
+        //   "profileImage",
+        //   selectedAvatar
+        // );
         navigate("/");
       } catch (error) {
         console.error("Error al actualizar: ", (error as Error).message);
@@ -45,18 +55,36 @@ export const CustomProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-6">
-      {/* Fondo decorativo con gradientes y efectos de luz */}
-
-      <div className="relative w-full max-w-md">
-        {/* Contenedor principal con efecto glassmorphism */}
-        <div className="backdrop-blur-xl bg-white/90 dark:bg-white/90 rounded-3xl shadow-2xl p-8 border border-white/40 transform transition duration-500 hover:scale-[1.02] hover:shadow-purple-300/50">
-          <h2 className="text-3xl font-extrabold text-gray-800 mb-4 text-center font-sans tracking-tight">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 p-6">
+      <motion.div
+        className="relative w-full max-w-md"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <motion.div
+          className="backdrop-blur-xl bg-white/90 rounded-3xl shadow-2xl p-8 border border-white/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.h2
+            className="text-3xl font-extrabold text-gray-800 mb-4 text-center tracking-tight"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             Personaliza tu Perfil
-          </h2>
-          <p className="text-sm text-gray-600 mb-8 text-center">
+          </motion.h2>
+
+          <motion.p
+            className="text-sm text-gray-600 mb-8 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
             Elige tu avatar y un nombre de usuario que te represente.
-          </p>
+          </motion.p>
 
           <form
             className="flex flex-col gap-8"
@@ -65,35 +93,45 @@ export const CustomProfilePage: React.FC = () => {
               handleSubmit();
             }}
           >
-            <div className="flex flex-col items-center">
+            <motion.div
+              className="flex flex-col items-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
               <div className="relative">
                 <div
                   className="relative cursor-pointer group"
                   onClick={() => setIsAvatarDropdownOpen(!isAvatarDropdownOpen)}
                 >
                   <img
-                    src={selectedAvatar || avatars[0]}
+                    src={selectedAvatar}
                     alt="Avatar seleccionado"
-                    className={`w-20 h-20 rounded-full border-4 
-                      ${isAvatarDropdownOpen ? "border-purple-500" : "border-gray-300"} 
-                      transition-transform duration-300 group-hover:scale-105`}
+                    className={`w-20 h-20 rounded-full border-4 ${
+                      isAvatarDropdownOpen
+                        ? "border-purple-500"
+                        : "border-gray-300"
+                    } transition-transform duration-300 group-hover:scale-105`}
                   />
                   <div
-                    className={`absolute inset-0 rounded-full
-                      ${isAvatarDropdownOpen ? "ring-4 ring-purple-400/50" : ""}
-                      transition-all duration-300 pointer-events-none`}
+                    className={`absolute inset-0 rounded-full ${
+                      isAvatarDropdownOpen ? "ring-4 ring-purple-400/50" : ""
+                    } transition-all duration-300 pointer-events-none`}
                   ></div>
                 </div>
 
                 {isAvatarDropdownOpen && (
-                  <div
-                    className="absolute top-[6.5rem] left-1/2 transform -translate-x-1/2
-                      bg-white border border-purple-300 rounded-xl shadow-2xl p-4 w-72 
-                      grid grid-cols-5 gap-3 animate-fade-in-down z-50"
-                    style={{ animation: "fade-in-down 0.3s ease-out forwards" }}
+                  <motion.div
+                    className="absolute top-[6.5rem] left-1/2 transform -translate-x-1/2 bg-white border border-purple-300 rounded-xl shadow-2xl p-4 w-72 grid grid-cols-5 gap-3 z-50"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
                   >
                     {avatars.map((avatar, index) => (
-                      <div key={index} className="flex justify-center items-center">
+                      <div
+                        key={index}
+                        className="flex justify-center items-center"
+                      >
                         <img
                           src={avatar}
                           alt={`Avatar ${index + 1}`}
@@ -102,15 +140,20 @@ export const CustomProfilePage: React.FC = () => {
                         />
                       </div>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
               </div>
               <span className="text-xs text-gray-500 mt-2">
                 Haz click para elegir otro avatar
               </span>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col">
+            <motion.div
+              className="flex flex-col"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
               <label
                 htmlFor="username"
                 className="text-sm text-gray-700 mb-2 ml-1 font-semibold"
@@ -124,39 +167,24 @@ export const CustomProfilePage: React.FC = () => {
                 onChange={handleNameChange}
                 icon={<FaRegUser className="w-5 h-5 text-gray-500" />}
               />
-            </div>
+            </motion.div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={!name.trim()}
               className={`mt-2 w-full py-3 rounded-md font-semibold shadow-md text-white 
-                bg-gradient-to-r from-pink-500 to-purple-500 
-                hover:opacity-90 hover:shadow-lg hover:shadow-pink-300/50 transition-all duration-300
-                ${!name.trim() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+             bg-blue-500 
+              hover:opacity-90 hover:shadow-lg hover:shadow-blue-300/50 hover:bg-blue-600 transition-all duration-300
+              ${!name.trim() ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
             >
               Guardar Perfil
-            </button>
+            </motion.button>
           </form>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes fade-in-down {
-          0% {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.7; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.05); }
-        }
-      `}</style>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

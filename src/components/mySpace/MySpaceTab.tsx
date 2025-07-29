@@ -8,6 +8,9 @@ import {
   Plus,
   Check,
   Info,
+  Trash,
+  Trash2,
+  Undo2,
 } from "lucide-react";
 import { format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { es } from "date-fns/locale";
@@ -24,53 +27,17 @@ import { delay } from "framer-motion";
 import { createDefaultBoards } from "../../services/firestore/boardsRepository";
 import { updateFirestoreField } from "../../services/firestore/firestore";
 import { getRelativeTime } from "../../utils/utils";
+import {
+  deleteCalendarIntegration,
+  loadCalendarIntegration,
+  updateCalendarAccessToken,
+} from "../../services/firestore/calendarRepository";
+import { fetchRefreshToken } from "../../services/google/refreshToken";
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
   boardId?: string;
 }
-
-const GROUPS = [
-  {
-    id: "1",
-    name: "Equipo Diseño",
-    icon: "🎨",
-    members: 8,
-    active: true,
-    avatars: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=64&h=64&q=80&crop=faces&fit=crop",
-    ],
-  },
-  {
-    id: "2",
-    name: "Desarrollo Frontend",
-    icon: "💻",
-    members: 12,
-    active: true,
-    avatars: [
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=64&h=64&q=80&crop=faces&fit=crop",
-    ],
-  },
-  {
-    id: "3",
-    name: "Marketing",
-    icon: "📢",
-    members: 6,
-    active: false,
-    avatars: [
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=64&h=64&q=80&crop=faces&fit=crop",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&crop=faces&fit=crop",
-    ],
-  },
-];
 
 const EVENT_COLORS = {
   blue: "#3b82f6",
@@ -83,12 +50,23 @@ const EVENT_COLORS = {
 export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
   const { addBoard, setCurrentBoard, boards, fetchBoardsForUser } =
     useBoardStore();
-  const { events, toggleEventCompletion } = useCalendarStore();
   const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(
     null
   );
   const [showEventModal, setShowEventModal] = React.useState(false);
   const { user, userStore } = useAuth();
+  const {
+    events,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    toggleEventCompletion,
+    syncWithGoogle,
+    clearEvents,
+  } = useCalendarStore();
+  const [accesToken, setAccessToken] = React.useState<string | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] =
+    React.useState<boolean>(false);
 
   useEffect(() => {
     if (
@@ -125,6 +103,42 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
     //   onViewChange('boards');
     // }
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const checkCalendarIntegration = async () => {
+      const integration = await loadCalendarIntegration(user.uid);
+
+      if (integration && new Date() < new Date(integration.expiresAt)) {
+        setAccessToken(integration.accessToken);
+
+        await syncWithGoogle(integration.accessToken);
+      } else if (integration) {
+        try {
+          const newTokens = await fetchRefreshToken(integration.refreshToken);
+
+          setAccessToken(newTokens.access_token);
+          await updateCalendarAccessToken(
+            user.uid,
+            newTokens.access_token,
+            newTokens.expiry_date
+          );
+
+          await syncWithGoogle(newTokens.access_token);
+        } catch (error) {
+          console.error(
+            "🔁 Error refrescando token, forzando nuevo login:",
+            error
+          );
+          // 👉 Limpia la integración antigua para forzar login
+          await deleteCalendarIntegration(user.uid);
+        }
+      }
+    };
+
+    checkCalendarIntegration();
+  }, [user]);
 
   // Get today's events
   const todayEvents = React.useMemo(() => {
@@ -432,6 +446,41 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
                         >
                           <Info className="w-4 h-4" />
                         </button>
+                        {showConfirmDelete && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowConfirmDelete(false);
+                            }}
+                            className="p-2 text-gray-400 hover:text-green-600 dark:text-gray-500 
+            dark:hover:text-green-400 rounded-lg hover:bg-green-100 
+            dark:hover:bg-green-900/20 transition-colors"
+                          >
+                            <Undo2 className="size-4" />
+                          </button>
+                        )}
+
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            showConfirmDelete
+                              ? await deleteEvent(
+                                  event.id as string,
+                                  accesToken ?? undefined
+                                )
+                              : setShowConfirmDelete(true);
+                          }}
+                          className="flex-shrink-0 p-2 text-red-400 hover:text-red-600 
+                                   dark:text-red-500 dark:hover:text-red-300 rounded-lg
+                                   hover:bg-red-100 dark:hover:bg-red-600
+                                   transition-colors duration-200 ml-[-1rem]"
+                        >
+                          {showConfirmDelete ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Trash className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
                     </div>
                   );
@@ -489,13 +538,27 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
             setShowEventModal(false);
             setSelectedEvent(null);
           }}
-          event={selectedEvent}
           defaultDate={null}
-          onSave={async () => {
+          event={selectedEvent}
+          onSave={async (eventData) => {
+            if (selectedEvent) {
+              await updateEvent(
+                {
+                  ...eventData,
+                  id: selectedEvent.id,
+                },
+                accesToken!
+              );
+            } else {
+              await addEvent(eventData, accesToken!);
+            }
             setShowEventModal(false);
             setSelectedEvent(null);
           }}
           onDelete={async () => {
+            if (selectedEvent) {
+              await deleteEvent(selectedEvent.id as string, accesToken!);
+            }
             setShowEventModal(false);
             setSelectedEvent(null);
           }}

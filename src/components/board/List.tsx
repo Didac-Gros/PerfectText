@@ -47,6 +47,7 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
 
   const handleTitleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(title);
     updateList(list.id, title, list.color);
     setIsEditing(false);
   };
@@ -121,7 +122,7 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
               <div className="flex items-center space-x-3 flex-1">
                 <h2
                   className={`text-xl font-semibold cursor-pointer tracking-tight hover:opacity-80 transition-opacity ${
-                    list.color
+                    list.color !== "#f8f9fa"
                       ? "text-white"
                       : "bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent"
                   }`}
@@ -131,7 +132,7 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
                 </h2>
                 <span
                   className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                    list.color
+                    list.color !== "#f8f9fa"
                       ? "bg-white/20 text-white"
                       : "bg-gray-200/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300"
                   }`}
@@ -144,7 +145,7 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
               <div className="flex items-center space-x-1">
                 <button
                   className={`p-1.5 rounded-lg transition-colors duration-200 ${
-                    list.color
+                    list.color !== "#f8f9fa"
                       ? "hover:bg-white/20 text-white/80 hover:text-white"
                       : "hover:bg-gray-200/80 dark:hover:bg-gray-700/80 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
@@ -155,7 +156,7 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
                 {isCurrentAdmin && (
                   <button
                     className={`p-1.5 rounded-lg transition-colors duration-200 ${
-                      list.color
+                      list.color !== "#f8f9fa"
                         ? "hover:bg-white/20 text-white/80 hover:text-white"
                         : "hover:bg-gray-200/80 dark:hover:bg-gray-700/80 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                     }`}
@@ -231,9 +232,9 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
                    rounded-xl transition-all duration-300 transform hover:scale-[1.02]
                    border border-dashed backdrop-blur-sm shadow-sm hover:shadow-md
                    group ${
-                     list.color
+                     list.color !== "#f8f9fa"
                        ? "border-white/30 text-white/80 hover:text-white bg-white/10 hover:bg-white/20"
-                       : "border-gray-200/50 dark:border-gray-600/50 text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-700/50 hover:bg-white/90 dark:hover:bg-gray-700/70"
+                       : "border-gray-200/50 dark:border-gray-600/50 text-gray-800 dark:text-gray-400 bg-white/80 dark:bg-gray-700/50 hover:bg-white/90 dark:hover:bg-gray-700/70"
                    }`}
         >
           <Plus className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />

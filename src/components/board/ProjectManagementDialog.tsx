@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../shared/ui/dialog";
-import { Settings2, Shield, UserMinus, Trash2 } from "lucide-react";
+import { Settings2, Shield, UserMinus, Trash2, RefreshCw, Undo2 } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { useBoardStore } from "../../hooks/useBoardStore";
@@ -21,6 +21,7 @@ interface ProjectManagementDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   projectMembers: Member[];
+  setProjectMembers: (members: Member[]) => void;
   isCurrentAdmin: boolean;
 }
 
@@ -29,11 +30,14 @@ export function ProjectManagementDialog({
   onOpenChange,
   projectMembers,
   isCurrentAdmin,
+  setProjectMembers,
 }: ProjectManagementDialogProps) {
-  const [members, setMembers] = React.useState<Member[]>(projectMembers);
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [members, setMembers] = useState<Member[]>(projectMembers);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
   const { currentBoard, deleteBoard } = useBoardStore();
   const { user } = useAuth(); // Assuming you have a way to get the current user
+  const [isUserDeletedSelected, setIsUserDeletedSelected] =
+    useState<boolean>(false);
 
   const toggleAdmin = async (memberId: string) => {
     setMembers(
@@ -52,6 +56,7 @@ export function ProjectManagementDialog({
 
   const removeMember = async (memberId: string) => {
     setMembers(members.filter((member) => member.userId !== memberId));
+    setProjectMembers(members.filter((member) => member.userId !== memberId));
     await removeMemberFromBoard(currentBoard!.id, memberId);
   };
 
@@ -59,6 +64,14 @@ export function ProjectManagementDialog({
     if (currentBoard) {
       deleteBoard(currentBoard.id);
       onOpenChange(false);
+    }
+  };
+
+  const clickDeleteUser = (member: Member) => {
+    if (isUserDeletedSelected) {
+      removeMember(member.userId);
+    } else {
+      setIsUserDeletedSelected(true);
     }
   };
 
@@ -127,9 +140,9 @@ export function ProjectManagementDialog({
                           )}
                         </h4>
                       </div>
-                      {(member.userId !== user!.uid) &&
-                        (isCurrentAdmin && (
-                          <div className="flex items-center space-x-3">
+                      {member.userId !== user!.uid && isCurrentAdmin && (
+                        <div className={`flex items-center ${isUserDeletedSelected ? "space-x-[0.1rem]":"space-x-3" } `}>
+                          {!isUserDeletedSelected && (
                             <div className="flex items-center space-x-2">
                               <Switch
                                 id={`admin-${member.userId}`}
@@ -145,17 +158,35 @@ export function ProjectManagementDialog({
                                 Admin
                               </Label>
                             </div>
+                          )}
 
+                          {isUserDeletedSelected && (
                             <button
-                              onClick={() => removeMember(member.userId)}
-                              className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 
+                              // onClick={() => removeMember(member.userId)}
+                              onClick={() => setIsUserDeletedSelected(false)}
+                              className="p-1.5 text-gray-400 hover:text-green-500 dark:text-gray-500 
+            dark:hover:text-green-400 rounded-lg hover:bg-green-50 
+            dark:hover:bg-green-900/20 transition-colors"
+                            >
+                              <Undo2 className="size-4"/>
+                            </button>
+                          )}
+
+                          <button
+                            // onClick={() => removeMember(member.userId)}
+                            onClick={() => clickDeleteUser(member)}
+                            className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 
             dark:hover:text-red-400 rounded-lg hover:bg-red-50 
             dark:hover:bg-red-900/20 transition-colors"
-                            >
+                          >
+                            {isUserDeletedSelected ? (
+                              <Trash2 className="w-4 h-4" />
+                            ) : (
                               <UserMinus className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

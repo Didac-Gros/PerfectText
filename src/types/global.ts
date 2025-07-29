@@ -48,7 +48,7 @@ export interface User {
   uid: string;
   name: string;
   email: string;
-  expirationDate: Timestamp;
+  expirationDate?: Timestamp;
   customerId: string | null;
   subscription: UserSubscription;
   tokens: number | null;

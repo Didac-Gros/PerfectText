@@ -1,7 +1,16 @@
 import React, { createContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+  User,
+} from "firebase/auth";
 import { auth } from "../services/firestore/firebase"; // Configuración de Firebase
-import { addUserToFirestore, findUserByEmail } from "../services/firestore/firestore"; // Importar la función
+import {
+  addUserToFirestore,
+  findUserByEmail,
+  updateFirestoreField,
+} from "../services/firestore/firestore"; // Importar la función
 import { ReactNode } from "react";
 import { User as MyUser, UserSubscription } from "../types/global";
 import { Timestamp } from "firebase/firestore";
@@ -11,13 +20,15 @@ interface AuthContextProps {
   userStore: MyUser | null; // Datos adicionales del usuario en Firestore
   loading: boolean; // Estado de carga
   logout: () => Promise<void>; // Función para cerrar sesión
+  customProfile: (name: string, selectedAvatar: string) => Promise<void>; // Función para actualizar el perfil
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
   userStore: null,
   loading: true,
-  logout: async () => { },
+  logout: async () => {},
+  customProfile: async () => {},
 });
 
 interface AuthProviderProps {
@@ -96,8 +107,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const customProfile = async (name: string, selectedAvatar: string) => {
+    try {
+      // Actualiza el estado del usuario de Firestore
+      setuserStore((prev) => ({
+        ...prev!,
+        name,
+        profileImage: selectedAvatar,
+      }));
+      await updateProfile(user!, {
+        displayName: name,
+        photoURL: selectedAvatar || undefined,
+      });
+      await updateFirestoreField("users", user!.uid, "name", name);
+      await updateFirestoreField(
+        "users",
+        user!.uid,
+        "profileImage",
+        selectedAvatar
+      );
+    } catch (error) {
+      console.error("Error al personalizar perfil:", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userStore, loading, logout }}>
+    <AuthContext.Provider
+      value={{ user, userStore, loading, logout, customProfile }}
+    >
       {loading ? <p>Cargando...</p> : children}
     </AuthContext.Provider>
   );

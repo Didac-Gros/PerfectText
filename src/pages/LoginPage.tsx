@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FcGoogle } from 'react-icons/fc'; // Icono de Google (de react-icons)
+import { FcGoogle } from "react-icons/fc"; // Icono de Google (de react-icons)
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firestore/firebase"; // Configuración de Firebase
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -8,8 +8,9 @@ import { HiOutlineMail } from "react-icons/hi";
 import { FaRegEye } from "react-icons/fa6";
 import { GoogleButton } from "../components/register/GoogleButton";
 import { FirebaseError } from "firebase/app";
-import SubmitButton from "../components/register/SubmitButton";
+import { LoadingButton } from "../components/register/SubmitButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { motion } from "framer-motion";
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -18,19 +19,20 @@ export const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setError(null);
     setIsLoading(true);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
       if (userCredential.user.emailVerified) {
         navigate("/");
-
       } else setError("Por favor, verifique su correo electrónico.");
-
     } catch (error) {
       if (error instanceof FirebaseError) {
         switch (error.code) {
@@ -47,7 +49,10 @@ export const LoginPage: React.FC = () => {
             return { success: false, message: "Error inesperado." };
         }
       } else
-        console.error("Error al entrar en el registro: ", (error as Error).message);
+        console.error(
+          "Error al entrar en el registro: ",
+          (error as Error).message
+        );
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +62,10 @@ export const LoginPage: React.FC = () => {
     try {
       navigate("/register");
     } catch (error) {
-      console.error("Error al entrar en el registro: ", (error as Error).message);
+      console.error(
+        "Error al entrar en el registro: ",
+        (error as Error).message
+      );
     }
   };
 
@@ -65,36 +73,72 @@ export const LoginPage: React.FC = () => {
     try {
       navigate("/");
     } catch (error) {
-      console.error("Error al entrar en el registro: ", (error as Error).message);
+      console.error(
+        "Error al entrar en el registro: ",
+        (error as Error).message
+      );
     }
   };
 
   return (
-<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-6">
-<div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-gray-800 mb-5">
-          <FaArrowLeftLong color="blue" size={"15px"} />
-          <a href="#" className="text-blue-500 hover:underline text-sm " onClick={handleHome}>
-            Volver a la home
-          </a>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 p-6">
+      <motion.div
+        className="w-full max-w-md bg-white rounded-3xl shadow-xl p-10"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <motion.div
+          className="flex items-center gap-2 text-sm text-blue-500 hover:underline mb-6 cursor-pointer"
+          onClick={handleHome}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <FaArrowLeftLong size={"15px"} />
+          <span>Volver a la home</span>
+        </motion.div>
 
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-extrabold text-gray-800">Bienvenido de nuevo</h2>
-          <p className="text-gray-600">Continuemos su viaje de aprendizaje.</p>
-        </div>
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <h2 className="text-3xl font-bold text-gray-800 mb-1">
+            Bienvenido de nuevo
+          </h2>
+          <p className="text-sm text-gray-500">
+            Continuemos su viaje de aprendizaje.
+          </p>
+        </motion.div>
 
-        <GoogleButton
-          text="Iniciar sesión con Google">
-        </GoogleButton>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <GoogleButton text="Iniciar sesión con Google" />
+        </motion.div>
 
-        <div className="flex items-center justify-center my-4">
-          <div className="flex-grow border-t border-gray-300"></div>
-          <span className="relative bg-white px-4 text-gray-500">o continuar con</span>
-          <div className="flex-grow border-t border-gray-300"></div>
-        </div>
+        <motion.div
+          className="flex items-center my-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+        >
+          <div className="flex-grow border-t border-gray-300" />
+          <span className="mx-4 text-sm text-gray-400">o continuar con</span>
+          <div className="flex-grow border-t border-gray-300" />
+        </motion.div>
 
-        <form onSubmit={(e) => e.preventDefault()}>
+        <motion.form
+          onSubmit={(e) => e.preventDefault()}
+          className="space-y-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+        >
           <RegisterInput
             type="email"
             placeholder="Correo electrónico"
@@ -112,26 +156,32 @@ export const LoginPage: React.FC = () => {
             password={true}
           />
 
-          <div className="mb-6 text-right">
-            <a href="#" className="text-blue-500 hover:underline">
+          <div className="text-right">
+            <a href="#" className="text-blue-500 text-sm hover:underline">
               ¿Ha olvidado su contraseña?
             </a>
           </div>
-          <p className="text-red-500 mb-4 text-xs">{error}</p>
 
-          <SubmitButton onClick={handleLogin} isLoading={isLoading}></SubmitButton>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        </form>
+          <LoadingButton onClick={handleLogin} isLoading={isLoading} />
+        </motion.form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            ¿No tiene cuenta?{" "}
-            <a href="#" className="text-pink-500 font-bold hover:underline" onClick={handleRegister}>
-              Inscríbase
-            </a>
-          </p>
-        </div>
-      </div>
+        <motion.div
+          className="mt-6 text-center text-sm text-gray-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+        >
+          ¿No tiene cuenta?{" "}
+          <a
+            className="text-pink-500 font-semibold hover:underline cursor-pointer"
+            onClick={handleRegister}
+          >
+            Inscríbase
+          </a>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

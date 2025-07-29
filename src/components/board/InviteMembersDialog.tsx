@@ -3,9 +3,7 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useBoardStore } from "../../hooks/useBoardStore";
 import { cn } from "../../lib/utils";
-import { addMemberToBoard } from "../../services/firestore/boardsRepository";
 import { sendInviteEmail } from "../../services/resend/sendInviteEmail";
-import LoadingButton from "../register/SubmitButton";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +30,7 @@ export function InviteMembersDialog() {
   const lastInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { currentBoard } = useBoardStore();
-  const { user, userStore } = useAuth();
+  const { user } = useAuth();
   const addEmail = () => {
     setEmails([...emails, ""]);
   };

@@ -20,11 +20,13 @@ export async function sendInvite(req: Request, res: Response) {
     const data = await resend.emails.send({
       from: 'noreply@perfecttext.ai',
       to: email,
-      subject: 'Tens una invitació!',
+      subject: '👀 Alguien quiere estudiar contigo...',
       html: `
-        <h1>Hola!</h1>
-        <p>Has estat invitat a unir-te a un tauler.</p>
-        <p><a href="${inviteLink}">Fes clic aquí per unir-te</a></p>
+        <h3>Te han invitado a unirte a un espacio privado en PerfectText.</h3>
+        <p>Aquí es donde los estudiantes como tú se organizan (o al menos lo intentan) de forma divertida, rápida y sin dramas.</p>
+        <p>Tareas, apuntes, ideas geniales a las 3 de la mañana... aquí todo tiene su lugar.</p>
+
+        <p><a href="${inviteLink}">👉 Haz clic aquí para entrar</a></p>
       `,
     });
     console.log("Email sent:", data);

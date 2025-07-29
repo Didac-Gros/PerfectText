@@ -59,7 +59,7 @@ export function BoardTab() {
   const titleInputRef = React.useRef<HTMLInputElement>(null);
   const boardRef = React.useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const members = currentBoard?.members || [];
+  const [members, setMembers] = React.useState(currentBoard?.members || []);
   const currentMember = members.find((m) => m.userId === user?.uid);
   const isCurrentUserAdmin = currentMember?.isAdmin ?? false;
   const [showDueDatePicker, setShowDueDatePicker] = React.useState(false);
@@ -451,6 +451,7 @@ export function BoardTab() {
               )?.id || ""
             }
             isCurrentAdmin={isCurrentUserAdmin}
+            zoom={zoom}
           />
         ) : null}
       </DragOverlay>
@@ -459,6 +460,7 @@ export function BoardTab() {
         isOpen={showProjectManagement}
         onOpenChange={setShowProjectManagement}
         projectMembers={members}
+        setProjectMembers={setMembers}
         isCurrentAdmin={isCurrentUserAdmin}
       />
     </DndContext>

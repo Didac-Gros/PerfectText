@@ -13,9 +13,10 @@ interface CardProps {
   card: CardType;
   listId: string;
   isCurrentAdmin: boolean;
+  zoom: number;
 }
 
-export function Card({ card, listId, isCurrentAdmin }: CardProps) {
+export function Card({ card, listId, isCurrentAdmin, zoom }: CardProps) {
   const { deleteCard, updateCard, addComment, deleteComment } = useBoardStore();
   const [isEditing, setIsEditing] = React.useState(false);
   const [title, setTitle] = React.useState(card.title);
@@ -47,7 +48,6 @@ export function Card({ card, listId, isCurrentAdmin }: CardProps) {
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     cursor: isEditing ? "default" : "grab",
@@ -55,6 +55,7 @@ export function Card({ card, listId, isCurrentAdmin }: CardProps) {
     zIndex: isDragging ? 999 : "auto",
     position: isDragging ? "relative" : "static",
     touchAction: "none",
+    zoom: zoom,
   } as React.CSSProperties;
 
   const getDueStatus = () => {

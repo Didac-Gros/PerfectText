@@ -280,8 +280,6 @@ export async function createDefaultBoards() {
       await setDoc(boardRef, board);
     }
   }
-
-
 }
 
 export async function createBoardInFirestore(board: Board) {
@@ -337,11 +335,16 @@ export async function getBoardsForUser(userId: string): Promise<Board[]> {
 
 export async function updateBoardLists(boardId: string, lists: List[]) {
   const boardRef = doc(db, "boards", boardId);
-
-  await updateDoc(boardRef, {
-    lists,
-    updatedAt: new Date().toISOString(),
-  });
+  console.log("Actualitzant llistes del tauler:", boardId, lists.forEach((list) => console.log(list)));
+  try {
+    await updateDoc(boardRef, {
+      lists,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error actualitzant les llistes del tauler:", error);
+    throw error;
+  }
 }
 
 export async function getBoardById(boardId: string): Promise<Board | null> {
@@ -410,7 +413,10 @@ export async function addMemberToBoard(
   }
 }
 
-export const removeMemberFromBoard = async (boardId: string, userId: string) => {
+export const removeMemberFromBoard = async (
+  boardId: string,
+  userId: string
+) => {
   try {
     const boardRef = doc(db, "boards", boardId);
     const boardSnap = await getDoc(boardRef);
