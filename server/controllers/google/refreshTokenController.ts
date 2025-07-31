@@ -9,7 +9,6 @@ const oauth2Client = new google.auth.OAuth2(
 
 export async function refreshToken(req: Request, res: Response) {
   const { refreshToken } = req.body;
-
   try {
     oauth2Client.setCredentials({ refresh_token: refreshToken });
     const { credentials } = await oauth2Client.refreshAccessToken();

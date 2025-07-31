@@ -423,6 +423,8 @@ export function BoardTab() {
                 list={list}
                 isOver={overListId === list.id}
                 isCurrentAdmin={isCurrentUserAdmin}
+                zoom={zoom}
+                boardId={currentBoard?.id || ''}
               />
             ))}
           </div>
@@ -452,6 +454,7 @@ export function BoardTab() {
             }
             isCurrentAdmin={isCurrentUserAdmin}
             zoom={zoom}
+            boardId={currentBoard?.id || ""}
           />
         ) : null}
       </DragOverlay>

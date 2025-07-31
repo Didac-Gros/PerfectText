@@ -99,7 +99,7 @@ export function NexusTab() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#161616] p-6">
+    <div className=" bg-gray-50 dark:bg-[#161616] p-6">
       <div className="max-w-[1400px] mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-1">

@@ -114,22 +114,14 @@ export function CommentInput({ onSubmit, placeholder = "Escribe un comentario...
               </div>
             )}
           </div>
-          <button
-            type="button"
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 
-                     hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg 
-                     transition-colors duration-200"
-          >
-            <AtSign className="w-4 h-4" />
-          </button>
-          <button
+          {/* <button
             type="button"
             className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 
                      hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg 
                      transition-colors duration-200"
           >
             <Link2 className="w-4 h-4" />
-          </button>
+          </button> */}
           <button
             onClick={handleReset}
             disabled={!inputValue.trim()}

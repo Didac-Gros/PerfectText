@@ -194,7 +194,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 pt-6">
+    <div className=" bg-white dark:bg-gray-900 pt-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="space-y-1">

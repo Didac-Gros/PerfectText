@@ -9,6 +9,7 @@ import type {
 import { storage } from "../services/firestore/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
+  addCommentToFirestore,
   createBoardInFirestore,
   deleteBoardFromFirestore,
   getBoardsForUser,
@@ -44,6 +45,9 @@ interface BoardState {
   addComment: (
     cardId: string,
     text: string,
+    boardId: string,
+    listId: string,
+    userName: string,
     attachments?: File[]
   ) => Promise<void>;
   deleteComment: (cardId: string, commentId: string) => void;
@@ -375,7 +379,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       id: crypto.randomUUID(),
       title,
       cards: [],
-      color: "#f8f9fa"
+      color: "#f8f9fa",
     };
 
     const updatedLists = [...state.lists, newList];
@@ -597,11 +601,11 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     await updateBoardLists(board.id, updatedLists);
   },
 
-  addComment: async (cardId: string, text: string, attachments?: File[]) => {
+  addComment: async (cardId: string, text: string, boardId: string, listId: string, userName: string, attachments?: File[]) => {
     const newComment: Comment = {
       id: crypto.randomUUID(),
       text,
-      author: "Usuario",
+      author: userName,
       createdAt: new Date().toISOString(),
       // attachments: []
     };
@@ -630,6 +634,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
 
       // newComment.attachments = uploadedAttachments;
     }
+
+    await addCommentToFirestore(boardId, listId, cardId, newComment);
 
     set((state) => ({
       lists: state.lists.map((list) => ({

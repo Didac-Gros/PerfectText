@@ -15,9 +15,11 @@ interface ListProps {
   list: ListType;
   isOver: boolean;
   isCurrentAdmin: boolean;
+  zoom: number; // Optional zoom prop for future use
+  boardId: string;
 }
 
-export function List({ list, isOver, isCurrentAdmin }: ListProps) {
+export function List({ list, isOver, isCurrentAdmin, zoom, boardId }: ListProps) {
   const { addCard, updateList, deleteList, duplicateList } = useBoardStore();
   const [isEditing, setIsEditing] = React.useState(false);
   const [title, setTitle] = React.useState(list.title);
@@ -219,6 +221,8 @@ export function List({ list, isOver, isCurrentAdmin }: ListProps) {
                 card={card}
                 listId={list.id}
                 isCurrentAdmin={isCurrentAdmin}
+                zoom={zoom} // Pass zoom prop to Card component
+                boardId={boardId}
               />
             ))}
           </AnimatedList>

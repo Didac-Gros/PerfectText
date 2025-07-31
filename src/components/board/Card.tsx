@@ -8,21 +8,30 @@ import { CommentDialog } from "./CommentDialog";
 import { DueDatePicker } from "../shared/DueDatePicker";
 import { format, isAfter, isBefore, addDays } from "date-fns";
 import { es } from "date-fns/locale";
+import { useAuth } from "../../hooks/useAuth";
 
 interface CardProps {
   card: CardType;
   listId: string;
   isCurrentAdmin: boolean;
   zoom: number;
+  boardId: string;
 }
 
-export function Card({ card, listId, isCurrentAdmin, zoom }: CardProps) {
+export function Card({
+  card,
+  listId,
+  isCurrentAdmin,
+  zoom,
+  boardId,
+}: CardProps) {
   const { deleteCard, updateCard, addComment, deleteComment } = useBoardStore();
   const [isEditing, setIsEditing] = React.useState(false);
   const [title, setTitle] = React.useState(card.title);
   const [showComments, setShowComments] = React.useState(false);
   const [showDueDatePicker, setShowDueDatePicker] = React.useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { userStore } = useAuth();
 
   const {
     attributes,
@@ -130,7 +139,7 @@ export function Card({ card, listId, isCurrentAdmin, zoom }: CardProps) {
   };
 
   const handleAddComment = (text: string) => {
-    addComment(card.id, text);
+    addComment(card.id, text, boardId, listId, userStore?.name || "Usuario");
   };
 
   const handleDeleteComment = (commentId: string) => {

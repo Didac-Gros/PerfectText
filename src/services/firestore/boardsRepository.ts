@@ -8,7 +8,13 @@ import {
   deleteDoc,
   getDoc,
 } from "firebase/firestore";
-import { AcceptInvitationError, Board, List, Member } from "../../types/global"; // ajusta el path a tu archivo de interfaces
+import {
+  AcceptInvitationError,
+  Board,
+  Comment,
+  List,
+  Member,
+} from "../../types/global"; // ajusta el path a tu archivo de interfaces
 import { getAuth } from "firebase/auth";
 
 const db = getFirestore();
@@ -335,7 +341,11 @@ export async function getBoardsForUser(userId: string): Promise<Board[]> {
 
 export async function updateBoardLists(boardId: string, lists: List[]) {
   const boardRef = doc(db, "boards", boardId);
-  console.log("Actualitzant llistes del tauler:", boardId, lists.forEach((list) => console.log(list)));
+  console.log(
+    "Actualitzant llistes del tauler:",
+    boardId,
+    lists.forEach((list) => console.log(list))
+  );
   try {
     await updateDoc(boardRef, {
       lists,
@@ -466,4 +476,40 @@ export const toggleAdminStatus = async (boardId: string, memberId: string) => {
     console.error("Error alternant estat d'admin:", error);
     throw error;
   }
+};
+
+/**
+ * Añade un comentario a una card dentro de un board en Firestore.
+ */
+export const addCommentToFirestore = async (
+  boardId: string,
+  listId: string,
+  cardId: string,
+  comment: Comment
+): Promise<void> => {
+  const boardRef = doc(db, "boards", boardId);
+  const boardSnap = await getDoc(boardRef);
+
+  if (!boardSnap.exists()) {
+    throw new Error("El board no existe");
+  }
+
+  const boardData = boardSnap.data();
+  const lists: List[] = boardData.lists;
+
+  const listIndex = lists.findIndex((l: List) => l.id === listId);
+  const listToMod = lists[listIndex];
+
+  const cardIndex = listToMod.cards.findIndex((card: any) => card.id === cardId);
+
+  if (cardIndex === -1) {
+    throw new Error("Card no encontrada en la lista");
+  }
+
+  // Añadir el comentario
+  listToMod.cards[cardIndex].comments.push(comment);
+
+  // Actualizar Firestore
+  await updateDoc(boardRef, { lists });
+
 };
