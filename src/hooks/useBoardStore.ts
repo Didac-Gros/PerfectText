@@ -48,6 +48,7 @@ interface BoardState {
     boardId: string,
     listId: string,
     userName: string,
+    photoURL: string,
     attachments?: File[]
   ) => Promise<void>;
   deleteComment: (cardId: string, commentId: string) => void;
@@ -601,11 +602,12 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     await updateBoardLists(board.id, updatedLists);
   },
 
-  addComment: async (cardId: string, text: string, boardId: string, listId: string, userName: string, attachments?: File[]) => {
+  addComment: async (cardId: string, text: string, boardId: string, listId: string, userName: string, photoURL: string, attachments?: File[]) => {
     const newComment: Comment = {
       id: crypto.randomUUID(),
       text,
       author: userName,
+      photoURL: photoURL,
       createdAt: new Date().toISOString(),
       // attachments: []
     };

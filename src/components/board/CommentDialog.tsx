@@ -11,6 +11,7 @@ import {
   ChatBubbleMessage,
 } from "./ui/chat-bubble";
 import { useAuth } from "../../hooks/useAuth";
+import { Comment } from "../../types/global";
 
 interface CommentDialogProps {
   isOpen: boolean;
@@ -20,12 +21,7 @@ interface CommentDialogProps {
   dueDate: string | null;
   onUpdateDueDate: (date: string | null) => void;
   isCompleted?: boolean;
-  comments: Array<{
-    id: string;
-    text: string;
-    author: string;
-    createdAt: string;
-  }>;
+  comments: Array<Comment>;
   onAddComment: (text: string) => Promise<void>;
   onDeleteComment: (id: string) => void;
 }
@@ -152,7 +148,7 @@ export function CommentDialog({
                             )}
                             <ChatBubble variant="received">
                               <ChatBubbleAvatar
-                                src={userStore?.profileImage || "/default_avatar.jpg"}
+                                src={comment.photoURL || "/default_avatar.jpg"}
                                 fallback={comment.author
                                   .charAt(0)
                                   .toUpperCase()}

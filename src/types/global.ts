@@ -141,6 +141,7 @@ export interface Comment {
   id: string;
   text: string;
   author: string;
+  photoURL: string;
   createdAt: string;
   // attachments?: CommentAttachment[];
 }

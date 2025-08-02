@@ -28,7 +28,8 @@ import { Hero } from "../components/home/Hero";
 import { delay } from "framer-motion";
 import { syncUserPhotoURL } from "../services/firestore/userRepository";
 import { createDefaultBoards } from "../services/firestore/boardsRepository";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import Footer from "../components/home/Footer";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -51,8 +52,8 @@ export const HomePage: React.FC = () => {
   const [isDark, setIsDark] = useDarkMode();
   const { currentBoard } = useBoardStore();
   const navigate = useNavigate();
-  const clientId = '1083738059485-12qpql1f6dg6jndnj6rjjilee17d5189.apps.googleusercontent.com';
-
+  const clientId =
+    "1083738059485-12qpql1f6dg6jndnj6rjjilee17d5189.apps.googleusercontent.com";
 
   const {
     recorderState,
@@ -196,7 +197,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "calendar" ? (
             <GoogleOAuthProvider clientId={clientId}>
               {" "}
-              <CalendarTab sidebarOpen={sidebarOpen}/>
+              <CalendarTab sidebarOpen={sidebarOpen} />
             </GoogleOAuthProvider>
           ) : currentBoard ? (
             <BoardTab />
@@ -354,6 +355,7 @@ export const HomePage: React.FC = () => {
 
         {user && activeTab === "plans" && <StripePricingTable />}
       </div>
+      <Footer></Footer>
     </div>
   );
 };

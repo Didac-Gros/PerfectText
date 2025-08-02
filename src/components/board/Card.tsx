@@ -139,7 +139,7 @@ export function Card({
   };
 
   const handleAddComment = (text: string) => {
-    addComment(card.id, text, boardId, listId, userStore?.name || "Usuario");
+    addComment(card.id, text, boardId, listId, userStore?.name || "Usuario", userStore?.profileImage || "/default_avatar.jpg");
   };
 
   const handleDeleteComment = (commentId: string) => {
