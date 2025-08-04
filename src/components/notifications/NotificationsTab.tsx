@@ -1,0 +1,253 @@
+import { Check, Clock, Heart, MessageCircle, Phone, X } from "lucide-react";
+import { useState } from "react";
+import { Avatar } from "../shared/Avatar";
+
+export interface Notification {
+  id: string;
+  type: "call" | "comment" | "reaction";
+  user: {
+    name: string;
+    avatar?: string;
+    initials: string;
+    year: string;
+    major: string;
+  };
+  content?: string;
+  feelContent?: string;
+  timestamp: string;
+  isRead: boolean;
+  callDuration?: string;
+  reaction?: string;
+}
+
+interface NotificationsTabProps {
+  currentUser: {
+    name: string;
+    avatar?: string;
+    initials: string;
+  };
+  notifications: Notification[];
+  onNotificationsUpdate: (notifications: Notification[]) => void;
+}
+
+export const NotificationsTab: React.FC<NotificationsTabProps> = ({
+  currentUser,
+  notifications,
+  onNotificationsUpdate,
+}) => {
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const filteredNotifications =
+    filter === "unread"
+      ? notifications.filter((n) => !n.isRead)
+      : notifications;
+
+  const markAsRead = (notificationId: string) => {
+    const updatedNotifications = notifications.map((n) =>
+      n.id === notificationId ? { ...n, isRead: true } : n
+    );
+    onNotificationsUpdate(updatedNotifications);
+  };
+
+  const deleteNotification = (notificationId: string) => {
+    const updatedNotifications = notifications.filter(
+      (n) => n.id !== notificationId
+    );
+    onNotificationsUpdate(updatedNotifications);
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "call":
+        return <Phone className="w-4 h-4 text-blue-600" />;
+      case "comment":
+        return <MessageCircle className="w-4 h-4 text-green-600" />;
+      case "reaction":
+        return <Heart className="w-4 h-4 text-pink-600" />;
+      default:
+        return <Clock className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const getNotificationText = (notification: Notification) => {
+    switch (notification.type) {
+      case "call":
+        return `te llamó ${notification.callDuration ? `(${notification.callDuration})` : ""}`;
+      case "comment":
+        return "comentó en tu feel";
+      case "reaction":
+        return `reaccionó ${notification.reaction} a tu feel`;
+      default:
+        return "";
+    }
+  };
+  return (
+    <div className=" bg-gray-50 dark:bg-[#161616] p-6">
+      <div className="max-w-[1400px] mx-auto space-y-8">
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+              Notificaciones
+            </h1>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
+                filter === "all"
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              Todas ({notifications.length})
+            </button>
+            <button
+              onClick={() => setFilter("unread")}
+              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 flex items-center space-x-2 ${
+                filter === "unread"
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              <span>Sin leer</span>
+              {unreadCount > 0 && (
+                <span
+                  className={`px-2 py-0.5 text-xs rounded-full ${
+                    filter === "unread"
+                      ? "bg-white text-gray-900"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </header>
+
+        {/* Notifications List */}
+        <div className="space-y-3">
+          {filteredNotifications.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {filter === "unread"
+                  ? "No tienes notificaciones sin leer"
+                  : "No hay notificaciones"}
+              </h3>
+              <p className="text-gray-500 text-sm">
+                {filter === "unread"
+                  ? "¡Estás al día con todo!"
+                  : "Las notificaciones aparecerán aquí cuando tengas actividad"}
+              </p>
+            </div>
+          ) : (
+            filteredNotifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`group relative bg-white/70 backdrop-blur-xl rounded-2xl p-5 border transition-all duration-300 hover:shadow-lg hover:shadow-gray-100/20 hover:-translate-y-0.5 ${
+                  notification.isRead
+                    ? "border-gray-100/50 hover:border-gray-200/50"
+                    : "border-blue-100/50 hover:border-blue-200/50 bg-blue-50/30"
+                }`}
+              >
+                <div className="flex items-start space-x-4">
+                  {/* Avatar */}
+                  <div className="relative">
+                    <Avatar
+                      src={notification.user.avatar}
+                      alt={notification.user.name}
+                      initials={notification.user.initials}
+                      size="md"
+                    />
+                    {/* Unread indicator - number badge over avatar */}
+                    {!notification.isRead && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-sm border-2 border-white">
+                        1
+                      </div>
+                    )}
+                    {/* Notification type icon */}
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="text-sm text-gray-900">
+                          <span className="font-semibold">
+                            {notification.user.name}
+                          </span>
+                          <span className="text-gray-600 ml-1">
+                            {getNotificationText(notification)}
+                          </span>
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {notification.user.year} • {notification.user.major} •{" "}
+                          {notification.timestamp}
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        {!notification.isRead && (
+                          <button
+                            onClick={() => markAsRead(notification.id)}
+                            className="p-1.5 rounded-full hover:bg-blue-100 text-blue-600 transition-colors duration-150"
+                            title="Marcar como leída"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deleteNotification(notification.id)}
+                          className="p-1.5 rounded-full hover:bg-red-100 text-red-600 transition-colors duration-150"
+                          title="Eliminar notificación"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Additional content based on type */}
+                    {notification.type === "comment" &&
+                      notification.content && (
+                        <div className="mt-3 p-3 bg-gray-50/80 rounded-xl">
+                          <p className="text-sm text-gray-700 mb-2">
+                            "{notification.content}"
+                          </p>
+                          {notification.feelContent && (
+                            <p className="text-xs text-gray-500 italic">
+                              En respuesta a: "
+                              {notification.feelContent.substring(0, 50)}..."
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                    {notification.type === "reaction" &&
+                      notification.feelContent && (
+                        <div className="mt-3 p-3 bg-gray-50/80 rounded-xl">
+                          <p className="text-sm text-neutral-600 italic tracking-wide leading-relaxed">
+                            En tu feel: "
+                            {notification.feelContent.substring(0, 60)}..."
+                          </p>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div> 
+      </div>
+    </div>
+  );
+};

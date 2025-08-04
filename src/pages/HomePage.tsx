@@ -30,6 +30,9 @@ import { syncUserPhotoURL } from "../services/firestore/userRepository";
 import { createDefaultBoards } from "../services/firestore/boardsRepository";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Footer from "../components/home/Footer";
+import { CampusTab } from "../components/campus/CampusTab";
+import { CallsTab } from "../components/calls/CallsTab";
+import { NotificationsTab } from "../components/notifications/NotificationsTab";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -142,6 +145,82 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  const currentUser = {
+    id: "current",
+    name: "María García",
+    initials: "MG",
+    year: "3º Curso",
+    major: "Psicología",
+    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=maria&size=64",
+  };
+
+  // Estado para notificaciones dinámicas
+  const [dynamicNotifications, setDynamicNotifications] = useState<any[]>([]);
+
+  // Mock notifications data - esto debería venir de un estado global o API
+  const [staticNotifications] = useState([
+    {
+      id: "1",
+      type: "call",
+      user: {
+        name: "Ana Martín",
+        initials: "AM",
+        avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=ana&size=64",
+        year: "2º Curso",
+        major: "Ingeniería",
+      },
+      timestamp: "hace 5 min",
+      isRead: false,
+      callDuration: "0:23",
+    },
+    {
+      id: "2",
+      type: "comment",
+      user: {
+        name: "Carlos Ruiz",
+        initials: "CR",
+        avatar:
+          "https://api.dicebear.com/7.x/pixel-art/svg?seed=carlos&size=64",
+        year: "4º Curso",
+        major: "Medicina",
+      },
+      content: "¡Yo también! ¿Nos vamos a tomar algo después?",
+      feelContent: "Hoy me siento súper motivada en Psicología Social...",
+      timestamp: "hace 15 min",
+      isRead: false,
+    },
+    {
+      id: "3",
+      type: "reaction",
+      user: {
+        name: "Laura Sánchez",
+        initials: "LS",
+        year: "1º Curso",
+        major: "Filosofía",
+      },
+      feelContent: "Estadística a primera hora... necesito más café",
+      timestamp: "hace 1h",
+      isRead: true,
+      reaction: "☕",
+    },
+    {
+      id: "4",
+      type: "call",
+      user: {
+        name: "Diego López",
+        initials: "DL",
+        year: "3º Curso",
+        major: "Informática",
+      },
+      timestamp: "hace 2h",
+      isRead: true,
+      callDuration: "4:12",
+    },
+  ]);
+
+  // Combinar notificaciones estáticas y dinámicas
+  const allNotifications = [...dynamicNotifications, ...staticNotifications];
+
   if (currentView !== "") {
     return (
       <div className={`min-h-screen lg:pb-0 pb-20 `}>
@@ -201,8 +280,30 @@ export const HomePage: React.FC = () => {
             </GoogleOAuthProvider>
           ) : currentBoard ? (
             <BoardTab />
-          ) : (
+          ) : currentView === "boards" ? (
             <NexusTab />
+          ) : currentView === "campus" ? (
+            <CampusTab />
+          ) : currentView === "calls" ? (
+            <CallsTab />
+          ) : (
+            <NotificationsTab
+              currentUser={currentUser}
+              notifications={allNotifications}
+              onNotificationsUpdate={(updatedNotifications) => {
+                // Separar notificaciones dinámicas de estáticas
+                const dynamicIds = dynamicNotifications.map((n) => n.id);
+                const updatedDynamic = updatedNotifications.filter((n) =>
+                  dynamicIds.includes(n.id)
+                );
+                const updatedStatic = updatedNotifications.filter(
+                  (n) => !dynamicIds.includes(n.id)
+                );
+
+                setDynamicNotifications(updatedDynamic);
+                // Las notificaciones estáticas no se actualizan desde aquí
+              }}
+            />
           )}
           {showPopUp && (
             <div className="text-center mb-8">

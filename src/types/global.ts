@@ -172,7 +172,7 @@ export type GoogleUser = {
   picture: string;
 };
 
-export type SidebarType = "" | "myspace" | "boards" | "calendar";
+export type SidebarType = "" | "myspace" | "boards" | "calendar" | "campus" | "calls" | "notifications";
 
 export type AcceptInvitationError = "" | "memberExists" | "notExists" | "error";
 

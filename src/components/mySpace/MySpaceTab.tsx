@@ -3,13 +3,11 @@ import {
   Clock,
   CalendarClock,
   Users,
-  Video,
   ArrowUpRight,
   Plus,
   Check,
   Info,
   Trash,
-  Trash2,
   Undo2,
 } from "lucide-react";
 import { format, isToday, isTomorrow, isYesterday } from "date-fns";
@@ -17,13 +15,11 @@ import { es } from "date-fns/locale";
 import { useBoardStore } from "../../hooks/useBoardStore";
 import { EventModal } from "../shared/EventModal";
 import { useCalendarStore } from "../../hooks/useCalendarStore";
-import { AvatarCircles } from "./AvatarCircles";
 import { AnimatedList } from "../shared/AnimatedList";
 import { BlurFade } from "./BlurFade";
 import type { EventInput } from "@fullcalendar/core";
 import { SidebarType } from "../../types/global";
 import { useAuth } from "../../hooks/useAuth";
-import { delay } from "framer-motion";
 import { createDefaultBoards } from "../../services/firestore/boardsRepository";
 import { updateFirestoreField } from "../../services/firestore/firestore";
 import { getRelativeTime } from "../../utils/utils";
@@ -47,7 +43,7 @@ const EVENT_COLORS = {
   yellow: "#f59e0b",
 };
 
-export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
+export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
   const { addBoard, setCurrentBoard, boards, fetchBoardsForUser } =
     useBoardStore();
   const [selectedEvent, setSelectedEvent] = React.useState<EventInput | null>(
@@ -62,7 +58,6 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
     deleteEvent,
     toggleEventCompletion,
     syncWithGoogle,
-    clearEvents,
   } = useCalendarStore();
   const [accesToken, setAccessToken] = React.useState<string | null>(null);
   const [showConfirmDelete, setShowConfirmDelete] =
@@ -194,7 +189,7 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
   };
 
   return (
-    <div className=" bg-white dark:bg-gray-900 pt-6">
+    <div className=" bg-gray-50 dark:bg-gray-900 pt-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="space-y-1">
@@ -490,45 +485,160 @@ export function MySpaceTab({ onViewChange, boardId }: MySpaceTabProps) {
           </div>
         </section>
 
-        {/* Groups */}
-        {/* <section className="mt-12">
-          <div className="flex items-center space-x-2 text-gray-900 dark:text-white mb-6">
-            <Users className="w-5 h-5" />
-            <h2 className="text-xl font-medium">Grupos</h2>
+        {/* Daily Feels */}
+        <section className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
+              <Users className="w-5 h-5" />
+              <h2 className="text-xl font-medium">Campus</h2>
+            </div>
+            <button
+              onClick={() => onViewChange("campus")}
+              className="text-primary-500 hover:text-primary-600 dark:text-primary-400 
+                       dark:hover:text-primary-300 font-medium text-sm"
+            >
+              Ver todo el campus
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {GROUPS.map((group) => (
-              <div
-                key={group.id}
-                className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 
-                         hover:bg-gray-100 dark:hover:bg-gray-700 
-                         transition-all duration-200 cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-2xl">{group.icon}</span>
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">{group.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {group.members} miembros
-                      </p>
-                    </div>
+          {/* <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+            <AnimatedList animate={false} className="space-y-3">
+              {todayEvents.length === 0 ? (
+                <div className="text-center py-8">
+                  <div
+                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 
+                               flex items-center justify-center"
+                  >
+                    <CalendarClock className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <div className={`w-2 h-2 rounded-full ${
-                    group.active ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
-                  }`} />
+                  <p className="text-lg text-gray-500 dark:text-gray-400">
+                    No hay eventos programados para hoy
+                  </p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                    ¡Disfruta de tu día libre!
+                  </p>
                 </div>
+              ) : (
+                todayEvents.map((event) => {
+                  const color =
+                    (event.backgroundColor as string) || EVENT_COLORS.purple;
+                  const startDate = new Date(event.start as Date);
 
-                <AvatarCircles
-                  avatarUrls={group.avatars}
-                  numPeople={Math.max(0, group.members - group.avatars.length)}
-                  className="mt-4"
-                />
-              </div>
-            ))}
-          </div>
-        </section> */}
+                  return (
+                    <div
+                      key={event.id}
+                      className="relative mx-auto w-full cursor-pointer overflow-hidden rounded-xl 
+                               bg-white dark:bg-gray-800/50 p-4 group hover:bg-gray-50 
+                               dark:hover:bg-gray-700/50 transition-all duration-200
+                               border border-gray-100 dark:border-gray-700
+                               transform-gpu hover:scale-[1.02] hover:-translate-y-0.5
+                               hover:shadow-lg dark:hover:shadow-black/20"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleEventCompletion(event.id as string);
+                          }}
+                          className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center 
+                                   justify-center transition-all duration-300 group-hover:scale-110
+                                   ${
+                                     event.extendedProps?.completed
+                                       ? "bg-green-500 text-white"
+                                       : ""
+                                   }`}
+                          style={{
+                            backgroundColor: event.extendedProps?.completed
+                              ? undefined
+                              : color,
+                            opacity: event.extendedProps?.completed ? 1 : 0.8,
+                          }}
+                        >
+                          {event.extendedProps?.completed ? (
+                            <Check className="w-5 h-5" />
+                          ) : (
+                            <CalendarClock className="w-5 h-5 text-white" />
+                          )}
+                        </button>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h3
+                              className={`font-medium text-gray-900 dark:text-white truncate
+                                       ${event.extendedProps?.completed ? "line-through text-gray-500 dark:text-gray-400" : ""}`}
+                            >
+                              {event.title}
+                            </h3>
+                            <span className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                              {formatEventTime(startDate)}
+                            </span>
+                          </div>
+                          {event.extendedProps?.description && (
+                            <p
+                              className={`mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2
+                                      ${event.extendedProps?.completed ? "line-through" : ""}`}
+                            >
+                              {event.extendedProps.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEventClick(event);
+                          }}
+                          className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 
+                                   dark:text-gray-500 dark:hover:text-gray-300 rounded-lg
+                                   hover:bg-gray-100 dark:hover:bg-gray-600
+                                   transition-colors duration-200"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                        {showConfirmDelete && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowConfirmDelete(false);
+                            }}
+                            className="p-2 text-gray-400 hover:text-green-600 dark:text-gray-500 
+            dark:hover:text-green-400 rounded-lg hover:bg-green-100 
+            dark:hover:bg-green-900/20 transition-colors"
+                          >
+                            <Undo2 className="size-4" />
+                          </button>
+                        )}
+
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            showConfirmDelete
+                              ? await deleteEvent(
+                                  event.id as string,
+                                  accesToken ?? undefined
+                                )
+                              : setShowConfirmDelete(true);
+                          }}
+                          className="flex-shrink-0 p-2 text-red-400 hover:text-red-600 
+                                   dark:text-red-500 dark:hover:text-red-300 rounded-lg
+                                   hover:bg-red-100 dark:hover:bg-red-600
+                                   transition-colors duration-200 ml-[-1rem]"
+                        >
+                          {showConfirmDelete ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Trash className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </AnimatedList>
+          </div> */}
+        </section>
       </div>
 
       {showEventModal && (

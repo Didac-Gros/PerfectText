@@ -104,7 +104,7 @@ export function NexusTab() {
         {/* Header */}
         <div className="space-y-1">
           <h1 className="text-3xl font-medium text-gray-900 dark:text-white">
-            Buenas noches, {userStore?.name || "Usuario"}
+            Hola, {userStore?.name || "Usuario"}
           </h1>
           <h2 className="flex items-center space-x-2 text-lg text-gray-500 dark:text-white/60">
             <Clock className="w-5 h-5" />

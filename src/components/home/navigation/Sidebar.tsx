@@ -6,6 +6,8 @@ import {
   Home,
   ReceiptText,
   Handshake,
+  Phone,
+  Bell,
 } from "lucide-react";
 import { useBoardStore } from "../../../hooks/useBoardStore";
 import { SidebarType } from "../../../types/global";
@@ -43,10 +45,27 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
       action: () => onViewChange("calendar"),
       highlight: currentView === "calendar",
     },
-    // { icon: Users, text: 'Grupos', href: '#' },
+    {
+      icon: Users,
+      text: "Campus",
+      action: () => onViewChange("campus"),
+      highlight: currentView === "campus",
+    },
+    {
+      icon: Phone,
+      text: "Calls",
+      action: () => onViewChange("calls"),
+      highlight: currentView === "calls",
+    },
   ];
 
   const menuDownItems = [
+    {
+      icon: Bell,
+      text: "Notifications",
+      action: () => onViewChange("notifications"),
+      highlight: currentView === "notifications",
+    },
     {
       icon: ReceiptText,
       text: "Política de privacidad",
@@ -104,7 +123,10 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
               key={item.text}
               onClick={item.action}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg 
-                      transition-colors duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700
+                      transition-colors duration-200 ${
+                        item.highlight
+                          ? "bg-[#f0f9ff] text-[#0284c7] dark:bg-[#0c4a6e]/20 dark:text-[#38bdf8]"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                       }`}
             >
               <item.icon className={`size-5`} />
