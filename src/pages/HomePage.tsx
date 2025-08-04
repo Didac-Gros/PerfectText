@@ -254,9 +254,11 @@ export const HomePage: React.FC = () => {
             setCurrentView("");
           }}
           goToMySpace={() => {
-            setCurrentView("myspace");
-            setActiveTab("");
-            setSidebarOpen(false);
+            if (user) {
+              setCurrentView("myspace");
+              setActiveTab("");
+              setSidebarOpen(false);
+            }
           }}
         />
         <Sidebar

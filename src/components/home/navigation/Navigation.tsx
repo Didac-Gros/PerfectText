@@ -93,7 +93,7 @@ export function Navigation({
           /> */}
           <span
             className="text-xl font-bold dark:text-white text-gray-800 cursor-pointer"
-            // onClick={goToMySpace}
+            onClick={goToMySpace}
           >
             PerfectText
           </span>

@@ -23,40 +23,41 @@ export async function translateText(req: Request, res: Response) {
 
     let textTranslated = "";
 
-    if (sourceLang != null && (sourceLang == "CA" || language == "CA")) {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `Traduce este texto del ${sourceLang} al ${language} y genera el texto traducido.`,
-          },
-          {
-            role: "user",
-            content: text,
-          },
-        ],
-        temperature: 0.2,
-        max_tokens: 400,
-      });
-      textTranslated = response.choices[0].message.content!;
-    } else {
-      const response = await axios.post(
-        "https://api.deepl.com/v2/translate",
+    // if (sourceLang != null && (sourceLang == "CA" || language == "CA")) {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
         {
-          text: [text], // La API espera un array de strings
-          target_lang: language, // Idioma de destino
-          // source_lang: sourceLang, // Idioma de origen
+          role: "system",
+          content: `Traduce este texto del ${sourceLang} al ${language} y genera el texto traducido.`,
         },
         {
-          headers: {
-            Authorization: `DeepL-Auth-Key ${DEEPL_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      textTranslated = response!.data.translations[0].text;
-    }
+          role: "user",
+          content: text,
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 400,
+    });
+    textTranslated = response.choices[0].message.content!;
+    // }
+    //  else {
+    //   const response = await axios.post(
+    //     "https://api.deepl.com/v2/translate",
+    //     {
+    //       text: [text], // La API espera un array de strings
+    //       target_lang: language, // Idioma de destino
+    //       // source_lang: sourceLang, // Idioma de origen
+    //     },
+    //     {
+    //       headers: {
+    //         Authorization: `DeepL-Auth-Key ${DEEPL_API_KEY}`,
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+    //   textTranslated = response!.data.translations[0].text;
+    // }
 
     if (!textTranslated) {
       throw new Error("No se recibió respuesta de la traducción");
