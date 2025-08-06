@@ -3,16 +3,14 @@ import { google } from "googleapis";
 import { Request, Response } from "express";
 
 const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_CALENDAR_CLIENT_ID,
+  process.env.GOOGLE_CALENDAR_SECRET_ID,
   process.env.FRONTEND_URL
 );
 
 export async function exchangeCode(req: Request, res: Response) {
   const { code } = req.body;
-  console.log("🔄 Exchange code with:", code);
-  console.log("🔄 User received:", oauth2Client);
-
+  
   try {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);

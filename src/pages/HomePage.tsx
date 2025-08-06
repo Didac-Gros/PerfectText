@@ -56,7 +56,7 @@ export const HomePage: React.FC = () => {
   const { currentBoard } = useBoardStore();
   const navigate = useNavigate();
   const clientId =
-    "1083738059485-12qpql1f6dg6jndnj6rjjilee17d5189.apps.googleusercontent.com";
+    "492645116751-vrmkkpvn51d30id84l54h8btfddpmi1v.apps.googleusercontent.com";
 
   const {
     recorderState,
