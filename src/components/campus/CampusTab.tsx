@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import NotificationService from "../../services/notifications/NotificationService";
-import { ChevronLeft, ChevronRight, Mic, MicOff, Phone, TrendingUp } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Mic,
+  MicOff,
+  Phone,
+  TrendingUp,
+} from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { NotificationsSection } from "../notifications/NotificationsSection";
 import { Calls } from "../calls/CallsSection";
@@ -9,6 +16,14 @@ import { useAudioCall } from "../../hooks/useAudioCall";
 import { FilterTabs } from "./FilterTabs";
 import { CreateFeel } from "./CreateFeel";
 import { CampusUser, SearchDropdown } from "./SearchDropdown";
+import {
+  addFeelToFirestore,
+  deleteFeelFromFirestore,
+  getAllFeels,
+  getFeelsByUser,
+} from "../../services/firestore/feelsRepository";
+import { useAuth } from "../../hooks/useAuth";
+import { Feel, TypeMood } from "../../types/global";
 
 export function CampusTab() {
   const { callState, micOn, startCall, endCall, toggleMute } = useAudioCall();
@@ -30,9 +45,36 @@ export function CampusTab() {
   const [lastResetTime, setLastResetTime] = useState<string | null>(
     localStorage.getItem("lastFeelsReset")
   );
+  const [myFeels, setMyFeels] = useState<Feel[]>([]);
+  const [campusFeels, setCampusFeels] = useState<Feel[]>([]);
+
+  const { userStore } = useAuth();
 
   // Estado para notificaciones dinámicas
   const [dynamicNotifications, setDynamicNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Cargar feels del campus desde Firestore al iniciar
+    const loadCampusFeels = async () => {
+      try {
+        const feels = await getAllFeels();
+        setCampusFeels(feels);
+      } catch (error) {
+        console.error("Error cargando feels del campus:", error);
+      }
+    };
+    loadCampusFeels();
+    // Cargar mis feels desde Firestore al iniciar
+    const loadMyFeels = async () => {
+      try {
+        const feels = await getFeelsByUser(userStore!.uid);
+        setMyFeels(feels);
+      } catch (error) {
+        console.error("Error cargando mis feels:", error);
+      }
+    };
+    loadMyFeels();
+  }, []);
 
   const [recentCalls, setRecentCalls] = useState([
     {
@@ -93,187 +135,6 @@ export function CampusTab() {
       duration: "7:12",
       timestamp: "hace 3 días",
       type: "outgoing" as const,
-    },
-  ]);
-  const [campusFeels, setCampusFeels] = useState([
-    {
-      id: "1",
-      author: {
-        name: "Ana Martín",
-        initials: "AM",
-        year: "2º Curso",
-        major: "Ingeniería",
-        avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=ana&size=64",
-      },
-      content:
-        "3ª fila en Cálculo II... ya ni escucho, que alguien me diga algo interesante",
-      timestamp: "hace 2h",
-      mood: {
-        emoji: "😴",
-        name: "Aburrido/a",
-        color: "bg-blue-100 text-blue-800",
-      },
-      reactions: [
-        { emoji: "👋", count: 12, users: ["user1", "user2"] },
-        { emoji: "🍕", count: 6, users: ["user3", "user4"] },
-        { emoji: "😏", count: 3, users: ["user5"] },
-      ],
-      comments: 8,
-    },
-    {
-      id: "2",
-      author: {
-        name: "Carlos Ruiz",
-        initials: "CR",
-        year: "4º Curso",
-        major: "Medicina",
-        avatar:
-          "https://api.dicebear.com/7.x/pixel-art/svg?seed=carlos&size=64",
-      },
-      content:
-        "Anatomía a las 8am... estoy más pendiente de Instagram que del profesor 📱",
-      timestamp: "hace 4h",
-      mood: {
-        emoji: "📱",
-        name: "Distraído/a",
-        color: "bg-purple-100 text-purple-800",
-      },
-      reactions: [
-        { emoji: "😂", count: 18, users: ["user1", "user2"] },
-        { emoji: "📱", count: 12, users: ["user3", "user4"] },
-        { emoji: "☕", count: 7, users: ["user5", "user6"] },
-      ],
-      comments: 15,
-    },
-    {
-      id: "3",
-      author: {
-        name: "Laura Sánchez",
-        initials: "LS",
-        year: "1º Curso",
-        major: "Filosofía",
-      },
-      content:
-        "Filosofía Antigua... estoy aquí mirando más al chico de la 2ª fila que apuntando 👀",
-      timestamp: "hace 6h",
-      mood: {
-        emoji: "👀",
-        name: "Atento/a pero...",
-        color: "bg-yellow-100 text-yellow-800",
-      },
-      reactions: [
-        { emoji: "😏", count: 25, users: ["user1", "user2"] },
-        { emoji: "🔥", count: 8, users: ["user3"] },
-        { emoji: "👀", count: 5, users: ["user4"] },
-      ],
-      comments: 12,
-    },
-    {
-      id: "4",
-      author: {
-        name: "Diego López",
-        initials: "DL",
-        year: "3º Curso",
-        major: "Informática",
-        avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=diego&size=64",
-      },
-      content:
-        "Programación avanzada... mi cerebro ya no procesa más código, necesito aire",
-      timestamp: "hace 8h",
-      mood: {
-        emoji: "🤯",
-        name: "Saturado/a",
-        color: "bg-red-100 text-red-800",
-      },
-      reactions: [
-        { emoji: "🫂", count: 20, users: ["user1", "user2"] },
-        { emoji: "💪", count: 15, users: ["user3", "user4"] },
-        { emoji: "☕", count: 7, users: ["user5"] },
-      ],
-      comments: 18,
-    },
-    {
-      id: "5",
-      author: {
-        name: "Sofía Herrera",
-        initials: "SH",
-        year: "2º Curso",
-        major: "Arte",
-        avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=sofia&size=64",
-      },
-      content:
-        "Historia del Arte... sin presión, solo disfrutando las obras que nos enseñan",
-      timestamp: "ayer",
-      mood: {
-        emoji: "😌",
-        name: "Tranquilo/a",
-        color: "bg-green-100 text-green-800",
-      },
-      reactions: [
-        { emoji: "😌", count: 14, users: ["user1", "user2"] },
-        { emoji: "🎨", count: 8, users: ["user3", "user4"] },
-        { emoji: "✨", count: 6, users: ["user5"] },
-      ],
-      comments: 9,
-    },
-    {
-      id: "6",
-      author: {
-        name: "Javier Moreno",
-        initials: "JM",
-        year: "4º Curso",
-        major: "Derecho",
-        avatar:
-          "https://api.dicebear.com/7.x/pixel-art/svg?seed=javier&size=64",
-      },
-      content: "Derecho Penal... hoy vengo con toda la energía, a por todas 💪",
-      timestamp: "ayer",
-      mood: {
-        emoji: "💪",
-        name: "Motivado/a",
-        color: "bg-emerald-100 text-emerald-800",
-      },
-      reactions: [
-        { emoji: "🔥", count: 22, users: ["user1", "user2"] },
-        { emoji: "💪", count: 16, users: ["user3", "user4"] },
-        { emoji: "🔥", count: 12, users: ["user5", "user6"] },
-        { emoji: "👑", count: 5, users: ["user7"] },
-      ],
-      comments: 11,
-    },
-  ]);
-  const [myFeels, setMyFeels] = useState([
-    {
-      id: "my-1",
-      content:
-        "Hoy me siento súper motivada en Psicología Social, el profesor está explicando temas fascinantes",
-      timestamp: "hace 3h",
-      mood: {
-        emoji: "💪",
-        name: "Motivado/a",
-        color: "bg-emerald-100 text-emerald-800",
-      },
-      reactions: [
-        { emoji: "🔥", count: 8, users: ["user1", "user2"] },
-        { emoji: "💪", count: 5, users: ["user3", "user4"] },
-      ],
-      comments: 12,
-    },
-    {
-      id: "my-2",
-      content:
-        "Estadística a primera hora... necesito más café para procesar estos números",
-      timestamp: "ayer",
-      mood: {
-        emoji: "😴",
-        name: "Aburrido/a",
-        color: "bg-blue-100 text-blue-800",
-      },
-      reactions: [
-        { emoji: "☕", count: 15, users: ["user1", "user2"] },
-        { emoji: "😂", count: 6, users: ["user3"] },
-      ],
-      comments: 4,
     },
   ]);
 
@@ -580,31 +441,43 @@ export function CampusTab() {
   // Combine all users for search
   const allUsers = [...onlineUsers, ...teamUsers];
 
-  const handlePost = (
+  const handlePost = async (
     content: string,
     mood: { emoji: string; name: string; color: string }
   ) => {
-    // Crear el nuevo feel
-    const newFeel = {
-      id: `my-${Date.now()}`,
-      author: currentUser,
+    const id = crypto.randomUUID();
+
+    const newFeel: Feel = {
+      id,
+      userId: userStore!.uid,
+      mood: mood.emoji.concat(" ", mood.name) as TypeMood,
       content,
-      timestamp: "ahora",
-      mood,
       reactions: [],
-      comments: 0,
-      createdAt: new Date().toISOString(), // Añadir timestamp de creación
+      comments: [],
+      createdAt: new Date().toISOString(),
     };
 
-    // Añadir a mis feels
+    // // Añadir a mis feels
     setMyFeels([newFeel, ...myFeels]);
-
-    // Añadir también al feed del campus (aparece al principio)
+    
+    // // Añadir también al feed del campus (aparece al principio)
     setCampusFeels([newFeel, ...campusFeels]);
+
+    await addFeelToFirestore(
+      userStore!.uid,
+      mood.emoji.concat(" ", mood.name) as TypeMood,
+      content
+    );
   };
 
-  const handleDeleteFeel = (feelId: string) => {
-    setMyFeels(myFeels.filter((feel) => feel.id !== feelId));
+  const handleDeleteFeel = async (feelId: string) => {
+    setMyFeels(myFeels!.filter((feel) => feel.id !== feelId));
+    setCampusFeels(campusFeels.filter((feel) => feel.id !== feelId));
+    try {
+      await deleteFeelFromFirestore(feelId);
+    } catch (error) {
+      console.error("Error deleting feel:", error);
+    }
   };
 
   const handleUserSelect = (user: any) => {
@@ -843,7 +716,7 @@ export function CampusTab() {
               {/* Feed Column */}
               <div
                 className={`flex-1 p-6 transition-all duration-300 ${
-                  isRightSidebarOpen ? "max-w-2xl" : "max-w-none"
+                  isRightSidebarOpen ? "" : "max-w-none"
                 }`}
               >
                 <header className="mb-8">
@@ -886,7 +759,7 @@ export function CampusTab() {
                   </div>
                 </header>
 
-                <CreateFeel currentUser={currentUser} onPost={handlePost} />
+                <CreateFeel name={userStore!.name} avatar={userStore!.profileImage} onPost={handlePost} />
 
                 {activeFilter === "all" && (
                   <div className="space-y-3">
@@ -900,11 +773,22 @@ export function CampusTab() {
                           Desaparece a las 6:00am
                         </span>
                       </h2>
-                      {campusFeels.slice(0, 3).map((feel) => (
-                        <FeelCard key={feel.id} {...feel} />
+                      {campusFeels.map((feel) => (
+                        <FeelCard
+                          key={feel.id}
+                          id={feel.id}
+                          userId={feel.userId}
+                          content={feel.content}
+                          timestamp={feel.createdAt}
+                          mood={feel.mood}
+                          reactions={feel.reactions}
+                          comments={feel.comments}
+                          isOwner={feel.userId === userStore!.uid}
+                          onDelete={handleDeleteFeel}
+                        />
                       ))}
                     </div>
-
+                    {/* 
                     <div>
                       <h2 className="text-sm font-semibold text-gray-500 mb-4 flex items-center justify-between">
                         <div className="flex items-center">
@@ -916,9 +800,20 @@ export function CampusTab() {
                         </span>
                       </h2>
                       {campusFeels.slice(3).map((feel) => (
-                        <FeelCard key={feel.id} {...feel} />
+                        <FeelCard
+                          author={{
+                            name: "",
+                            avatar: undefined,
+                            initials: "",
+                            year: "",
+                            major: "",
+                          }}
+                          timestamp={""}
+                          key={feel.id}
+                          {...feel}
+                        />
                       ))}
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
@@ -942,19 +837,20 @@ export function CampusTab() {
                           <h2 className="text-sm font-semibold text-gray-500 mb-4 flex items-center justify-between">
                             <div className="flex items-center">
                               <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                              Mis feels ({myFeels.length})
+                              Mis feels ({myFeels?.length || 0})
                             </div>
                             <span className="text-xs text-gray-400 font-normal tracking-wide">
                               Solo por hoy
                             </span>
                           </h2>
+
                           {myFeels.map((feel) => (
                             <FeelCard
                               key={feel.id}
                               id={feel.id}
-                              author={currentUser}
+                              userId={feel.userId}
                               content={feel.content}
-                              timestamp={feel.timestamp}
+                              timestamp={feel.createdAt}
                               mood={feel.mood}
                               reactions={feel.reactions}
                               comments={feel.comments}
@@ -969,26 +865,6 @@ export function CampusTab() {
                 )}
               </div>
             </>
-          )}
-
-          {activeSection === "notifications" && (
-            <NotificationsSection
-              currentUser={currentUser}
-              notifications={allNotifications}
-              onNotificationsUpdate={(updatedNotifications) => {
-                // Separar notificaciones dinámicas de estáticas
-                const dynamicIds = dynamicNotifications.map((n) => n.id);
-                const updatedDynamic = updatedNotifications.filter((n) =>
-                  dynamicIds.includes(n.id)
-                );
-                const updatedStatic = updatedNotifications.filter(
-                  (n) => !dynamicIds.includes(n.id)
-                );
-
-                setDynamicNotifications(updatedDynamic);
-                // Las notificaciones estáticas no se actualizan desde aquí
-              }}
-            />
           )}
 
           {activeSection === "feed" && (

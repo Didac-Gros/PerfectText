@@ -3,13 +3,8 @@ import { Avatar } from '../shared/Avatar';
 import { Smile, MapPin, Calendar } from 'lucide-react';
 
 interface CreateFeelProps {
-  currentUser: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
+  name: string;
+  avatar: string;
   onPost: (content: string, mood: { emoji: string; name: string; color: string }) => void;
 }
 
@@ -65,7 +60,7 @@ const moods = [
 ];
 
 
-export const CreateFeel: React.FC<CreateFeelProps> = ({ currentUser, onPost }) => {
+export const CreateFeel: React.FC<CreateFeelProps> = ({ name, avatar, onPost }) => {
   const [content, setContent] = useState('');
   const [selectedMood, setSelectedMood] = useState(moods[0]);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
@@ -86,9 +81,8 @@ export const CreateFeel: React.FC<CreateFeelProps> = ({ currentUser, onPost }) =
       <form onSubmit={handleSubmit}>
         <div className="flex items-start space-x-3 mb-3 justify-center">
           <Avatar 
-            src={currentUser.avatar}
-            alt={currentUser.name}
-            initials={currentUser.initials}
+            src={avatar}
+            alt={name}
             size="md"
           />
           <div className="flex-1">

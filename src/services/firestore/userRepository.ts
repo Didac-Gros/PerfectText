@@ -22,6 +22,7 @@ export async function getUserById(userId: string): Promise<User | null> {
       subscription: data.subscription,
       tokens: data.tokens || null,
       profileImage: data.profileImage || null,
+      studies: data.studies || null,
       
     } as User;
   } catch (error) {

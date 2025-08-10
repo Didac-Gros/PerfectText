@@ -3,7 +3,7 @@ import type {
   Board,
   List,
   Card,
-  Comment,
+  FeelComment,
   CommentAttachment,
 } from "../types/global";
 import { storage } from "../services/firestore/firebase";
@@ -603,7 +603,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   addComment: async (cardId: string, text: string, boardId: string, listId: string, userName: string, photoURL: string, attachments?: File[]) => {
-    const newComment: Comment = {
+    const newComment: FeelComment = {
       id: crypto.randomUUID(),
       text,
       author: userName,

@@ -21,7 +21,7 @@ export const RegisterInput: React.FC<RegisterInputProps> = ({
   const [visibility, setVisibility] = useState<boolean>(false);
 
   return (
-    <div className="mb-4 relative">
+    <div className=" relative">
       <input
         type={!visibility ? type : "text"}
         placeholder={placeholder}

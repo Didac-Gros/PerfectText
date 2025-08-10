@@ -486,7 +486,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
         </section>
 
         {/* Daily Feels */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
               <Users className="w-5 h-5" />
@@ -499,7 +499,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
             >
               Ver todo el campus
             </button>
-          </div>
+          </div> */}
 
           {/* <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
             <AnimatedList animate={false} className="space-y-3">
@@ -638,7 +638,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
               )}
             </AnimatedList>
           </div> */}
-        </section>
+        {/* </section> */}
       </div>
 
       {showEventModal && (

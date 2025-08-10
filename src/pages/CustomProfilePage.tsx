@@ -2,16 +2,19 @@
 import React, { useState, ChangeEvent } from "react";
 import { RegisterInput } from "../components/register/RegisterInput";
 import { FaRegUser } from "react-icons/fa";
-import { updateProfile } from "firebase/auth";
 import { auth } from "../services/firestore/firebase";
 import { useNavigate } from "react-router-dom";
-import { updateFirestoreField } from "../services/firestore/firestore";
 import { motion } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
+import { Studies } from "../types/global";
 
 export const CustomProfilePage: React.FC = () => {
   const user = auth.currentUser;
   const [name, setName] = useState<string>(user?.displayName || "");
+  const [uni, setUni] = useState<string>("");
+  const [career, setCareer] = useState<string>("");
+  const [year, setYear] = useState<string>("");
+
   const navigate = useNavigate();
   const avatars = Array.from(
     { length: 25 },
@@ -32,10 +35,27 @@ export const CustomProfilePage: React.FC = () => {
     setName(e.target.value);
   };
 
+  const handleUniChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUni(e.target.value);
+  };
+
+  const handleCareerChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCareer(e.target.value);
+  };
+
+  const handleYearChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setYear(e.target.value);
+  };
+
   const handleSubmit = async () => {
     if (user && name.trim()) {
       try {
-        await customProfile(name, selectedAvatar || avatars[0]);
+        const studies: Studies = {
+          uni: uni || "",
+          career: career || "",
+          year: parseInt(year || "0", 10),
+        };
+        await customProfile(name, selectedAvatar || avatars[0], studies);
         // await updateProfile(user, {
         //   displayName: name,
         //   photoURL: selectedAvatar || undefined,
@@ -165,6 +185,69 @@ export const CustomProfilePage: React.FC = () => {
                 placeholder="Ejemplo: MiNombreGenial"
                 value={name}
                 onChange={handleNameChange}
+                icon={<FaRegUser className="w-5 h-5 text-gray-500" />}
+              />
+            </motion.div>
+
+            <motion.div
+              className="flex flex-col"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label
+                htmlFor="username"
+                className="text-sm text-gray-700 mb-2 ml-1 font-semibold"
+              >
+                Universidad
+              </label>
+              <RegisterInput
+                type="text"
+                placeholder="Ejemplo: MiNombreGenial"
+                value={uni}
+                onChange={handleUniChange}
+                icon={<FaRegUser className="w-5 h-5 text-gray-500" />}
+              />
+            </motion.div>
+
+            <motion.div
+              className="flex flex-col"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label
+                htmlFor="username"
+                className="text-sm text-gray-700 mb-2 ml-1 font-semibold"
+              >
+                Carrera
+              </label>
+              <RegisterInput
+                type="text"
+                placeholder="Ejemplo: MiNombreGenial"
+                value={career}
+                onChange={handleCareerChange}
+                icon={<FaRegUser className="w-5 h-5 text-gray-500" />}
+              />
+            </motion.div>
+
+            <motion.div
+              className="flex flex-col"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <label
+                htmlFor="username"
+                className="text-sm text-gray-700 mb-2 ml-1 font-semibold"
+              >
+                Año
+              </label>
+              <RegisterInput
+                type="text"
+                placeholder="Ejemplo: MiNombreGenial"
+                value={year}
+                onChange={handleYearChange}
                 icon={<FaRegUser className="w-5 h-5 text-gray-500" />}
               />
             </motion.div>

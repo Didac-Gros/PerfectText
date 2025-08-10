@@ -12,7 +12,7 @@ import {
   updateFirestoreField,
 } from "../services/firestore/firestore"; // Importar la función
 import { ReactNode } from "react";
-import { User as MyUser, UserSubscription } from "../types/global";
+import { User as MyUser, Studies, UserSubscription } from "../types/global";
 import { Timestamp } from "firebase/firestore";
 
 interface AuthContextProps {
@@ -20,7 +20,7 @@ interface AuthContextProps {
   userStore: MyUser | null; // Datos adicionales del usuario en Firestore
   loading: boolean; // Estado de carga
   logout: () => Promise<void>; // Función para cerrar sesión
-  customProfile: (name: string, selectedAvatar: string) => Promise<void>; // Función para actualizar el perfil
+  customProfile: (name: string, selectedAvatar: string, studies: Studies) => Promise<void>; // Función para actualizar el perfil
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const customProfile = async (name: string, selectedAvatar: string) => {
+  const customProfile = async (name: string, selectedAvatar: string, studies: Studies) => {
     try {
       // Actualiza el estado del usuario de Firestore
       setuserStore((prev) => ({
@@ -126,6 +126,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         "profileImage",
         selectedAvatar
       );
+      await updateFirestoreField(
+        "users",
+        user!.uid,
+        "studies",
+        studies
+      );
+      
     } catch (error) {
       console.error("Error al personalizar perfil:", error);
     }

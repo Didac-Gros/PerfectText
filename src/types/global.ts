@@ -44,6 +44,12 @@ export interface Node {
   children?: Node[];
 }
 
+export interface Studies {
+  uni: string;
+  career: string;
+  year: number;
+}
+
 export interface User {
   uid: string;
   name: string;
@@ -54,6 +60,7 @@ export interface User {
   tokens: number | null;
   profileImage: string;
   boardsCreated: boolean;
+  studies?: Studies;
 }
 
 export enum UserSubscription {
@@ -172,7 +179,49 @@ export type GoogleUser = {
   picture: string;
 };
 
-export type SidebarType = "" | "myspace" | "boards" | "calendar" | "campus" | "calls" | "notifications";
+export type SidebarType =
+  | ""
+  | "myspace"
+  | "boards"
+  | "calendar"
+  | "campus"
+  | "calls"
+  | "notifications";
 
 export type AcceptInvitationError = "" | "memberExists" | "notExists" | "error";
 
+export type TypeMood =
+  | "😴 Aburrid@ (pero disponible)"
+  | "📱 Con mil cosas menos esta clase"
+  | "😌 Demasiado tranqui"
+  | "🤯 Saturad@ pero smiling"
+  | "👀 Atent@ a la clase (más o menos)"
+  | "🫣 Con ganas de algo distinto"
+  | "🙃 Con ganas de juego"
+  | "💬 Modo hablar sin decir mucho";
+
+export interface Reaction {
+  emoji: string;
+  count: number;
+  usersId: string[];
+}
+
+export interface FeelComment {
+  id: string;
+  content: string;
+  userId: string;
+  createdAt: string;
+  usersIdLikes: string[];
+  isLiked?: boolean;
+  likesCount?: number;
+}
+
+export interface Feel {
+  id: string;
+  userId: string;
+  mood: TypeMood;
+  content: string;
+  reactions: Reaction[];
+  comments: FeelComment[];
+  createdAt: string;
+}

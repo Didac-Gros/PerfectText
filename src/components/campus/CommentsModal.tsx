@@ -1,62 +1,63 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Heart } from 'lucide-react';
-import { Avatar } from '../shared/Avatar';
-import NotificationService from '../../services/notifications/NotificationService';
-
-interface Comment {
-  id: string;
-  author: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
-  content: string;
-  timestamp: string;
-  likes: number;
-  isLiked: boolean;
-}
+import React, { useState, useRef, useEffect } from "react";
+import { X, Send, Heart } from "lucide-react";
+import { Avatar } from "../shared/Avatar";
+import NotificationService from "../../services/notifications/NotificationService";
+import { FeelComment, TypeMood, User } from "../../types/global";
+import { useAuth } from "../../hooks/useAuth";
+import { getUserById } from "../../services/firestore/userRepository";
+import {
+  addCommentToFeel,
+  likeFeelComment,
+} from "../../services/firestore/feelsRepository";
+import { getRelativeTime } from "../../utils/utils";
 
 interface CommentsModalProps {
   isOpen: boolean;
   onClose: () => void;
   feelId?: string;
-  feelAuthor: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
+  name: string;
+  avatar: string;
   feelContent: string;
-  feelMood: {
-    emoji: string;
-    name: string;
-    color: string;
-  };
-  comments: Comment[];
-  currentUser: {
-    name: string;
-    avatar?: string;
-    initials: string;
-  };
+  feelMood: TypeMood;
+  comments: FeelComment[];
+  addComment: (comment: FeelComment) => void; // Optional prop to handle new comments
 }
 
 export const CommentsModal: React.FC<CommentsModalProps> = ({
   isOpen,
   onClose,
   feelId,
-  feelAuthor,
+  name,
+  avatar,
   feelContent,
   feelMood,
   comments: initialComments,
-  currentUser
+  addComment,
 }) => {
   const [comments, setComments] = useState(initialComments);
-  const [newComment, setNewComment] = useState('');
+  const [authorComments, setAuthorComments] = useState<User[]>([]);
+  const [newComment, setNewComment] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { userStore } = useAuth();
+
+  useEffect(() => {
+    // Fetch author comments if feelId is provided
+    const fetchAuthorComments = async () => {
+      initialComments.forEach(async (comment) => {
+        // console.log("Fetching user for comment:", comment.usersIdLikes.indexOf(userStore!.uid));
+        if (comment.usersIdLikes) {
+          comment.isLiked = comment.usersIdLikes.indexOf(userStore!.uid) !== -1;
+        }
+        comment.likesCount = comment.usersIdLikes?.length || 0;
+        const user = await getUserById(comment.userId);
+        if (user) {
+          setAuthorComments((prev) => [...prev, user]);
+        }
+      });
+    };
+    fetchAuthorComments();
+  }, []);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -68,17 +69,17 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    
+
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
-    
+
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
@@ -89,83 +90,84 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
     }
   };
 
-  const handleSubmitComment = (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    const comment: Comment = {
+    const comment: FeelComment = {
       id: Date.now().toString(),
-      author: {
-        name: currentUser.name,
-        avatar: currentUser.avatar,
-        initials: currentUser.initials,
-        year: '3º Curso',
-        major: 'Psicología'
-      },
       content: newComment,
-      timestamp: 'ahora',
-      likes: 0,
-      isLiked: false
+      userId: userStore!.uid,
+      createdAt: new Date().toISOString(),
+      usersIdLikes: [],
     };
 
     setComments([...comments, comment]);
-    setNewComment('');
-
-    // Crear notificación de comentario
-    const notificationService = NotificationService.getInstance();
-    notificationService.createCommentNotification(
-      feelId || 'unknown', // ID del feel para identificar al autor
-      {
-        name: currentUser.name,
-        avatar: currentUser.avatar,
-        initials: currentUser.initials,
-        year: '3º Curso',
-        major: 'Psicología'
-      },
-      newComment,
-      feelContent
-    );
+    setNewComment("");
+    setAuthorComments((prev) => [...prev, userStore!]);
+    addComment(comment); // Call the addComment prop if provided
+    try {
+      await addCommentToFeel(feelId!, comment.content, userStore!.uid);
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
   };
 
-  const handleLikeComment = (commentId: string) => {
-    setComments(comments.map(comment => 
-      comment.id === commentId 
-        ? { 
-            ...comment, 
-            isLiked: !comment.isLiked,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1
-          }
-        : comment
-    ));
+  const handleLikeComment = async (commentId: string) => {
+    setComments(
+      comments.map((comment) =>
+        comment.id === commentId
+          ? {
+              ...comment,
+              isLiked: !comment.isLiked,
+              likesCount: comment.isLiked
+                ? comment.likesCount! - 1
+                : comment.likesCount! + 1,
+            }
+          : comment
+      )
+    );
+    comments.map(async (comment) => {
+      if (comment.id === commentId) {
+        try {
+          await likeFeelComment(
+            feelId!,
+            commentId,
+            userStore!.uid,
+            comment.isLiked || false
+          );
+        } catch (error) {
+          console.error("Error liking comment:", error);
+        }
+      }
+    });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         ref={modalRef}
         className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div className="flex items-center space-x-3">
-            <Avatar 
-              src={feelAuthor.avatar}
-              alt={feelAuthor.name}
-              initials={feelAuthor.initials}
-              size="sm"
-            />
+            <Avatar src={avatar} alt={name} size="sm" />
             <div>
-              <h3 className="font-semibold text-gray-900 text-sm">{feelAuthor.name}</h3>
-              <p className="text-sm text-neutral-600 tracking-wide">{feelAuthor.year} • {feelAuthor.major}</p>
+              <h3 className="font-semibold text-gray-900 text-sm">{name}</h3>
+              <p className="text-sm text-neutral-600 tracking-wide">
+                {/* {feelAuthor.year} • {feelAuthor.major} */}
+              </p>
             </div>
-            <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${feelMood.color}`}>
-              <span className="text-sm">{feelMood.emoji}</span>
-              <span>{feelMood.name}</span>
+            <div
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium`}
+            >
+              <span className="text-sm">{feelMood}</span>
             </div>
           </div>
           <button
@@ -188,34 +190,44 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
               <p className="text-gray-500 text-sm">Sé el primero en comentar</p>
             </div>
           ) : (
-            comments.map((comment) => (
-              <div key={comment.id} className="flex items-start space-x-3 group">
-                <Avatar 
-                  src={comment.author.avatar}
-                  alt={comment.author.name}
-                  initials={comment.author.initials}
+            comments.map((comment, i) => (
+              <div
+                key={comment.id}
+                className="flex items-start space-x-3 group"
+              >
+                <Avatar
+                  src={authorComments[i].profileImage}
+                  alt={authorComments[i].name}
                   size="sm"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="bg-gray-50 rounded-2xl px-4 py-3">
                     <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-medium text-gray-900 text-sm">{comment.author.name}</h4>
+                      <h4 className="font-medium text-gray-900 text-sm">
+                        {authorComments[i].name}
+                      </h4>
                       <span className="text-xs text-gray-500">•</span>
-                      <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                      <span className="text-xs text-gray-500">
+                        {getRelativeTime(comment.createdAt)}
+                      </span>
                     </div>
-                    <p className="text-gray-800 text-sm leading-relaxed">{comment.content}</p>
+                    <p className="text-gray-800 text-sm leading-relaxed">
+                      {comment.content}
+                    </p>
                   </div>
                   <div className="flex items-center space-x-4 mt-2 ml-4">
                     <button
                       onClick={() => handleLikeComment(comment.id)}
                       className={`flex items-center space-x-1 text-xs transition-colors duration-200 ${
-                        comment.isLiked 
-                          ? 'text-red-500' 
-                          : 'text-gray-500 hover:text-red-500'
+                        comment.isLiked
+                          ? "text-red-500"
+                          : "text-gray-500 hover:text-red-500"
                       }`}
                     >
-                      <Heart className={`w-3 h-3 ${comment.isLiked ? 'fill-current' : ''}`} />
-                      {comment.likes > 0 && <span>{comment.likes}</span>}
+                      <Heart
+                        className={`w-3 h-3 ${comment.isLiked ? "fill-current" : ""}`}
+                      />
+                      <span>{comment.likesCount} </span>
                     </button>
                   </div>
                 </div>
@@ -226,13 +238,11 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
 
         {/* Comment Input */}
         <div className="p-6 border-t border-gray-100">
-          <form onSubmit={handleSubmitComment} className="flex items-center space-x-3">
-            <Avatar 
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              initials={currentUser.initials}
-              size="sm"
-            />
+          <form
+            onSubmit={handleSubmitComment}
+            className="flex items-center space-x-3"
+          >
+            <Avatar src={avatar} alt={name} size="sm" />
             <div className="flex-1 flex items-center space-x-2">
               <input
                 ref={inputRef}
