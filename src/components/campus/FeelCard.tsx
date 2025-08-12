@@ -423,6 +423,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
         addComment={(comment) => {
           comments.push(comment);
         }}
+        studies={studies ?? undefined}
       />
     </>
   );

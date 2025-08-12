@@ -65,6 +65,7 @@ export const findUserByEmail = async (
         tokens: userData.tokens,
         profileImage: userData.profileImage ?? null,
         boardsCreated: userData.boardsCreated,
+        studies: userData.studies || undefined, // Asegúrate de que `studies` sea opcional
       };
     }
 

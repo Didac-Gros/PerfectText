@@ -33,6 +33,7 @@ import Footer from "../components/home/Footer";
 import { CampusTab } from "../components/campus/CampusTab";
 import { CallsTab } from "../components/calls/CallsTab";
 import { NotificationsTab } from "../components/notifications/NotificationsTab";
+import { CustomProfilePage } from "./CustomProfilePage";
 
 export const HomePage: React.FC = () => {
   const { user, userStore } = useAuth();
@@ -258,6 +259,11 @@ export const HomePage: React.FC = () => {
               setActiveTab("");
               setSidebarOpen(false);
             }}
+            goToProfile={() => {
+              setSidebarOpen(true);
+              setCurrentView("profile");
+              setActiveTab("");
+            }}
           />
           <Sidebar
             isOpen={sidebarOpen}
@@ -286,7 +292,7 @@ export const HomePage: React.FC = () => {
             <CampusTab />
           ) : currentView === "calls" ? (
             <CallsTab />
-          ) : (
+          ) : currentView === "notifications" ? (
             <NotificationsTab
               currentUser={currentUser}
               notifications={allNotifications}
@@ -304,6 +310,8 @@ export const HomePage: React.FC = () => {
                 // Las notificaciones estáticas no se actualizan desde aquí
               }}
             />
+          ) : (
+            <CustomProfilePage bgColor={false} setSidebarOpen={setSidebarOpen} />
           )}
           {showPopUp && (
             <div className="text-center mb-8">
@@ -357,6 +365,13 @@ export const HomePage: React.FC = () => {
           goToMySpace={() => {
             if (user) {
               setCurrentView("myspace");
+              setActiveTab("");
+              setSidebarOpen(false);
+            }
+          }}
+          goToProfile={() => {
+            if (user) {
+              setCurrentView("profile");
               setActiveTab("");
               setSidebarOpen(false);
             }

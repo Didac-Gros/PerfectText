@@ -16,6 +16,7 @@ interface ProfileNavigationProps {
   fromMobile: boolean;
   handleLogout: () => void;
   setActiveTab: () => void;
+  handleCustomizeProfile: () => void;
 }
 
 export function ProfileNavigation({
@@ -24,7 +25,8 @@ export function ProfileNavigation({
   tokens,
   fromMobile,
   handleLogout,
-  setActiveTab
+  setActiveTab,
+  handleCustomizeProfile,
 }: ProfileNavigationProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -38,7 +40,6 @@ export function ProfileNavigation({
   };
 
   return (
-    
     <Menu as="div" className="relative z-20 ">
       <MenuButton className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-gray-600">
         <div className="flex items-center gap-3">
@@ -49,83 +50,32 @@ export function ProfileNavigation({
               fromMobile ? "size-9" : "size-9"
             } rounded-full border-2 border-gray-300 shadow-sm hover:border-blue-300 transition-all`}
           />
-          {/* <div className="flex flex-col items-start">
-            <span
-              className={`${fromMobile ? 'text-sm' : 'text-lg'} text-lg font-bold text-gray-800 hover:text-black transition-all leading-none`}
-              style={{
-                paddingBottom: "2px",
-              }}
-            >
-              {name}
-            </span> */}
-          {/* <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={`${fromMobile ? 'w-4 h-4' : 'w-5 h-5'} `}
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <defs>
-                  <radialGradient
-                    id={`coinGradient-${fromMobile ? 'mobile' : 'desktop'}`}
-                    cx="50%"
-                    cy="50%"
-                    r="50%"
-                    fx="50%"
-                    fy="50%"
-                  >
-                    <stop offset="0%" stopColor="#252FE2FF" />
-                    <stop offset="100%" stopColor="#37B4DAFF" />
-                  </radialGradient>
-                </defs>
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  fill={`url(#coinGradient-${fromMobile ? 'mobile' : 'desktop'})`}
-                  stroke="#F5D665FF"
-                  strokeWidth="1.5"
-                />
-
-                <circle cx="12" cy="12" r="9" fill="none" stroke="#DAA520" strokeWidth="0.5" strokeDasharray="2,2" />
-
-                <path
-                  d="M12 4C13.5 4 15.5 5 16 6.5C16.5 8 14.5 10 13 9C11.5 8 11 6 12 4Z"
-                  fill="rgba(255, 255, 255, 0.5)"
-                />
-
-                <path
-                  d="M12 7L13.4 10.2L17 10.7L14.5 13L15.4 16.5L12 14.7L8.6 16.5L9.5 13L7 10.7L10.6 10.2L12 7Z"
-                  fill="#FFF8DC"
-                  stroke="#B8860B"
-                  strokeWidth="0.5"
-                />
-              </svg>
-              <span className={`${fromMobile ? 'text-xs' : 'text-sm'} font-bold text-gray-500`}>
-                {tokens === null ? 'Ilimitados' : tokens}
-              </span>
-            </div> */}
-
-          {/* </div> */}
         </div>
       </MenuButton>
 
       <MenuItems className="absolute right-0 w-48 bg-white border border-gray-300 rounded-xl shadow-lg z-12">
         {/* Botón de Personalizar Perfil */}
-        <div className="flex flex-col items-center w-full py-3 justify-center" >
+        <div className="flex flex-col items-center w-full py-3 justify-center">
           <p className="font-semibold dark:text-black">{name}</p>
           <p className="text-xs text-gray-500 font-medium">Tokens: {tokens}</p>
         </div>
         <hr />
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => handleCustomize()}
-          className="flex items-center w-full space-x-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-        >
-          <UserIcon className="w-5 h-5 text-gray-700 group-hover:text-gray-900" />
-          <span className="text-sm font-medium">Personalizar perfil</span>
-        </motion.button>
+        {/* Personalizar perfil */}
+        <Menu.Item>
+          {({ active }) => (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleCustomizeProfile}
+              className={`flex items-center w-full space-x-3 px-4 py-3 rounded-lg transition-all ${
+                active ? "bg-gray-100 text-gray-900" : "text-gray-700"
+              }`}
+            >
+              <UserIcon className="w-5 h-5" />
+              <span className="text-sm font-medium">Personalizar perfil</span>
+            </motion.button>
+          )}
+        </Menu.Item>
 
         {/* Espaciado natural en lugar de línea */}
         <div className="my-1"></div>

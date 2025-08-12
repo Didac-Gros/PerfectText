@@ -29,6 +29,7 @@ import {
   updateCalendarAccessToken,
 } from "../../services/firestore/calendarRepository";
 import { fetchRefreshToken } from "../../services/google/refreshToken";
+import { fetchEmitToken } from "../../services/jwt/emitToken";
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
@@ -64,6 +65,15 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     React.useState<boolean>(false);
 
   useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const token = await fetchEmitToken(userStore!.uid);
+        console.log("Token emitido:", token);
+      } catch (error) {
+        console.error("Error al emitir el token:", error);
+      }
+    };
+    fetchToken();
     if (
       user &&
       userStore &&
@@ -501,7 +511,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
             </button>
           </div> */}
 
-          {/* <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+        {/* <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
             <AnimatedList animate={false} className="space-y-3">
               {todayEvents.length === 0 ? (
                 <div className="text-center py-8">

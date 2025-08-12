@@ -20,7 +20,11 @@ interface AuthContextProps {
   userStore: MyUser | null; // Datos adicionales del usuario en Firestore
   loading: boolean; // Estado de carga
   logout: () => Promise<void>; // Función para cerrar sesión
-  customProfile: (name: string, selectedAvatar: string, studies: Studies) => Promise<void>; // Función para actualizar el perfil
+  customProfile: (
+    name: string,
+    selectedAvatar: string,
+    studies: Studies
+  ) => Promise<void>; // Función para actualizar el perfil
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -53,6 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const oneMonthFromNow = new Date();
           oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
           if (firestoreUserData) {
+            console.log(firestoreUserData.studies)
             // Tipar los datos al modelo de `User`
             const formattedUser: MyUser = {
               uid: currentUser.uid,
@@ -64,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               tokens: firestoreUserData.tokens,
               profileImage: firestoreUserData.profileImage,
               boardsCreated: firestoreUserData.boardsCreated,
+              studies: firestoreUserData.studies || undefined,
             };
 
             setuserStore(formattedUser); // Actualiza el estado con los datos del usuario de Firestore
@@ -107,7 +113,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const customProfile = async (name: string, selectedAvatar: string, studies: Studies) => {
+  const customProfile = async (
+    name: string,
+    selectedAvatar: string,
+    studies: Studies
+  ) => {
     try {
       // Actualiza el estado del usuario de Firestore
       setuserStore((prev) => ({
@@ -126,13 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         "profileImage",
         selectedAvatar
       );
-      await updateFirestoreField(
-        "users",
-        user!.uid,
-        "studies",
-        studies
-      );
-      
+      await updateFirestoreField("users", user!.uid, "studies", studies);
     } catch (error) {
       console.error("Error al personalizar perfil:", error);
     }

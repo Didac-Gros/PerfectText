@@ -36,6 +36,8 @@ interface NavigationProps {
   toggleSidebar: () => void;
   closeSidebar: () => void;
   goToMySpace: () => void; // Added goToMySpace property
+  goToProfile: () => void; // Added goToProfile property
+
 }
 
 export function Navigation({
@@ -48,6 +50,7 @@ export function Navigation({
   toggleSidebar,
   closeSidebar,
   goToMySpace,
+  goToProfile
 }: NavigationProps) {
   const navigate = useNavigate();
   const { logout, userStore } = useAuth();
@@ -119,6 +122,7 @@ export function Navigation({
                 fromMobile
                 handleLogout={handleLogout}
                 setActiveTab={() => onTabChange("plans")}
+                handleCustomizeProfile={goToProfile}
               />
             ) : (
               <LoginButton handleLogin={handleLogin}></LoginButton>
@@ -253,6 +257,7 @@ export function Navigation({
               fromMobile={false}
               handleLogout={handleLogout}
               setActiveTab={() => onTabChange("plans")}
+              handleCustomizeProfile={goToProfile}
             />
           ) : (
             <LoginButton handleLogin={handleLogin}></LoginButton>

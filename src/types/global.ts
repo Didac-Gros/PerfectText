@@ -47,7 +47,7 @@ export interface Node {
 export interface Studies {
   uni: string;
   career: string;
-  year: number;
+  year: string;
 }
 
 export interface User {
@@ -186,7 +186,8 @@ export type SidebarType =
   | "calendar"
   | "campus"
   | "calls"
-  | "notifications";
+  | "notifications"
+  | "profile";
 
 export type AcceptInvitationError = "" | "memberExists" | "notExists" | "error";
 

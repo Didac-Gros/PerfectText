@@ -22,10 +22,10 @@ const routes: RouteObject[] = [
     path: "/register",
     element: <RegisterPage />,
   },
-  {
-    path: "/profile",
-    element: <CustomProfilePage />,
-  },
+  // {
+  //   path: "/profile",
+  //   element: <CustomProfilePage bgColor />,
+  // },
   {
     path: "/success",
     element: <SuccessPaymentPage />,

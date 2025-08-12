@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { X, Send, Heart } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import NotificationService from "../../services/notifications/NotificationService";
-import { FeelComment, TypeMood, User } from "../../types/global";
+import { FeelComment, Studies, TypeMood, User } from "../../types/global";
 import { useAuth } from "../../hooks/useAuth";
 import { getUserById } from "../../services/firestore/userRepository";
 import {
@@ -10,6 +10,7 @@ import {
   likeFeelComment,
 } from "../../services/firestore/feelsRepository";
 import { getRelativeTime } from "../../utils/utils";
+import { getColorFromMood } from "./utils";
 
 interface CommentsModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface CommentsModalProps {
   feelId?: string;
   name: string;
   avatar: string;
+  studies?: Studies;
   feelContent: string;
   feelMood: TypeMood;
   comments: FeelComment[];
@@ -33,6 +35,7 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
   feelMood,
   comments: initialComments,
   addComment,
+  studies,
 }) => {
   const [comments, setComments] = useState(initialComments);
   const [authorComments, setAuthorComments] = useState<User[]>([]);
@@ -57,7 +60,7 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
       });
     };
     fetchAuthorComments();
-  }, []);
+  }, [comments]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -129,6 +132,7 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
     );
     comments.map(async (comment) => {
       if (comment.id === commentId) {
+        console.log("no troba");
         try {
           await likeFeelComment(
             feelId!,
@@ -155,27 +159,30 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
         className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <div className="flex items-center space-x-3">
-            <Avatar src={avatar} alt={name} size="sm" />
-            <div>
-              <h3 className="font-semibold text-gray-900 text-sm">{name}</h3>
-              <p className="text-sm text-neutral-600 tracking-wide">
-                {/* {feelAuthor.year} • {feelAuthor.major} */}
-              </p>
+        <div className="p-6 border-b border-gray-100 w-full">
+          <div className="flex-col items-center space-y-3 ">
+            <div className="flex items-center space-x-4">
+              <Avatar src={avatar} alt={name} size="sm" />
+              <div className="flex flex-col flex-1">
+                <h3 className="font-semibold text-gray-900">{name}</h3>
+                <p className="text-sm font-medium text-neutral-600">
+                  {studies?.career}
+                </p>
+              </div>
+
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
             </div>
             <div
-              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium`}
+              className={`px-2.5 py-1 rounded-full font-medium w-fit ${getColorFromMood(feelMood)}`}
             >
               <span className="text-sm">{feelMood}</span>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-          >
-            <X className="w-4 h-4 text-gray-500" />
-          </button>
         </div>
 
         {/* Original Feel */}
@@ -242,7 +249,11 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
             onSubmit={handleSubmitComment}
             className="flex items-center space-x-3"
           >
-            <Avatar src={avatar} alt={name} size="sm" />
+            <Avatar
+              src={userStore?.profileImage}
+              alt={userStore!.name}
+              size="sm"
+            />
             <div className="flex-1 flex items-center space-x-2">
               <input
                 ref={inputRef}

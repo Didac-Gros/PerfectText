@@ -1,3 +1,5 @@
+import { summarizeVoice } from "./controllers/voice/summarizeVoiceController";
+import { transcribeVoice } from "./controllers/voice/transcribeVoiceController";
 import cors from "cors";
 import dotenv from "dotenv";
 import { summarizeText } from "./controllers/openai/summarizeController";
@@ -5,8 +7,11 @@ import { correctText } from "./controllers/openai/correctController";
 import { generateQuiz } from "./controllers/openai/quizController";
 import { generateConceptMap } from "./controllers/openai/conceptMapController";
 import { checkPayment } from "./controllers/stripe/checkPaymentController";
+import { createCheckoutSession } from "./controllers/stripe/createCheckoutSessionController";
 import { saveDatasetHandler } from "./controllers/openai/userReviewController";
-import { uploadFile } from "./controllers/files/uploadFileController";
+import { uploadFileHandler } from "./controllers/files/uploadFileHandler";
+import { downloadFile } from "./controllers/files/downloadFileController";
+import { getFile } from "./controllers/files/getFileController";
 import { exchangeCode } from "./controllers/google/exchangeCodeController";
 import { refreshToken } from "./controllers/google/refreshTokenController";
 import { sendInvite } from "./controllers/resend/sendInviteController";
@@ -14,16 +19,20 @@ import { errorHandler } from "./middleware/errorHandler";
 import compression from "compression";
 import { stripeWebhook } from "./controllers/stripe/stripeWebHookController";
 import express from "express";
+import { healthCheck } from "./controllers/healthController";
+import { rootHandler } from "./controllers/rootController";
 import multer from "multer";
 import { translateDocument } from "./controllers/deepl/translateDocController";
 import { translateText } from "./controllers/deepl/translateTextController";
 import Stripe from "stripe";
 import { Request, Response } from "express";
 import path from "path";
-import session from "express-session";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import OpenAI from "openai";
+import http from "http";
+import { WebSocketServer, WebSocket } from "ws";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +43,49 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const app = express();
+const server = http.createServer(app);
+
+const JWT_SECRET = process.env.JWT_SECRET || "cambia-esto-en-prod";
+
+// userId -> ws
+const online = new Map<string, WebSocket>();
+
+function send(toUserId: string, payload: any) {
+  const ws = online.get(toUserId);
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(payload));
+  }
+}
+
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+wss.on("connection", (ws: any, req) => {
+  const url = new URL(req.url || "", "http://localhost");
+  const token = url.searchParams.get("token") || "";
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { sub: string };
+    ws.userId = decoded.sub as string;
+    online.set(ws.userId, ws);
+  } catch {
+    ws.close(4401, "unauthorized");
+    return;
+  }
+
+  ws.on("message", (raw: string) => {
+    let data;
+    try {
+      data = JSON.parse(raw.toString());
+    } catch {
+      return;
+    }
+    if (!data?.type || !data?.to) return;
+    send(data.to, { ...data, from: ws.userId });
+  });
+
+  ws.on("close", () => {
+    if (ws.userId) online.delete(ws.userId);
+  });
+});
 
 // Security and performance configuration
 const corsOptions = {
@@ -44,10 +96,10 @@ const corsOptions = {
 };
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
     cb(null, uploadDir); // Guardar en `uploads/`
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     cb(null, file.originalname); // Mantener el nombre original
   },
 });
@@ -81,14 +133,27 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-02-24.acacia",
 });
 
-app.get("/api/check-payment", checkPayment);
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY as string,
 });
 
-app.get("/", (_req, res) => {
-  res.send("Servidor activo");
+const storage2 = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".wav"; // o el que correspongui
+    const filename = `${Date.now()}${ext}`;
+    cb(null, filename);
+  },
 });
+export const upload2 = multer({ storage: storage2 });
+
+app.get("/api/check-payment", checkPayment);
+app.get("/health", healthCheck);
+app.get("/", rootHandler);
+app.get("/api/download-file", downloadFile);
+app.get("/api/get-file", getFile(fileStorage));
 
 app.post("/api/correct", correctText);
 app.post("/api/summarize", summarizeText);
@@ -101,227 +166,32 @@ app.post("/api/translate/text", translateText);
 app.post("/api/google/exchange-code", exchangeCode);
 app.post("/api/google/refresh-token", refreshToken);
 app.post("/api/send-invite", sendInvite);
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY as string,
-});
-
-const storage2 = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || ".wav"; // o el que correspongui
-    const filename = `${Date.now()}${ext}`;
-    cb(null, filename);
-  },
-});
-export const upload2 = multer({ storage: storage2 });
-
 app.post(
   "/api/voice/transcribe",
   upload2.single("audio"),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      if (!req.file) {
-        res.status(400).json({ error: "No se subió ningún archivo de audio." });
-        return;
-      }
-      console.log("Archivo recibido:", {
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        path: req.file.path,
-      });
-
-      const filePath: string = req.file.path;
-
-      const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(filePath),
-        model: "whisper-1",
-      });
-
-      const notesResponse = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `Actúa como un estudiante experto en tomar apuntes de clase... (instrucciones completas aquí, igual que las que ya tienes)`,
-          },
-          {
-            role: "user",
-            content: transcription.text,
-          },
-        ],
-        temperature: 0.8,
-        max_tokens: 15000,
-      });
-
-      fs.unlinkSync(filePath);
-      res.json({ notes: notesResponse.choices[0].message.content || "" });
-    } catch (error) {
-      console.error("Error en /api/transcribe", error);
-      res.status(500).json({ error: "Error al transcribir el audio" });
-    }
-  }
+  transcribeVoice(openai)
 );
-
-app.post(
-  "/api/voice/summarize",
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { text }: { text: string } = req.body;
-
-      const summaryResponse = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `Actúa como un experto en análisis y resumen de transcripciones... (texto del system igual que ya tienes)`,
-          },
-          {
-            role: "user",
-            content: text,
-          },
-        ],
-        temperature: 0.8,
-        max_tokens: 15000,
-      });
-
-      res.json({ summary: summaryResponse.choices[0].message.content || "" });
-    } catch (error) {
-      console.error("Error en /api/summarize", error);
-      res.status(500).json({ error: "Error al generar resumen" });
-    }
-  }
-);
-app.post(
-  "/api/create-checkout-session",
-  async (req: Request, res: Response) => {
-    try {
-      const successUrl = `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&lang_code=${req.body.language}`;
-      const cancelUrl = process.env.FRONTEND_URL || "";
-
-      if (!successUrl.startsWith("http") || !cancelUrl.startsWith("http")) {
-        console.error("⚠️ ERROR: FRONTEND_URL no está definido correctamente.");
-        process.exit(1); // Detiene el servidor si no hay una URL válida
-      }
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "eur",
-              product_data: {
-                name: "Traducción de documento",
-              },
-              unit_amount: 199,
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      });
-
-      fileStorage[session.id] = req.body.file;
-
-      res.json({ id: session.id });
-    } catch (error) {
-      console.error("Error creando la sesión de pago:", error);
-      res.status(500).json({ error: "No se pudo crear la sesión de pago." });
-    }
-  }
+app.post("/api/voice/summarize", summarizeVoice(openai));
+app.post("/api/create-checkout-session", (req: Request, res: Response) =>
+  createCheckoutSession(req, res, stripe, fileStorage)
 );
 app.post(
   "/api/upload-file",
   upload.single("file"),
-  async (req: Request, res: Response) => {
-    if (!req.file) {
-      return res.status(400).json({ error: "No se subió ningún archivo." });
-    }
-
-    const originalName = req.file.originalname;
-
-    // ✅ Usar el nombre original sin modificar
-    const safeFileName = originalName;
-
-    console.log("✅ Archivo subido con nombre original:", originalName);
-    console.log("📁 Guardando como:", safeFileName);
-
-    const uploadDir = path.join(__dirname, "uploads");
-    const newPath = path.join(uploadDir, safeFileName);
-
-    // Asegurarse de que el directorio exista
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Si multer guarda en memoria, escribir desde el buffer
-    if (req.file.buffer) {
-      fs.writeFileSync(newPath, req.file.buffer);
-    } else {
-      const oldPath = path.join(uploadDir, originalName);
-      if (fs.existsSync(oldPath)) {
-        fs.renameSync(oldPath, newPath);
-      }
-    }
-
-    res.json({ path: `/uploads/${safeFileName}` });
-  }
+  uploadFileHandler(uploadDir)
 );
-
-const formatearNombreArchivo = (nombre: string): string => {
-  return nombre
-    .normalize("NFD") // separa letras y tildes (e.g., á => a + ́)
-    .replace(/[\u0300-\u036f]/g, "") // elimina las tildes
-    .replace(/\s+/g, "_") // reemplaza espacios por guiones bajos
-    .replace(/[^a-zA-Z0-9._-]/g, "") // elimina caracteres especiales excepto punto, guión y guión bajo
-    .toLowerCase(); // opcional: todo en minúsculas
-};
-
-app.get("/api/download-file", (req, res) => {
-  const filePath = req.query.path as string;
-
-  if (!filePath) {
-    return res.status(400).json({ error: "Falta la ruta del archivo" });
+function emitirTokenParaWS(userId: string) {
+  return jwt.sign({ sub: userId }, JWT_SECRET, { expiresIn: "1h" });
+}
+app.post("/api/emit-token", (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+    const token = emitirTokenParaWS(userId);
+    res.json({ success: true, data: token });
+  } catch (error) {
+    console.error("Error al emitir token:", error);
+    res.status(500).json({ error: "Error al emitir token" });
   }
-
-  // Elimina cualquier barra inicial que pueda causar problemas
-  const sanitizedPath = filePath.replace(/^(\.\/|\/)/, "");
-  const sanitizedPathCorrect = formatearNombreArchivo(sanitizedPath);
-  const absolutePath = path.join(__dirname, "uploads", sanitizedPathCorrect);
-
-  console.log("📁 Ruta recibida:", sanitizedPath);
-  console.log("📁 Ruta ultra sana:", sanitizedPathCorrect);
-  console.log("📁 Ruta absoluta generada:", absolutePath);
-
-  // Verificar si el archivo realmente existe
-  if (!fs.existsSync(absolutePath)) {
-    console.error("❌ Archivo no encontrado:", absolutePath);
-    return res.status(404).json({ error: "Archivo no encontrado" });
-  }
-
-  // Servir el archivo
-  res.sendFile(absolutePath, (err) => {
-    if (err) {
-      console.error("❌ Error enviando el archivo:", err);
-      res.status(500).json({ error: "Error al obtener el archivo" });
-    } else {
-      console.log("✅ Archivo enviado:", absolutePath);
-    }
-  });
-});
-
-app.get("/api/get-file", (req: Request, res: Response) => {
-  const sessionId = req.query.session_id as string;
-  console.log("get", fileStorage);
-
-  if (!sessionId || !fileStorage[sessionId]) {
-    return res.status(404).json({ error: "Archivo no encontrado" });
-  }
-
-  res.json({ file: fileStorage[sessionId] });
 });
 
 // Error handler
