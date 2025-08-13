@@ -19,20 +19,24 @@ interface AuthContextProps {
   user: User | null; // Usuario autenticado de Firebase
   userStore: MyUser | null; // Datos adicionales del usuario en Firestore
   loading: boolean; // Estado de carga
+  token: string | null; // Token JWT
   logout: () => Promise<void>; // Función para cerrar sesión
   customProfile: (
     name: string,
     selectedAvatar: string,
     studies: Studies
   ) => Promise<void>; // Función para actualizar el perfil
+  emitToken: (token: string) => Promise<void>; // Función para cerrar sesión
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
   userStore: null,
   loading: true,
+  token: null,
   logout: async () => {},
   customProfile: async () => {},
+  emitToken: async (token: string) => {},
 });
 
 interface AuthProviderProps {
@@ -43,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null); // Usuario autenticado
   const [userStore, setuserStore] = useState<MyUser | null>(null); // Usuario de Firestore
   const [loading, setLoading] = useState<boolean>(true); // Estado de carga
+  const [token, setToken] = useState<string>("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -57,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const oneMonthFromNow = new Date();
           oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
           if (firestoreUserData) {
-            console.log(firestoreUserData.studies)
+            console.log(firestoreUserData.studies);
             // Tipar los datos al modelo de `User`
             const formattedUser: MyUser = {
               uid: currentUser.uid,
@@ -113,6 +118,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const emitToken = async (token: string) => {
+    setToken(token);
+  };
+
   const customProfile = async (
     name: string,
     selectedAvatar: string,
@@ -124,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ...prev!,
         name,
         profileImage: selectedAvatar,
+        studies,
       }));
       await updateProfile(user!, {
         displayName: name,
@@ -144,7 +154,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, userStore, loading, logout, customProfile }}
+      value={{ user, userStore, loading, logout, customProfile, emitToken, token }}
     >
       {loading ? <p>Cargando...</p> : children}
     </AuthContext.Provider>

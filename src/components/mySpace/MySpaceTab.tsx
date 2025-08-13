@@ -30,6 +30,7 @@ import {
 } from "../../services/firestore/calendarRepository";
 import { fetchRefreshToken } from "../../services/google/refreshToken";
 import { fetchEmitToken } from "../../services/jwt/emitToken";
+import { useNavigate } from "react-router-dom";
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
@@ -51,7 +52,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     null
   );
   const [showEventModal, setShowEventModal] = React.useState(false);
-  const { user, userStore } = useAuth();
+  const { user, userStore, emitToken} = useAuth();
   const {
     events,
     addEvent,
@@ -69,6 +70,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
       try {
         const token = await fetchEmitToken(userStore!.uid);
         console.log("Token emitido:", token);
+        emitToken(token);
       } catch (error) {
         console.error("Error al emitir el token:", error);
       }
@@ -187,6 +189,8 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     onViewChange("boards");
   };
 
+  const navigate = useNavigate();
+
   const formatEventTime = (date: Date) => {
     if (isToday(date)) {
       return `Hoy a las ${format(date, "HH:mm")}`;
@@ -250,8 +254,13 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
             >
               <ArrowUpRight className="w-5 h-5" />
             </button>
-          </div>
-
+          </div>{" "}
+          <button
+            className="size-40 bg-black"
+            onClick={() => navigate("/call")}
+          >
+            hola
+          </button>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...boards]
               .sort(
@@ -288,7 +297,6 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 dark:to-black/40" />
                   </div>
-
                   {/* Content */}
                   <div className="relative p-4">
                     <div className="flex items-start justify-between">

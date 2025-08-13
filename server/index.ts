@@ -62,6 +62,7 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 wss.on("connection", (ws: any, req) => {
   const url = new URL(req.url || "", "http://localhost");
   const token = url.searchParams.get("token") || "";
+  console.log("connection " + JWT_SECRET)
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { sub: string };
     ws.userId = decoded.sub as string;
@@ -185,7 +186,8 @@ function emitirTokenParaWS(userId: string) {
 }
 app.post("/api/emit-token", (req: Request, res: Response) => {
   try {
-    const userId = req.body.userId;
+    const userId = req.body.text;
+    console.log("holaaa " , req.body.text)
     const token = emitirTokenParaWS(userId);
     res.json({ success: true, data: token });
   } catch (error) {
