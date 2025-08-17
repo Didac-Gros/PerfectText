@@ -8,7 +8,7 @@ interface SendInvitePayload {
   
   export async function sendInviteEmail(payload: SendInvitePayload) {
     try {
-    const response = await fetch(`${API_URL}/send-invite`, {
+    const response = await fetch(`${API_URL_LOCAL}/send-invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

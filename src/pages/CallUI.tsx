@@ -21,7 +21,7 @@ export function CallUI({ me, jwt, targetUserId }: CallUIProps) {
   } = useVoiceCall({ me, jwt });
 
   const canCall = !!targetUserId && (state === "idle" || state === "ended");
-  const canHang = ["ringing-out", "in-call", "connecting"].includes(state);
+  const canHang = ["ringing-out", "talking", "connecting"].includes(state);
 
   return (
     <div style={{ padding: 16, border: "1px solid #ccc", borderRadius: 8, maxWidth: 420 }}>

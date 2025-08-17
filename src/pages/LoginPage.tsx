@@ -11,6 +11,8 @@ import { FirebaseError } from "firebase/app";
 import { LoadingButton } from "../components/register/SubmitButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { useAuth } from "../hooks/useAuth";
+import { getUserById } from "../services/firestore/userRepository";
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +20,6 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-
   const handleLogin = async () => {
     setError(null);
     setIsLoading(true);
@@ -29,9 +30,20 @@ export const LoginPage: React.FC = () => {
         email,
         password
       );
-
       if (userCredential.user.emailVerified) {
-        navigate("/");
+        const user = await getUserById(userCredential.user.uid);
+        if (user?.profileImage) {
+          const redirectTo = sessionStorage.getItem("invitation_link");
+          console.log("Usuario ya existe, redirigiendo a:", redirectTo);
+          if (redirectTo) {
+            sessionStorage.removeItem("invitation_link");
+            navigate(redirectTo);
+          } else {
+            navigate("/");
+          }
+        } else {
+          navigate("/profile");
+        }
       } else setError("Por favor, verifique su correo electrónico.");
     } catch (error) {
       if (error instanceof FirebaseError) {

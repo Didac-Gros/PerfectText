@@ -26,7 +26,7 @@ export async function fetchAPI<T>(
 
     // Determinar si estamos enviando un FormData o JSON
 
-    const response = await fetch(`${API_URL}/${endpoint}`, {
+    const response = await fetch(`${API_URL_LOCAL}/${endpoint}`, {
       method: "POST",
       headers: data.isFormData
         ? undefined

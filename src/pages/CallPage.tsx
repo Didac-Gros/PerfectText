@@ -3,14 +3,10 @@ import { CallUI } from "./CallUI";
 import { useAuth } from "../hooks/useAuth";
 
 export default function CallPage() {
-  const [me, setMe] = useState("aCVjI687ihbEwzaqF17WOBAiX2C2");       // userId
+  const [me, setMe] = useState("");       // userId
   const [jwt, setJwt] = useState("");     // token JWT
-  const [target, setTarget] = useState("xeFQUxfKZuPnsYOvwaALHagl6Rj1"); // usuario al que llamar
+  const [target, setTarget] = useState(""); // usuario al que llamar
   const { token } = useAuth();
-  useEffect(() => {
-    // Aquí puedes agregar la lógica que necesites para manejar los efectos secundarios
-    console.log("Token JWT:", token);
-  }, [token]);
 
   return (
     <div style={{ padding: 24 }}>
@@ -35,7 +31,7 @@ export default function CallPage() {
         />
       </div>
 
-      {me && token && target && (
+      {me && token && (
         <CallUI me={me} jwt={token!} targetUserId={target} />
       )}
     </div>

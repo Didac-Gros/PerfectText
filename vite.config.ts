@@ -1,16 +1,17 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react(),tailwindcss(),],
+  plugins: [react(), tailwindcss()],
   optimizeDeps: {
     exclude: ["lucide-react"],
   },
   server: {
-    host: "localhost",
+    host: true,
     port: 5175,
     strictPort: false,
+    hmr: { host: "192.168.1.122", port: 5175 },
     watch: {
       usePolling: true,
     },

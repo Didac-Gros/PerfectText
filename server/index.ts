@@ -44,53 +44,85 @@ if (!process.env.OPENAI_API_KEY) {
 
 const app = express();
 const server = http.createServer(app);
-
+const PORT2 = 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "cambia-esto-en-prod";
 
-// userId -> ws
-const online = new Map<string, WebSocket>();
+// (opcional) endpoint de salud
+app.get("/health", (_req, res) => res.send("ok"));
+
+// ---- WS ----
+type WsAuthed = WebSocket & { userId?: string; isAlive?: boolean };
+
+const online = new Map<string, WsAuthed>(); // userId -> socket
 
 function send(toUserId: string, payload: any) {
   const ws = online.get(toUserId);
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(payload));
-  }
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(payload));
 }
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-wss.on("connection", (ws: any, req) => {
+wss.on("connection", (ws: WsAuthed, req) => {
   const url = new URL(req.url || "", "http://localhost");
   const token = url.searchParams.get("token") || "";
-  console.log("connection " + JWT_SECRET)
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { sub: string };
-    ws.userId = decoded.sub as string;
+    const decoded = jwt.verify(token, JWT_SECRET) as { sub?: string };
+    if (!decoded?.sub) throw new Error("Token sin sub");
+    ws.userId = decoded.sub;
+    ws.isAlive = true;
     online.set(ws.userId, ws);
-  } catch {
+  } catch (e: any) {
+    console.error("WS auth error:", e?.message);
     ws.close(4401, "unauthorized");
     return;
   }
 
-  ws.on("message", (raw: string) => {
-    let data;
+  ws.on("pong", () => (ws.isAlive = true));
+
+  ws.on("message", (raw: Buffer) => {
+    let data: any;
     try {
       data = JSON.parse(raw.toString());
     } catch {
       return;
     }
     if (!data?.type || !data?.to) return;
+    // reescribimos from por seguridad
     send(data.to, { ...data, from: ws.userId });
   });
 
   ws.on("close", () => {
-    if (ws.userId) online.delete(ws.userId);
+    if (ws.userId) {
+      online.delete(ws.userId);
+      console.log("WS CLOSED:", ws.userId);
+    }
   });
+
+  ws.on("error", (err) => {
+    console.error("WS error:", err);
+  });
+});
+
+// Heartbeat: limpia sockets muertos cada 30s
+const interval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    const s = ws as WsAuthed;
+    if (!s.isAlive) return ws.terminate();
+    s.isAlive = false;
+    ws.ping();
+  });
+}, 30_000);
+
+wss.on("close", () => clearInterval(interval));
+
+server.listen(PORT2, () => {
+  console.log(`HTTP + WS en http://localhost:${PORT2}  (WS: /ws)`);
 });
 
 // Security and performance configuration
 const corsOptions = {
-  origin: "https://perfecttext.ai",
+  // origin: "https://perfecttext.ai",
   // origin: "*",
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -187,7 +219,6 @@ function emitirTokenParaWS(userId: string) {
 app.post("/api/emit-token", (req: Request, res: Response) => {
   try {
     const userId = req.body.text;
-    console.log("holaaa " , req.body.text)
     const token = emitirTokenParaWS(userId);
     res.json({ success: true, data: token });
   } catch (error) {

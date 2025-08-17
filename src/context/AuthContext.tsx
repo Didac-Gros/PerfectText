@@ -62,7 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const oneMonthFromNow = new Date();
           oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
           if (firestoreUserData) {
-            console.log(firestoreUserData.studies);
             // Tipar los datos al modelo de `User`
             const formattedUser: MyUser = {
               uid: currentUser.uid,

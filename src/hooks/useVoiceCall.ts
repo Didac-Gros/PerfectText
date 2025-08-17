@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type SigMsg =
   | { type: "ring"; callId: string; from: string; to: string }
+  | { type: "accept"; callId: string; from: string; to: string } // <— NUEVO
   | {
       type: "offer";
       callId: string;
@@ -37,7 +38,7 @@ export type CallState =
   | "ringing-out"
   | "ringing-in"
   | "connecting"
-  | "in-call"
+  | "talking"
   | "ended";
 
 const STUN: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
@@ -61,38 +62,60 @@ export function useVoiceCall({
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-
+  // arriba, junto al resto de refs:
+  const peerIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    peerIdRef.current = peerId;
+  }, [peerId]);
   const wsUrl = useMemo(
     () => `${wsBase}?token=${encodeURIComponent(jwt)}`,
     [wsBase, jwt]
   );
 
-  console.log("Conectando a WS:", wsUrl);
-
   const ensurePc = () => {
     if (pcRef.current) return pcRef.current;
     const pc = new RTCPeerConnection({ iceServers: STUN });
 
-    pc.onicecandidate = (ev) => {
-      if (ev.candidate && callId && peerId) {
-        wsSend({
-          type: "candidate",
-          callId,
-          to: peerId,
-          candidate: ev.candidate.toJSON(),
-        });
-      }
+    pc.oniceconnectionstatechange = () => {
+      console.log("ICE state:", pc.iceConnectionState);
     };
-    pc.ontrack = (ev) => {
-      const [stream] = ev.streams;
-      if (remoteAudioRef.current) remoteAudioRef.current.srcObject = stream;
-    };
+
     pc.onconnectionstatechange = () => {
-      if (pc.connectionState === "connected") setState("in-call");
+      if (pc.connectionState === "connected") setState("talking");
       if (["failed", "disconnected", "closed"].includes(pc.connectionState)) {
         setState("ended");
       }
     };
+
+    pc.onicecandidate = (ev) => {
+      if (!ev.candidate) {
+        console.log("ICE gathering complete");
+        return;
+      }
+      const to = peerIdRef.current;
+      if (to) {
+        wsSend({
+          type: "candidate",
+          callId, // opcional, pero lo mantenemos
+          to,
+          candidate: ev.candidate.toJSON(),
+        });
+      }
+    };
+
+    pc.ontrack = (ev) => {
+      const [stream] = ev.streams;
+
+      if (remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = stream;
+        remoteAudioRef.current.muted = false;
+        remoteAudioRef.current.volume = 1;
+        remoteAudioRef.current
+          .play()
+          .catch((err) => console.warn("autoplay bloqueado:", err));
+      }
+    };
+
     pcRef.current = pc;
     return pc;
   };
@@ -103,10 +126,12 @@ export function useVoiceCall({
 
   // Conexión WebSocket
   useEffect(() => {
-    console.log("Conectando a WebSocket:", wsUrl);
     const ws = new WebSocket(wsUrl);
+
     ws.onmessage = async (ev) => {
+      console.log("Mensaje recibido:", ev.data);
       const msg = JSON.parse(ev.data) as SigMsg;
+      console.log("Mensaje decodificado:", msg);
       switch (msg.type) {
         case "ring":
           setIncomingFrom(msg.from);
@@ -115,6 +140,7 @@ export function useVoiceCall({
           setState("ringing-in");
           break;
         case "offer": {
+          setPeerId(msg.from);
           const pc = ensurePc();
           await pc.setRemoteDescription(msg.sdp);
           const stream = await getMic();
@@ -136,11 +162,24 @@ export function useVoiceCall({
           setState("connecting");
           break;
         }
+        // al recibir candidate:
         case "candidate": {
+          console.log("← recibido candidate");
           const pc = ensurePc();
           try {
             await pc.addIceCandidate(msg.candidate);
-          } catch {}
+            console.log("✓ addIceCandidate ok");
+          } catch (e) {
+            console.error("✗ addIceCandidate error", e);
+          }
+          break;
+        }
+        case "accept": {
+          // Soy el caller y el callee aceptó
+          setPeerId(msg.from);
+          if (!callId) setCallId(msg.callId);
+          await createAndSendOffer(msg.from, msg.callId);
+          setState("connecting");
           break;
         }
         case "reject":
@@ -160,9 +199,14 @@ export function useVoiceCall({
   const getMic = async () => {
     if (localStreamRef.current) return localStreamRef.current;
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true },
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      },
       video: false,
     });
+    console.log("Tengo micro local:", stream.getAudioTracks().length, "tracks");
     localStreamRef.current = stream;
     return stream;
   };
@@ -172,19 +216,26 @@ export function useVoiceCall({
     setState("ringing-out");
     const id = crypto.randomUUID();
     setCallId(id);
-    wsSend({ type: "ring", callId: id, to: toUserId });
+    wsSend({ type: "ring", callId: id, to: toUserId }); // <— solo ring
+    // Quita todo lo de crear PC/offer aquí.
+  };
 
+  const createAndSendOffer = async (to: string, callId: string) => {
     const pc = ensurePc();
     const stream = await getMic();
     stream.getTracks().forEach((t) => pc.addTrack(t, stream));
     const offer = await pc.createOffer({ offerToReceiveAudio: true });
     await pc.setLocalDescription(offer);
-    wsSend({ type: "offer", callId: id, to: toUserId, sdp: offer });
+    wsSend({ type: "offer", callId, to, sdp: offer });
   };
 
-  const accept = () => {
-    setState("connecting");
+  const accept = async () => {
+    setState("connecting"); // UI feedback
     setIncomingFrom(null);
+    if (peerId && callId) {
+      wsSend({ type: "accept", callId, to: peerId }); // <— AVISA AL CALLER
+    }
+    // Espera el offer del caller; cuando llegue, contestas (bloque "offer" de abajo)
   };
 
   const reject = () => {

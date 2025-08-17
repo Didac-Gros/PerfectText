@@ -31,6 +31,7 @@ import {
 import { fetchRefreshToken } from "../../services/google/refreshToken";
 import { fetchEmitToken } from "../../services/jwt/emitToken";
 import { useNavigate } from "react-router-dom";
+import { useVoiceCall } from "../../hooks/useVoiceCall";
 
 interface MySpaceTabProps {
   onViewChange: (view: SidebarType) => void;
@@ -52,7 +53,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     null
   );
   const [showEventModal, setShowEventModal] = React.useState(false);
-  const { user, userStore, emitToken} = useAuth();
+  const { user, userStore, emitToken, token } = useAuth();
   const {
     events,
     addEvent,
@@ -66,16 +67,7 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     React.useState<boolean>(false);
 
   useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const token = await fetchEmitToken(userStore!.uid);
-        console.log("Token emitido:", token);
-        emitToken(token);
-      } catch (error) {
-        console.error("Error al emitir el token:", error);
-      }
-    };
-    fetchToken();
+    
     if (
       user &&
       userStore &&
@@ -255,12 +247,9 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
               <ArrowUpRight className="w-5 h-5" />
             </button>
           </div>{" "}
-          <button
-            className="size-40 bg-black"
-            onClick={() => navigate("/call")}
-          >
-            hola
-          </button>
+          {/* <button onClick={() => call("xeFQUxfKZuPnsYOvwaALHagl6Rj1")}>
+          📞 {"Llamar a xeFQUxfKZuPnsYOvwaALHagl6Rj1"}
+        </button> */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...boards]
               .sort(

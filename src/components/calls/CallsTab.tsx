@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { Calls } from "./CallsSection";
+import { useAuth } from "../../hooks/useAuth";
+import { CallState } from "../../hooks/useVoiceCall";
+import { User } from "../../types/global";
 
-export function CallsTab() {
+interface CallsTabProps {
+  state: CallState;
+  sendCall: (toUserId: string) => Promise<void>;
+}
+
+export function CallsTab({state, sendCall}: CallsTabProps) {
   const [activeCall, setActiveCall] = useState<{
     participants: any[];
     initiator: any;
     startTime: Date;
   } | null>(null);
-  const currentUser = {
-    id: "current",
-    name: "María García",
-    initials: "MG",
-    year: "3º Curso",
-    major: "Psicología",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=maria&size=64",
-  };
+
+  const { userStore: currentUser } = useAuth();
 
   const [recentCalls, setRecentCalls] = useState([
     {
@@ -82,9 +84,10 @@ export function CallsTab() {
     <div className=" bg-gray-50 dark:bg-[#161616] p-6">
       <div className="max-w-[1400px] mx-auto space-y-8">
         <Calls
-          currentUser={currentUser}
-          recentCalls={recentCalls}
+          // recentCalls={recentCalls}
           onCallStart={setActiveCall}
+          state={state}
+          call={sendCall}
         />
       </div>
     </div>

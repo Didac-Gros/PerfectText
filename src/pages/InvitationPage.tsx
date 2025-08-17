@@ -25,7 +25,7 @@ export default function InvitePage() {
   useEffect(() => {
     const boardId = searchParams.get("boardId");
     const userId = searchParams.get("userId");
-
+    const currentUrl = `${location.pathname}${location.search}`;
     const fetchData = async () => {
       if (!boardId || !userId) return;
 
@@ -42,6 +42,7 @@ export default function InvitePage() {
     };
 
     if (!user) {
+      sessionStorage.setItem("invitation_link", currentUrl);
       navigate("/login");
     } else fetchData();
   }, [searchParams]);

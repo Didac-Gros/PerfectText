@@ -23,10 +23,10 @@ const routes: RouteObject[] = [
     path: "/register",
     element: <RegisterPage />,
   },
-  // {
-  //   path: "/profile",
-  //   element: <CustomProfilePage bgColor />,
-  // },
+  {
+    path: "/profile",
+    element: <CustomProfilePage bgColor setSidebarOpen={() => {}} />,
+  },
   {
     path: "/success",
     element: <SuccessPaymentPage />,

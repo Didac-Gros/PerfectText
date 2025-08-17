@@ -9,7 +9,7 @@ import {
   updateFirestoreField,
   updateUserTokens,
 } from "../services/firestore/firestore";
-import { SidebarType, TabType } from "../types/global";
+import { SidebarType, TabType, User } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
@@ -26,7 +26,10 @@ import { NexusTab } from "../components/nexus/NexusTab";
 import { CalendarTab } from "../components/calendar/CalendarTab";
 import { Hero } from "../components/home/Hero";
 import { delay } from "framer-motion";
-import { syncUserPhotoURL } from "../services/firestore/userRepository";
+import {
+  getUserById,
+  syncUserPhotoURL,
+} from "../services/firestore/userRepository";
 import { createDefaultBoards } from "../services/firestore/boardsRepository";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Footer from "../components/home/Footer";
@@ -34,9 +37,12 @@ import { CampusTab } from "../components/campus/CampusTab";
 import { CallsTab } from "../components/calls/CallsTab";
 import { NotificationsTab } from "../components/notifications/NotificationsTab";
 import { CustomProfilePage } from "./CustomProfilePage";
+import { fetchEmitToken } from "../services/jwt/emitToken";
+import { useVoiceCall } from "../hooks/useVoiceCall";
+import { IncomingCallModal } from "../components/shared/IncomingCallModal";
 
 export const HomePage: React.FC = () => {
-  const { user, userStore } = useAuth();
+  const { user, userStore, token, emitToken } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>(user ? "" : "home"); // Establecer home como tab inicial
   const [tokens, setTokens] = useState<number | null>(userStore?.tokens! ?? 0); // Establecer home como tab inicial
   const [showPopUp, setShowPopUp] = useState<boolean>(false);
@@ -58,7 +64,9 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const clientId =
     "492645116751-vrmkkpvn51d30id84l54h8btfddpmi1v.apps.googleusercontent.com";
-
+  const [showIncomingCallModal, setShowIncomingCallModal] =
+    useState<boolean>(false);
+  const [incomingCallUser, setIncomingCallUser] = useState<User | null>(null);
   const {
     recorderState,
     isPaused,
@@ -77,25 +85,33 @@ export const HomePage: React.FC = () => {
     setIsPaused,
   } = useAudioRecorder();
 
+  const {
+    state,
+    incomingFrom,
+    muted,
+    call,
+    accept,
+    reject,
+    hangup,
+    toggleMute,
+    bindRemoteAudio,
+  } = useVoiceCall({ me: userStore?.uid || "", jwt: token || "" });
+
   useEffect(() => {
     if (user && userStore && userStore.profileImage === null) {
       syncUserPhotoURL();
     }
-
-    // if(user && userStore && (userStore.boardsCreated === false || userStore.boardsCreated === undefined)) {
-    //   console.log("Creando tableros por defecto para el usuario:", userStore.uid);
-    //   const fetchData = async () => {
-    //     try {
-    //       await updateFirestoreField("users", userStore.uid, "boardsCreated", true)
-    //       await createDefaultBoards();
-    //       userStore.boardsCreated = true; // Actualiza el estado local
-
-    //     } catch (error) {
-    //       console.error('Error fetching data:', error);
-    //     }
-    //   };
-    //   fetchData();
-    // }
+    if (user && userStore) {
+      const fetchToken = async () => {
+        try {
+          const token = await fetchEmitToken(userStore.uid);
+          emitToken(token);
+        } catch (error) {
+          console.error("Error al emitir el token:", error);
+        }
+      };
+      fetchToken();
+    }
   }, []);
 
   useEffect(() => {
@@ -222,6 +238,21 @@ export const HomePage: React.FC = () => {
   // Combinar notificaciones estáticas y dinámicas
   const allNotifications = [...dynamicNotifications, ...staticNotifications];
 
+  useEffect(() => {
+    if (state === "ringing-in") {
+      const fetchData = async () => {
+        try {
+          const user = await getUserById(incomingFrom!);
+          setIncomingCallUser(user);
+          setShowIncomingCallModal(true);
+        } catch (error) {
+          console.error("Error fetching incoming call data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [state]);
+
   if (currentView !== "") {
     return (
       <div className={`min-h-screen lg:pb-0 pb-20 `}>
@@ -291,7 +322,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "campus" ? (
             <CampusTab />
           ) : currentView === "calls" ? (
-            <CallsTab />
+            <CallsTab state={state} sendCall={call} />
           ) : currentView === "notifications" ? (
             <NotificationsTab
               currentUser={currentUser}
@@ -311,7 +342,10 @@ export const HomePage: React.FC = () => {
               }}
             />
           ) : (
-            <CustomProfilePage bgColor={false} setSidebarOpen={setSidebarOpen} />
+            <CustomProfilePage
+              bgColor={false}
+              setSidebarOpen={setSidebarOpen}
+            />
           )}
           {showPopUp && (
             <div className="text-center mb-8">
@@ -325,6 +359,19 @@ export const HomePage: React.FC = () => {
               ></TokensPopUp>
             </div>
           )}
+          {state === "ringing-in" && (
+            <IncomingCallModal
+              profileImage={
+                incomingCallUser?.profileImage || "/default_avatar.jpg"
+              }
+              name={incomingCallUser?.name || "Desconocido"}
+              handleAcceptCall={accept}
+              handleRejectCall={reject}
+            />
+          )}
+
+          {/* Audio remoto (invisible) */}
+          <audio ref={bindRemoteAudio} autoPlay playsInline />
         </div>
       </div>
     );
@@ -346,6 +393,15 @@ export const HomePage: React.FC = () => {
           handleMinimized={handleMinimized}
           handleStopRecording={handleStopRecording}
         ></AudioWindow>
+      )}
+
+      {state === "ringing-in" && (
+        <IncomingCallModal
+          profileImage={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+          name={incomingCallUser?.name || "Desconocido"}
+          handleAcceptCall={accept}
+          handleRejectCall={reject}
+        />
       )}
 
       <div className="max-w-[80rem] mx-auto px-4 md:py-6">
@@ -473,6 +529,9 @@ export const HomePage: React.FC = () => {
 
         {user && activeTab === "plans" && <StripePricingTable />}
       </div>
+
+      {/* Audio remoto (invisible) */}
+      <audio ref={bindRemoteAudio} autoPlay playsInline />
       <Footer></Footer>
     </div>
   );

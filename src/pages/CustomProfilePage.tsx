@@ -317,6 +317,17 @@ export function CustomProfilePage({
         setTimeout(() => {
           setShowSaveConfirmation(false);
         }, 2000);
+
+        if(bgColor) {
+          const redirectTo = sessionStorage.getItem("invitation_link");
+          console.log("Usuario ya existe, redirigiendo a:", redirectTo);
+          if (redirectTo) {
+            sessionStorage.removeItem("invitation_link");
+            navigate(redirectTo);
+          } else {
+            navigate("/");
+          }
+        }
       } catch (error) {
         console.error("Error al actualizar: ", (error as Error).message);
       }
