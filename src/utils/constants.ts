@@ -1,5 +1,4 @@
 import { Language } from "../types/global";
-import cataloniaFlag from "../assets/Flag_of_Catalonia.svg";
 
 export const API_URL = "https://perfecttext.onrender.com/api";
 export const API_URL_LOCAL = "http://localhost:3000/api";
@@ -89,7 +88,7 @@ export const allLanguages: Language[] = [
   },
 ];
 
-const avatarOptions = [
+export const avatarOptions = [
   "https://api.dicebear.com/7.x/pixel-art/svg?seed=maria&size=128",
   "https://api.dicebear.com/7.x/pixel-art/svg?seed=ana&size=128",
   "https://api.dicebear.com/7.x/pixel-art/svg?seed=carlos&size=128",
@@ -104,7 +103,7 @@ const avatarOptions = [
   "https://api.dicebear.com/7.x/pixel-art/svg?seed=sara&size=128",
 ];
 
-const universities = [
+export const universities = [
   "Universidad de Barcelona (UB)",
   "Universidad Autónoma de Barcelona (UAB)",
   "Universidad Politécnica de Cataluña (UPC)",
@@ -183,7 +182,7 @@ const universities = [
   "Universidad de Zaragoza (UNIZAR)",
 ];
 
-const majors = [
+export const majors = [
   // Ciencias Sociales y Humanidades
   "Administración y Dirección de Empresas",
   "Administración y Gestión Pública",
@@ -314,14 +313,13 @@ const majors = [
   "Estudios Árabes e Islámicos",
   "Estudios Hebreos y Arameos",
 ];
-
-const yearOptions = [
-  "1º Curso",
-  "2º Curso",
-  "3º Curso",
-  "4º Curso",
-  "5º Curso",
-  "6º Curso",
-  "Máster",
-  "Doctorado",
+export const yearOptions = [
+  { value: "1", label: "1º Curso" },
+  { value: "2", label: "2º Curso" },
+  { value: "3", label: "3º Curso" },
+  { value: "4", label: "4º Curso" },
+  { value: "5", label: "5º Curso" },
+  { value: "6", label: "6º Curso" },
+  { value: "master", label: "Máster" },
+  { value: "doctorado", label: "Doctorado" },
 ];

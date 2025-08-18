@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { FcGoogle } from "react-icons/fc"; // Icono de Google (de react-icons)
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firestore/firebase"; // Configuración de Firebase
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -11,7 +10,6 @@ import { FirebaseError } from "firebase/app";
 import { LoadingButton } from "../components/register/SubmitButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { motion } from "framer-motion";
-import { useAuth } from "../hooks/useAuth";
 import { getUserById } from "../services/firestore/userRepository";
 
 export const LoginPage: React.FC = () => {

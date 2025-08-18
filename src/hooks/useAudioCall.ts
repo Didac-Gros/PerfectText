@@ -124,8 +124,6 @@ export const useAudioCall = () => {
       error: null,
       localStream: null
     });
-
-    console.log('📞 Llamada terminada y micrófono desactivado');
   };
 
   // Toggle del micrófono - usar localStream.getAudioTracks()[0].enabled

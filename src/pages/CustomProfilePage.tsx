@@ -1,247 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { User, Camera, Save, X, Check, Search } from "lucide-react";
-import { Avatar } from "../components/shared/Avatar";
+import { useEffect, useState } from "react";
+import { User, Camera, Check, Search } from "lucide-react";
 import { auth } from "../services/firestore/firebase";
 import { Studies } from "../types/global";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
-const avatarOptions = [
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=maria&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=ana&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=carlos&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=sofia&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=diego&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=laura&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=javier&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=emma&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=pablo&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=elena&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=alex&size=128",
-  "https://api.dicebear.com/7.x/pixel-art/svg?seed=sara&size=128",
-];
-
-const universities = [
-  "Universidad de Barcelona (UB)",
-  "Universidad Autónoma de Barcelona (UAB)",
-  "Universidad Politécnica de Cataluña (UPC)",
-  "Universidad Pompeu Fabra (UPF)",
-  "Universidad de Lleida (UdL)",
-  "Universidad de Girona (UdG)",
-  "Universidad Rovira i Virgili (URV)",
-  "Universidad Abat Oliba CEU (UAO)",
-  "Universidad Internacional de Cataluña (UIC)",
-  "Universidad Europea de Barcelona (European University) (EU)",
-  "Universidad Oberta de Cataluña (UOC)",
-  "Harbour.Space University (HSU)",
-  "Universidad de Vic - Universidad Central de Cataluña (UVic)",
-  "Universidad de Alcalá (UAH)",
-  "Universidad Alfonso X el Sabio (UAX)",
-  "Universidad de Alicante (UA)",
-  "Universidad de Almería (UAL)",
-  "Universidad Internacional de Andalucía (UNIA)",
-  "Universidad Católica de Ávila (UCAV)",
-  "Atlantic-Mediterranean Technological University (ATU)",
-  "Universidad Europea del Atlántico (UNEATLANTICO)",
-  "Universidad del Atlántico Medio (UNAM)",
-  "Universidad de las Islas Baleares (UIB)",
-  "Universidad del País Vasco (UPV/EHU)",
-  "Universidad de Burgos (UBU)",
-  "Universidad de Cádiz (UCA)",
-  "Universidad Camilo José Cela (UCJC)",
-  "Universidad Europea de Canarias (UEC)",
-  "Universidad de Cantabria (UC)",
-  "Universidad Politécnica de Cartagena (UPCT)",
-  "Universidad de Castilla-La Mancha (UCLM)",
-  "Universidad CEU Cardenal Herrera (CEU-UCH)",
-  "Universidad CEU San Pablo (CEU-SP)",
-  "Universidad Carlos III de Madrid (UC3M)",
-  "Universidad Pontificia Comillas (UPCO)",
-  "Universidad de Córdoba (UCO)",
-  "Universidad de A Coruña (UDC)",
-  "Universidad de Deusto (UD)",
-  "Universidad de Diseño, Innovación y Tecnología (UDIT)",
-  "Universidad Nacional de Educación a Distancia (UNED)",
-  "Universidad Miguel Hernández (UMH)",
-  "ESIC University (ESIC)",
-  "Universidad Europea de Madrid (UEM)",
-  "Universidad Politécnica de Madrid (UPM)",
-  "Universidad de Extremadura (UEX)",
-  "Universidad Fernando III (UFIII)",
-  "Universidad Fernando Pessoa Canarias (UFPC)",
-  "Universidad Francisco de Vitoria (UFV)",
-  "Universidad Complutense de Madrid (UCM)",
-  "Universidad a Distancia de Madrid (UDIMA)",
-  "Universidad de Málaga (UMA)",
-  "Universidad de Murcia (UMU)",
-  "Universidad Internacional Menéndez Pelayo (UIMP)",
-  "Universidad Europea Miguel de Cervantes (UEMC)",
-  "Mondragón Unibertsitatea (MU)",
-  "Universidad de Navarra (UNAV)",
-  "Universidad Pública de Navarra (UPNA)",
-  "Universidad Nebrija (UNB)",
-  "Universidad de Oviedo (UNIOVI)",
-  "Universidad Pablo de Olavide (UPO)",
-  "Universidad de Las Palmas de Gran Canaria (ULPGC)",
-  "Universidad de Salamanca (USAL)",
-  "Universidad Pontificia de Salamanca (UPSA)",
-  "Universidad Católica San Antonio de Murcia (UCAM)",
-  "Universidad San Dámaso (USD)",
-  "Universidad San Jorge (USJ)",
-  "Universidad Católica de Valencia San Vicente Mártir (UCV)",
-  "Universidad de Santiago de Compostela (USC)",
-  "Universidad de Sevilla (US)",
-  "Universidad de Valencia (UV)",
-  "Universidad Internacional Valenciana (VIU)",
-  "Universidad Politécnica de Valencia (UPV)",
-  "Universidad de Valladolid (UVA)",
-  "Universidad de Vigo (UVIGO)",
-  "Universidad Villanueva (UVILL)",
-  "Universidad de Zaragoza (UNIZAR)",
-];
-
-const majors = [
-  // Ciencias Sociales y Humanidades
-  "Administración y Dirección de Empresas",
-  "Administración y Gestión Pública",
-  "Antropología",
-  "Ciberseguridad",
-  "Ciencias Políticas",
-  "Comunicación Audiovisual",
-  "Criminología",
-  "Derecho",
-  "Economía",
-  "Filosofía",
-  "Geografía",
-  "Historia",
-  "Historia del Arte",
-  "Lenguas Modernas",
-  "Lingüística",
-  "Literatura",
-  "Marketing e Investigación de Mercados",
-  "Periodismo",
-  "Psicología",
-  "Publicidad y Relaciones Públicas",
-  "Relaciones Laborales y Recursos Humanos",
-  "Relaciones Internacionales",
-  "Sociología",
-  "Traducción e Interpretación",
-  "Turismo",
-  "Trabajo Social",
-  "Educación Infantil",
-  "Pedagogía",
-  "Magisterio",
-  "Educación Social",
-  "Educación Primaria",
-
-  // Ciencias de la Salud
-  "Ciencias Biomédicas",
-  "Ciencias de la Actividad Física y del Deporte",
-  "Enfermería",
-  "Farmacia",
-  "Fisioterapia",
-  "Logopedia",
-  "Medicina",
-  "Nutrición Humana y Dietética",
-  "Odontología",
-  "Óptica y Optometría",
-  "Podología",
-  "Psicología",
-  "Terapia Ocupacional",
-  "Veterinaria",
-
-  // Ciencias Experimentales
-  "Bioinformática",
-  "Bioingeniería",
-  "Biología",
-  "Biomedicina",
-  "Bioquímica",
-  "Biotecnología",
-  "Ciencia e Ingeniería de Datos",
-  "Ciencia de los Alimentos",
-  "Ciencias Ambientales",
-  "Ciencias del Mar",
-  "Estadística",
-  "Física",
-  "Geología",
-  "Matemáticas",
-  "Química",
-  "Ciencias Actuariales y Financieras",
-
-  // Arte y Humanidades
-  "Animación",
-  "Arqueología",
-  "Arquitectura",
-  "Arquitectura Naval",
-  "Ingeniería Marítima",
-  "Arte",
-  "Bellas Artes",
-  "Conservación y Restauración",
-  "Diseño",
-  "Diseño Gráfico",
-  "Diseño de Interiores",
-  "Diseño de Moda",
-  "Estudios Ingleses",
-  "Filología Clásica",
-  "Filología Hispánica",
-  "Historia y Ciencias de la Música",
-  "Musicología",
-  "Teoría de la Literatura",
-
-  // Ingenierías
-  "Arquitectura Técnica",
-  "Edificación",
-  "Ingeniería Aeroespacial",
-  "Ingeniería Agroambiental",
-  "Ingeniería Agrícola",
-  "Ingeniería Agrónoma",
-  "Ingeniería Alimentaria",
-  "Ingeniería Biomédica",
-  "Ingeniería Civil",
-  "Ingeniería de Caminos",
-  "Ingeniería de Materiales",
-  "Ingeniería de Minas",
-  "Ingeniería de Montes",
-  "Ingeniería de Sistemas",
-  "Ingeniería de Telecomunicación",
-  "Ingeniería Electrónica",
-  "Ingeniería Eléctrica",
-  "Ingeniería en Energía",
-  "Ingeniería Forestal",
-  "Ingeniería Geológica",
-  "Ingeniería Geomática",
-  "Ingeniería Informática",
-  "Ingeniería Industrial",
-  "Ingeniería Mecánica",
-  "Ingeniería Naval",
-  "Ingeniería Nuclear",
-  "Ingeniería Química",
-  "Ingeniería en Organización Industrial",
-  "Ingeniería en Tecnologías Industriales",
-  "Diseño Industrial y Desarrollo del Producto",
-
-  // Otras especialidades
-  "Ciencias Náuticas",
-  "Gestión Aeronáutica",
-  "Logística",
-  "Protocolo y Organización de Eventos",
-  "Seguridad",
-  "Ciencias del Transporte",
-  "Estudios de Asia Oriental",
-  "Estudios Árabes e Islámicos",
-  "Estudios Hebreos y Arameos",
-];
-
-const yearOptions = [
-  { value: "1", label: "1º Curso" },
-  { value: "2", label: "2º Curso" },
-  { value: "3", label: "3º Curso" },
-  { value: "4", label: "4º Curso" },
-  { value: "5", label: "5º Curso" },
-  { value: "6", label: "6º Curso" },
-  { value: "master", label: "Máster" },
-  { value: "doctorado", label: "Doctorado" },
-];
+import { avatarOptions, universities, majors, yearOptions } from "../utils/constants"
 
 interface CustomProfilePageProps {
   bgColor: boolean;
@@ -287,7 +50,7 @@ export function CustomProfilePage({
 
   // Filtrar carreras basado en búsqueda
   const filteredMajors = majors.filter(
-    (major) =>
+    (major) => 
       majorSearch === "" ||
       major.toLowerCase().includes(majorSearch.toLowerCase())
   );
@@ -473,9 +236,9 @@ export function CustomProfilePage({
                 {showUniversityDropdown && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 z-50 max-h-40 overflow-y-auto">
                     {filteredUniversities.length > 0 ? (
-                      filteredUniversities.map((university) => (
+                      filteredUniversities.map((university, index) => (
                         <button
-                          key={university}
+                          key={index}
                           onClick={() => handleUniversitySelect(university)}
                           className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
                         >
