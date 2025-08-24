@@ -9,16 +9,14 @@ import { getUserById } from "../../services/firestore/userRepository";
 import { getColorFromMood } from "./utils";
 import { addReactionToFeel } from "../../services/firestore/feelsRepository";
 import { useAuth } from "../../hooks/useAuth";
+import {
+  addNotification,
+  deleteNotification,
+  deleteNotificationsByFeelId,
+} from "../../services/firestore/notificationsRepository";
 
 interface FeelCardProps {
   id: string;
-  // author: {
-  //   name: string;
-  //   avatar?: string;
-  //   initials: string;
-  //   year: string;
-  //   major: string;
-  // };
   userId: string;
   content: string;
   timestamp: string;
@@ -70,6 +68,13 @@ export const FeelCard: React.FC<FeelCardProps> = ({
     "🎨",
     "✨",
     "👑",
+    "❤️",
+    "😂",
+    "😮",
+    "😢",
+    "😡",
+    "👏",
+    "💯",
   ];
 
   useEffect(() => {
@@ -95,6 +100,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
 
   const handleReaction = async (emoji: string) => {
     const currentlyReacted = userReactions[emoji];
+    console.log(userReactions)
     const newUserReactions = { ...userReactions, [emoji]: !currentlyReacted };
     setUserReactions(newUserReactions);
 
@@ -119,16 +125,21 @@ export const FeelCard: React.FC<FeelCardProps> = ({
 
     try {
       await addReactionToFeel(id, emoji, userStore!.uid, currentlyReacted);
+      currentlyReacted
+        ? await deleteNotificationsByFeelId(id, userStore!.uid, `Ha reaccionado con ${emoji} a tu feel.`)
+        : await addNotification({
+            senderName: userStore!.name,
+            senderAvatar: userStore!.profileImage,
+            senderStudies: userStore!.studies!,
+            userReceiverId: userId,
+            message: `Ha reaccionado con ${emoji} a tu feel.`,
+            feelId: id,
+            type: "reaction",
+            senderId: userStore!.uid
+          });
     } catch (error) {
       console.error("Error añadiendo reacción:", error);
     }
-  };
-
-  const currentUser = {
-    name: "María González",
-    initials: "MG",
-    avatar:
-      "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=2",
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -211,7 +222,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
-                <button className="opacity-0 group-hover:opacity-100 p-1 rounded-full hover:bg-gray-100 transition-all duration-150">
+                <div className="opacity-0 group-hover:opacity-100 p-1 rounded-full hover:bg-gray-100 transition-all duration-150">
                   <div className="relative">
                     <button
                       onClick={(e) => {
@@ -235,7 +246,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
                       </div>
                     )}
                   </div>
-                </button>
+                </div>
               </div>
             </div>
 
@@ -259,9 +270,9 @@ export const FeelCard: React.FC<FeelCardProps> = ({
             {/* Reacciones existentes */}
             {reactionCounts.length > 0 && (
               <div className="flex items-center space-x-1 mb-3">
-                {reactionCounts.map((reaction) => (
+                {reactionCounts.map((reaction, i) => (
                   <button
-                    key={reaction.emoji}
+                    key={i}
                     onClick={() => handleReaction(reaction.emoji)}
                     className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                       userReactions[reaction.emoji]
@@ -424,6 +435,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
           comments.push(comment);
         }}
         studies={studies ?? undefined}
+        feelUserId={userId}
       />
     </>
   );

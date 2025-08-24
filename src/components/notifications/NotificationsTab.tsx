@@ -1,87 +1,83 @@
-import { Check, Clock, Heart, MessageCircle, Phone, X } from "lucide-react";
-import { useState } from "react";
+import {
+  Check,
+  Clock,
+  Heart,
+  MessageCircle,
+  Phone,
+  Star,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Avatar } from "../shared/Avatar";
+import { useAuth } from "../../hooks/useAuth";
+import { Notification, NotificationType } from "../../types/global";
+import {
+  deleteNotification,
+  getNotificationsByUser,
+  markNotificationAsRead,
+} from "../../services/firestore/notificationsRepository";
 
-export interface Notification {
-  id: string;
-  type: "call" | "comment" | "reaction";
-  user: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
-  content?: string;
-  feelContent?: string;
-  timestamp: string;
-  isRead: boolean;
-  callDuration?: string;
-  reaction?: string;
-}
-
-interface NotificationsTabProps {
-  currentUser: {
-    name: string;
-    avatar?: string;
-    initials: string;
-  };
-  notifications: Notification[];
-  onNotificationsUpdate: (notifications: Notification[]) => void;
-}
-
-export const NotificationsTab: React.FC<NotificationsTabProps> = ({
-  currentUser,
-  notifications,
-  onNotificationsUpdate,
-}) => {
+export const NotificationsTab = () => {
   const [filter, setFilter] = useState<"all" | "unread">("all");
-
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const { userStore } = useAuth();
+  const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
+  const unreadCount = allNotifications.filter((n) => !n.isRead).length;
   const filteredNotifications =
     filter === "unread"
-      ? notifications.filter((n) => !n.isRead)
-      : notifications;
+      ? allNotifications.filter((n) => !n.isRead)
+      : allNotifications;
 
-  const markAsRead = (notificationId: string) => {
-    const updatedNotifications = notifications.map((n) =>
-      n.id === notificationId ? { ...n, isRead: true } : n
-    );
-    onNotificationsUpdate(updatedNotifications);
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await markNotificationAsRead(notificationId);
+      setAllNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, isRead: true } : n
+        )
+      );
+    } catch (error) {
+      console.error("Error al marcar notificación como leída:", error);
+    }
   };
 
-  const deleteNotification = (notificationId: string) => {
-    const updatedNotifications = notifications.filter(
-      (n) => n.id !== notificationId
-    );
-    onNotificationsUpdate(updatedNotifications);
+  const handleDeleteNotification = async (notificationId: string) => {
+    try {
+      await deleteNotification(notificationId);
+      setAllNotifications((prev) =>
+        prev.filter((n) => n.id !== notificationId)
+      );
+    } catch (error) {
+      console.error("Error al eliminar notificación:", error);
+    }
   };
 
-  const getNotificationIcon = (type: string) => {
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const notifications = await getNotificationsByUser(userStore!.uid);
+        setAllNotifications(notifications);
+      } catch (error) {
+        console.error("Error al obtener notificaciones:", error);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
       case "call":
         return <Phone className="w-4 h-4 text-blue-600" />;
       case "comment":
         return <MessageCircle className="w-4 h-4 text-green-600" />;
       case "reaction":
+        return <Star className="w-4 h-4 text-yellow-600" />;
+      case "like":
         return <Heart className="w-4 h-4 text-pink-600" />;
       default:
         return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  const getNotificationText = (notification: Notification) => {
-    switch (notification.type) {
-      case "call":
-        return `te llamó ${notification.callDuration ? `(${notification.callDuration})` : ""}`;
-      case "comment":
-        return "comentó en tu feel";
-      case "reaction":
-        return `reaccionó ${notification.reaction} a tu feel`;
-      default:
-        return "";
-    }
-  };
   return (
     <div className=" bg-gray-50 dark:bg-[#161616] p-6">
       <div className="max-w-[1400px] mx-auto space-y-8">
@@ -102,7 +98,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               }`}
             >
-              Todas ({notifications.length})
+              Todas ({allNotifications.length})
             </button>
             <button
               onClick={() => setFilter("unread")}
@@ -160,9 +156,8 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   {/* Avatar */}
                   <div className="relative">
                     <Avatar
-                      src={notification.user.avatar}
-                      alt={notification.user.name}
-                      initials={notification.user.initials}
+                      src={notification.senderAvatar}
+                      alt={notification.senderName}
                       size="md"
                     />
                     {/* Unread indicator - number badge over avatar */}
@@ -183,15 +178,16 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                       <div>
                         <p className="text-sm text-gray-900">
                           <span className="font-semibold">
-                            {notification.user.name}
+                            {notification.senderName}
                           </span>
                           <span className="text-gray-600 ml-1">
-                            {getNotificationText(notification)}
+                            {notification.message}
                           </span>
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {notification.user.year} • {notification.user.major} •{" "}
-                          {notification.timestamp}
+                          {notification.senderStudies?.year}º curso •{" "}
+                          {notification.senderStudies?.career} •{" "}
+                          {notification.createdAt}
                         </p>
                       </div>
 
@@ -207,7 +203,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                           </button>
                         )}
                         <button
-                          onClick={() => deleteNotification(notification.id)}
+                          onClick={() => handleDeleteNotification(notification.id)}
                           className="p-1.5 rounded-full hover:bg-red-100 text-red-600 transition-colors duration-150"
                           title="Eliminar notificación"
                         >
@@ -217,7 +213,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                     </div>
 
                     {/* Additional content based on type */}
-                    {notification.type === "comment" &&
+                    {/* {notification.type === "comment" &&
                       notification.content && (
                         <div className="mt-3 p-3 bg-gray-50/80 rounded-xl">
                           <p className="text-sm text-gray-700 mb-2">
@@ -230,9 +226,9 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                             </p>
                           )}
                         </div>
-                      )}
+                      )} */}
 
-                    {notification.type === "reaction" &&
+                    {/* {notification.type === "reaction" &&
                       notification.feelContent && (
                         <div className="mt-3 p-3 bg-gray-50/80 rounded-xl">
                           <p className="text-sm text-neutral-600 italic tracking-wide leading-relaxed">
@@ -240,13 +236,13 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                             {notification.feelContent.substring(0, 60)}..."
                           </p>
                         </div>
-                      )}
+                      )} */}
                   </div>
                 </div>
               </div>
             ))
           )}
-        </div> 
+        </div>
       </div>
     </div>
   );

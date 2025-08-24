@@ -11,6 +11,7 @@ import {
 } from "../../services/firestore/feelsRepository";
 import { getRelativeTime } from "../../utils/utils";
 import { getColorFromMood } from "./utils";
+import { addNotification } from "../../services/firestore/notificationsRepository";
 
 interface CommentsModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface CommentsModalProps {
   feelId?: string;
   name: string;
   avatar: string;
+  feelUserId: string;
   studies?: Studies;
   feelContent: string;
   feelMood: TypeMood;
@@ -36,6 +38,7 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
   comments: initialComments,
   addComment,
   studies,
+  feelUserId
 }) => {
   const [comments, setComments] = useState(initialComments);
   const [authorComments, setAuthorComments] = useState<User[]>([]);
@@ -111,6 +114,16 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
     addComment(comment); // Call the addComment prop if provided
     try {
       await addCommentToFeel(feelId!, comment.content, userStore!.uid);
+      await addNotification({
+        senderName: userStore!.name,
+        senderAvatar: userStore!.profileImage,
+        senderStudies: userStore!.studies!,
+        userReceiverId: feelUserId,
+        message: `${userStore!.name} ha comentado en tu feel.`,
+        feelId: feelId,
+        type: "comment",
+        senderId: userStore!.uid
+      });
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -140,6 +153,16 @@ export const CommentsModal: React.FC<CommentsModalProps> = ({
             userStore!.uid,
             comment.isLiked || false
           );
+          await addNotification({
+            senderName: userStore!.name,
+            senderAvatar: userStore!.profileImage,
+            senderStudies: userStore!.studies!,
+            userReceiverId: feelUserId,
+            message: `${userStore!.name} ha dado like a tu comentario.`,
+            feelId: feelId,
+            type: "comment",
+            senderId: userStore!.uid
+          });
         } catch (error) {
           console.error("Error liking comment:", error);
         }

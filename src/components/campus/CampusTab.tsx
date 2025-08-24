@@ -343,7 +343,7 @@ export function CampusTab({ handleCall }: CampusTabProps) {
                               <Avatar
                                 src={
                                   userRecentCalls[i]?.profileImage ||
-                                  "/default-avatar.png"
+                                  "/default_avatar.png"
                                 }
                                 alt={userRecentCalls[i]?.name}
                                 size="sm"

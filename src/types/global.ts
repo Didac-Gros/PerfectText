@@ -236,3 +236,23 @@ export interface Call {
 }
 
 export type CallRole = "caller" | "callee" | null;
+
+export type NotificationType = 
+  | "reaction"
+  | "like"
+  | "comment" |"call";
+
+
+export interface Notification {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar: string;
+  senderStudies?: Studies;
+  userReceiverId: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+  feelId?: string;
+  type: NotificationType;
+}

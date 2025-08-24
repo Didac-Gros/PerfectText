@@ -9,7 +9,7 @@ import {
   updateFirestoreField,
   updateUserTokens,
 } from "../services/firestore/firestore";
-import { SidebarType, TabType, User } from "../types/global";
+import { Notification, SidebarType, TabType, User } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
@@ -41,6 +41,7 @@ import { fetchEmitToken } from "../services/jwt/emitToken";
 import { useVoiceCall } from "../hooks/useVoiceCall";
 import { IncomingCallModal } from "../components/shared/IncomingCallModal";
 import { CallingModal } from "../components/shared/CallingModal";
+import { getNotificationsByUser } from "../services/firestore/notificationsRepository";
 
 export const HomePage: React.FC = () => {
   const { user, userStore, token, emitToken } = useAuth();
@@ -68,6 +69,7 @@ export const HomePage: React.FC = () => {
   const [showIncomingCallModal, setShowIncomingCallModal] =
     useState<boolean>(false);
   const [incomingCallUser, setIncomingCallUser] = useState<User | null>(null);
+
   const {
     recorderState,
     isPaused,
@@ -115,6 +117,7 @@ export const HomePage: React.FC = () => {
       };
       fetchToken();
     }
+
   }, []);
 
   useEffect(() => {
@@ -169,81 +172,6 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const currentUser = {
-    id: "current",
-    name: "María García",
-    initials: "MG",
-    year: "3º Curso",
-    major: "Psicología",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=maria&size=64",
-  };
-
-  // Estado para notificaciones dinámicas
-  const [dynamicNotifications, setDynamicNotifications] = useState<any[]>([]);
-
-  // Mock notifications data - esto debería venir de un estado global o API
-  const [staticNotifications] = useState([
-    {
-      id: "1",
-      type: "call",
-      user: {
-        name: "Ana Martín",
-        initials: "AM",
-        avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=ana&size=64",
-        year: "2º Curso",
-        major: "Ingeniería",
-      },
-      timestamp: "hace 5 min",
-      isRead: false,
-      callDuration: "0:23",
-    },
-    {
-      id: "2",
-      type: "comment",
-      user: {
-        name: "Carlos Ruiz",
-        initials: "CR",
-        avatar:
-          "https://api.dicebear.com/7.x/pixel-art/svg?seed=carlos&size=64",
-        year: "4º Curso",
-        major: "Medicina",
-      },
-      content: "¡Yo también! ¿Nos vamos a tomar algo después?",
-      feelContent: "Hoy me siento súper motivada en Psicología Social...",
-      timestamp: "hace 15 min",
-      isRead: false,
-    },
-    {
-      id: "3",
-      type: "reaction",
-      user: {
-        name: "Laura Sánchez",
-        initials: "LS",
-        year: "1º Curso",
-        major: "Filosofía",
-      },
-      feelContent: "Estadística a primera hora... necesito más café",
-      timestamp: "hace 1h",
-      isRead: true,
-      reaction: "☕",
-    },
-    {
-      id: "4",
-      type: "call",
-      user: {
-        name: "Diego López",
-        initials: "DL",
-        year: "3º Curso",
-        major: "Informática",
-      },
-      timestamp: "hace 2h",
-      isRead: true,
-      callDuration: "4:12",
-    },
-  ]);
-
-  // Combinar notificaciones estáticas y dinámicas
-  const allNotifications = [...dynamicNotifications, ...staticNotifications];
 
   useEffect(() => {
     if (state === "ringing-in") {
@@ -344,21 +272,6 @@ export const HomePage: React.FC = () => {
             <CallsTab state={state} sendCall={call} />
           ) : currentView === "notifications" ? (
             <NotificationsTab
-              currentUser={currentUser}
-              notifications={allNotifications}
-              onNotificationsUpdate={(updatedNotifications) => {
-                // Separar notificaciones dinámicas de estáticas
-                const dynamicIds = dynamicNotifications.map((n) => n.id);
-                const updatedDynamic = updatedNotifications.filter((n) =>
-                  dynamicIds.includes(n.id)
-                );
-                const updatedStatic = updatedNotifications.filter(
-                  (n) => !dynamicIds.includes(n.id)
-                );
-
-                setDynamicNotifications(updatedDynamic);
-                // Las notificaciones estáticas no se actualizan desde aquí
-              }}
             />
           ) : (
             <CustomProfilePage

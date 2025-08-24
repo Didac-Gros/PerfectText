@@ -165,7 +165,7 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
               <div className="flex items-start justify-between mb-3">
                 <div className="relative">
                   <Avatar
-                    src={user.profileImage || "/default-avatar.png"}
+                    src={user.profileImage || "/default_avatar.png"}
                     alt={user.name}
                     size="md"
                   />
@@ -241,7 +241,7 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
                   <div className="flex items-center space-x-3">
                     <div className="relative">
                       <Avatar
-                        src={userRecentCalls[i]?.profileImage || "/default-avatar.png"}
+                        src={userRecentCalls[i]?.profileImage || "/default_avatar.png"}
                         alt={userRecentCalls[i]?.name}
                         size="sm"
                       />
