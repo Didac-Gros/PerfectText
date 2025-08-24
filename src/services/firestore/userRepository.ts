@@ -53,25 +53,30 @@ export const syncUserPhotoURL = async (): Promise<void> => {
     console.error("Error sincronitzant photoURL:", error);
   }
 };
-
-export async function getAllUsers(): Promise<User[]> {
+/**
+ * Obtiene todos los usuarios de Firestore excepto el userId indicado
+ */
+export async function getAllUsers(userId: string): Promise<User[]> {
   try {
     const usersCol = collection(db, "users");
     const snapshot = await getDocs(usersCol);
-    return snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        uid: doc.id,
-        name: data.name,
-        email: data.email,
-        expirationDate: data.expirationDate,
-        customerId: data.customerId || null,
-        subscription: data.subscription,
-        tokens: data.tokens || null,
-        profileImage: data.profileImage || null,
-        studies: data.studies || null,
-      } as User;
-    });
+
+    return snapshot.docs
+      .filter((doc) => doc.id !== userId) // 🔹 excluye al user pasado
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          uid: doc.id,
+          name: data.name,
+          email: data.email,
+          expirationDate: data.expirationDate,
+          customerId: data.customerId || null,
+          subscription: data.subscription,
+          tokens: data.tokens || null,
+          profileImage: data.profileImage || null,
+          studies: data.studies || null,
+        } as User;
+      });
   } catch (error) {
     console.error("Error recuperant els usuaris:", error);
     return [];

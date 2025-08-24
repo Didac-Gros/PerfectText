@@ -1,26 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
+import { User } from "../../types/global";
 
-export interface CampusUser {
-  id: string;
-  name: string;
-  avatar?: string;
-  initials: string;
-  year: string;
-  major: string;
-  mood: {
-    emoji: string;
-    name: string;
-    color: string;
-  };
-  status: "online" | "busy" | "away" | "offline" | "available" | "silent";
-  customStatus?: string;
-}
 
 interface SearchDropdownProps {
-  allUsers: CampusUser[];
-  onUserSelect?: (user: CampusUser) => void;
+  allUsers: User[];
+  onUserSelect?: (user: User) => void;
 }
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
@@ -29,7 +15,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [filteredUsers, setFilteredUsers] = useState<CampusUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -66,7 +52,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     setIsOpen(value.length > 0);
   };
 
-  const handleUserSelect = (user: CampusUser) => {
+  const handleUserSelect = (user: User) => {
     setSearchQuery("");
     setIsOpen(false);
     onUserSelect?.(user);
@@ -109,38 +95,22 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
             <div className="py-3">
               {filteredUsers.map((user) => (
                 <button
-                  key={user.id}
+                  key={user.uid}
                   onClick={() => handleUserSelect(user)}
                   className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50/80 transition-all duration-150 text-left group"
                 >
                   <Avatar
-                    src={user.avatar}
+                    src={user.profileImage}
                     alt={user.name}
-                    initials={user.initials}
-                    status={user.status}
                     size="sm"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-800">
                       {user.name}
                     </p>
-                    {user.customStatus && (
-                      <p className="text-sm text-neutral-600 truncate group-hover:text-neutral-700 tracking-wide">
-                        {user.customStatus}
-                      </p>
-                    )}
+                   
                   </div>
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                      user.status === "online"
-                        ? "bg-green-400"
-                        : user.status === "busy"
-                          ? "bg-red-400"
-                          : user.status === "away"
-                            ? "bg-yellow-400"
-                            : "bg-gray-300"
-                    }`}
-                  />
+                  
                 </button>
               ))}
             </div>

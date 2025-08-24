@@ -519,3 +519,15 @@ export const getRelativeTime = (isoDate: string): string => {
   if (days === 1) return "hace 1 dia";
   return `hace ${days} dias`;
 };
+
+/**
+ * Convierte segundos en formato M:SS
+ * @example
+ * formatDuration(8)   // "0:08"
+ * formatDuration(203) // "3:23"
+ */
+export function formatDuration(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}

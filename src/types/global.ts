@@ -226,3 +226,13 @@ export interface Feel {
   comments: FeelComment[];
   createdAt: string;
 }
+
+export interface Call {
+  id: string;
+  callerUser: string;
+  calleeUser: string;
+  createdAt: string;
+  duration: number;
+}
+
+export type CallRole = "caller" | "callee" | null;

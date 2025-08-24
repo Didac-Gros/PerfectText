@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CallRole } from "../types/global";
 
 type SigMsg =
   | { type: "ring"; callId: string; from: string; to: string }
-  | { type: "accept"; callId: string; from: string; to: string } // <— NUEVO
+  | { type: "accept"; callId: string; from: string; to: string }
   | {
       type: "offer";
       callId: string;
@@ -46,7 +47,7 @@ const STUN: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
 export function useVoiceCall({
   me,
   jwt,
-  wsBase = "ws://localhost:3001/ws", // cambia al de tu servidor
+  wsBase = "ws://localhost:3001/ws",
 }: {
   me: string; // userId actual
   jwt: string; // token JWT emitido por tu backend
@@ -58,20 +59,63 @@ export function useVoiceCall({
   const [muted, setMuted] = useState(false);
   const [incomingFrom, setIncomingFrom] = useState<string | null>(null);
 
+  // Rol de la llamada
+  const [role, setRole] = useState<CallRole>(null);
+  const isCaller = role === "caller";
+  const isCallee = role === "callee";
+
+  // Duración
+  const [durationSeconds, setDurationSeconds] = useState(0);
+  const callStartRef = useRef<number | null>(null);
+  const timerRef = useRef<number | null>(null);
+
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-  // arriba, junto al resto de refs:
   const peerIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     peerIdRef.current = peerId;
   }, [peerId]);
+
   const wsUrl = useMemo(
     () => `${wsBase}?token=${encodeURIComponent(jwt)}`,
     [wsBase, jwt]
   );
 
+  // ---- duración helpers
+  const startTimer = () => {
+    if (callStartRef.current != null) return;
+    callStartRef.current = Date.now();
+    setDurationSeconds(0);
+    timerRef.current = window.setInterval(() => {
+      if (callStartRef.current != null) {
+        const secs = Math.floor((Date.now() - callStartRef.current) / 1000);
+        setDurationSeconds(secs);
+      }
+    }, 1000);
+  };
+  const stopTimer = () => {
+    if (timerRef.current != null) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    callStartRef.current = null;
+  };
+  const resetDuration = () => {
+    stopTimer();
+    setDurationSeconds(0);
+  };
+  const durationLabel = (() => {
+    const m = Math.floor(durationSeconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (durationSeconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  })();
+
+  // ---- RTCPeerConnection
   const ensurePc = () => {
     if (pcRef.current) return pcRef.current;
     const pc = new RTCPeerConnection({ iceServers: STUN });
@@ -81,22 +125,27 @@ export function useVoiceCall({
     };
 
     pc.onconnectionstatechange = () => {
-      if (pc.connectionState === "connected") setState("talking");
-      if (["failed", "disconnected", "closed"].includes(pc.connectionState)) {
+      const st = pc.connectionState;
+      console.log("PC state:", st);
+      if (st === "connected") {
+        setState("talking");
+        startTimer();
+      }
+      if (["failed", "disconnected", "closed"].includes(st)) {
         setState("ended");
+        stopTimer();
       }
     };
 
     pc.onicecandidate = (ev) => {
       if (!ev.candidate) {
-        console.log("ICE gathering complete");
         return;
       }
       const to = peerIdRef.current;
       if (to) {
         wsSend({
           type: "candidate",
-          callId, // opcional, pero lo mantenemos
+          callId,
           to,
           candidate: ev.candidate.toJSON(),
         });
@@ -105,7 +154,6 @@ export function useVoiceCall({
 
     pc.ontrack = (ev) => {
       const [stream] = ev.streams;
-
       if (remoteAudioRef.current) {
         remoteAudioRef.current.srcObject = stream;
         remoteAudioRef.current.muted = false;
@@ -124,22 +172,26 @@ export function useVoiceCall({
     wsRef.current?.readyState === WebSocket.OPEN &&
     wsRef.current.send(JSON.stringify(obj));
 
-  // Conexión WebSocket
+  // ---- WebSocket
   useEffect(() => {
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = async (ev) => {
-      console.log("Mensaje recibido:", ev.data);
       const msg = JSON.parse(ev.data) as SigMsg;
-      console.log("Mensaje decodificado:", msg);
       switch (msg.type) {
         case "ring":
+          // Llamada entrante → soy callee
           setIncomingFrom(msg.from);
           setCallId(msg.callId);
           setPeerId(msg.from);
+          setRole("callee");
+          resetDuration();
           setState("ringing-in");
           break;
+
         case "offer": {
+          // Refuerzo por si llega offer antes de marcar rol
+          setRole((r) => r ?? "callee");
           setPeerId(msg.from);
           const pc = ensurePc();
           await pc.setRemoteDescription(msg.sdp);
@@ -156,46 +208,52 @@ export function useVoiceCall({
           setState("connecting");
           break;
         }
+
         case "answer": {
           const pc = ensurePc();
           await pc.setRemoteDescription(msg.sdp);
           setState("connecting");
           break;
         }
-        // al recibir candidate:
+
         case "candidate": {
-          console.log("← recibido candidate");
           const pc = ensurePc();
           try {
             await pc.addIceCandidate(msg.candidate);
-            console.log("✓ addIceCandidate ok");
           } catch (e) {
             console.error("✗ addIceCandidate error", e);
           }
           break;
         }
+
         case "accept": {
-          // Soy el caller y el callee aceptó
+          // Yo inicié la llamada → soy caller
+          setRole("caller");
           setPeerId(msg.from);
           if (!callId) setCallId(msg.callId);
           await createAndSendOffer(msg.from, msg.callId);
           setState("connecting");
           break;
         }
+
         case "reject":
           setState("ended");
+          stopTimer();
           break;
+
         case "hangup":
           end();
           break;
       }
     };
+
     wsRef.current = ws;
     return () => {
       ws.close();
     };
-  }, [wsUrl]);
+  }, [wsUrl]); // eslint-disable-line
 
+  // ---- Media
   const getMic = async () => {
     if (localStreamRef.current) return localStreamRef.current;
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -206,18 +264,19 @@ export function useVoiceCall({
       },
       video: false,
     });
-    console.log("Tengo micro local:", stream.getAudioTracks().length, "tracks");
     localStreamRef.current = stream;
     return stream;
   };
 
+  // ---- API pública
   const call = async (toUserId: string) => {
     setPeerId(toUserId);
+    setRole("caller");
     setState("ringing-out");
+    resetDuration();
     const id = crypto.randomUUID();
     setCallId(id);
-    wsSend({ type: "ring", callId: id, to: toUserId }); // <— solo ring
-    // Quita todo lo de crear PC/offer aquí.
+    wsSend({ type: "ring", callId: id, to: toUserId });
   };
 
   const createAndSendOffer = async (to: string, callId: string) => {
@@ -230,12 +289,13 @@ export function useVoiceCall({
   };
 
   const accept = async () => {
-    setState("connecting"); // UI feedback
+    setRole((r) => r ?? "callee");
+    setState("connecting");
     setIncomingFrom(null);
+    resetDuration();
     if (peerId && callId) {
-      wsSend({ type: "accept", callId, to: peerId }); // <— AVISA AL CALLER
+      wsSend({ type: "accept", callId, to: peerId });
     }
-    // Espera el offer del caller; cuando llegue, contestas (bloque "offer" de abajo)
   };
 
   const reject = () => {
@@ -259,6 +319,8 @@ export function useVoiceCall({
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
     localStreamRef.current = null;
     setState("ended");
+    stopTimer();
+    setRole(null);
     setPeerId(null);
     setCallId(null);
   };
@@ -278,9 +340,21 @@ export function useVoiceCall({
   };
 
   return {
+    // estado básico
     state,
     incomingFrom,
     muted,
+
+    // duración
+    durationSeconds,
+    durationLabel,
+
+    // rol
+    role,
+    isCaller,
+    isCallee,
+
+    // acciones
     call,
     accept,
     reject,

@@ -40,6 +40,7 @@ import { CustomProfilePage } from "./CustomProfilePage";
 import { fetchEmitToken } from "../services/jwt/emitToken";
 import { useVoiceCall } from "../hooks/useVoiceCall";
 import { IncomingCallModal } from "../components/shared/IncomingCallModal";
+import { CallingModal } from "../components/shared/CallingModal";
 
 export const HomePage: React.FC = () => {
   const { user, userStore, token, emitToken } = useAuth();
@@ -95,6 +96,8 @@ export const HomePage: React.FC = () => {
     hangup,
     toggleMute,
     bindRemoteAudio,
+    durationSeconds,
+    role: callRole
   } = useVoiceCall({ me: userStore?.uid || "", jwt: token || "" });
 
   useEffect(() => {
@@ -136,6 +139,10 @@ export const HomePage: React.FC = () => {
       setTimeout(() => setRecordingTime(0), 100); // Dale un pequeño delay para asegurar que se actualice correctamente
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    console.log("Estado de la llamada:", state);
+  }, [state]);
 
   const handleMinimized = () => {
     setIsMinimized(false);
@@ -265,6 +272,18 @@ export const HomePage: React.FC = () => {
             handleStopRecording={handleStopRecording}
           ></AudioWindow>
         )}
+        {state === "talking" && (
+          <CallingModal
+            handleEndCall={hangup}
+            toggleMute={toggleMute}
+            muted={muted}
+            duration={durationSeconds}
+            avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+            name={incomingCallUser?.name || "Desconocido"}
+            callUserId={incomingCallUser?.uid || ""}
+            callRole={callRole}
+          />
+        )}
 
         <div
           className={` ${
@@ -320,7 +339,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "boards" ? (
             <NexusTab />
           ) : currentView === "campus" ? (
-            <CampusTab />
+            <CampusTab handleCall={call} />
           ) : currentView === "calls" ? (
             <CallsTab state={state} sendCall={call} />
           ) : currentView === "notifications" ? (
@@ -401,6 +420,19 @@ export const HomePage: React.FC = () => {
           name={incomingCallUser?.name || "Desconocido"}
           handleAcceptCall={accept}
           handleRejectCall={reject}
+        />
+      )}
+
+      {state === "talking" && (
+        <CallingModal
+          handleEndCall={hangup}
+          toggleMute={toggleMute}
+          muted={muted}
+          duration={durationSeconds}
+          avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+          name={incomingCallUser?.name || "Desconocido"}
+          callUserId={callRole === "caller" ? userStore!.uid : incomingCallUser!.uid}
+          callRole={callRole}
         />
       )}
 
@@ -532,7 +564,7 @@ export const HomePage: React.FC = () => {
 
       {/* Audio remoto (invisible) */}
       <audio ref={bindRemoteAudio} autoPlay playsInline />
-      <Footer></Footer>
+      {/* <Footer></Footer> */}
     </div>
   );
 };
