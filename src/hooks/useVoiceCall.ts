@@ -47,7 +47,7 @@ const STUN: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
 export function useVoiceCall({
   me,
   jwt,
-  wsBase = "ws://localhost:3001/ws",
+  wsBase = "ws://localhost:3000/ws",
 }: {
   me: string; // userId actual
   jwt: string; // token JWT emitido por tu backend
@@ -79,10 +79,11 @@ export function useVoiceCall({
     peerIdRef.current = peerId;
   }, [peerId]);
 
-  const wsUrl = useMemo(
-    () => `${wsBase}?token=${encodeURIComponent(jwt)}`,
-    [wsBase, jwt]
-  );
+  const base = import.meta.env.PROD
+    ? "wss://perfecttext.onrender.com/ws"
+    : "ws://localhost:3000/ws"; // <-- backend local
+
+  const wsUrl = `${base}?token=${encodeURIComponent(jwt)}`;
 
   // ---- duración helpers
   const startTimer = () => {

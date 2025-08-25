@@ -33,6 +33,7 @@ import OpenAI from "openai";
 import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import jwt from "jsonwebtoken";
+import helmet from "helmet";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -43,17 +44,35 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const app = express();
-const server = http.createServer(app);
-const PORT2 = 3001;
+app.set("trust proxy", 1);
+app.use(helmet());
+app.use(compression());
+const PORT = Number(process.env.PORT || 3000);
 const JWT_SECRET = process.env.JWT_SECRET || "cambia-esto-en-prod";
+const ALLOWED_ORIGINS = [
+  "https://perfecttext.onrender.com",
+  "http://localhost:5175",
+  "http://localhost:3000",
+];
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+      return cb(new Error("CORS: origen no permitido"));
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+const server = http.createServer(app);
 
 // (opcional) endpoint de salud
 app.get("/health", (_req, res) => res.send("ok"));
 
-// ---- WS ----
+// ---- WebSocket sobre el mismo server/puerto ----
 type WsAuthed = WebSocket & { userId?: string; isAlive?: boolean };
-
-const online = new Map<string, WsAuthed>(); // userId -> socket
+const online = new Map<string, WsAuthed>();
 
 function send(toUserId: string, payload: any) {
   const ws = online.get(toUserId);
@@ -61,11 +80,16 @@ function send(toUserId: string, payload: any) {
 }
 
 const wss = new WebSocketServer({ server, path: "/ws" });
-
 wss.on("connection", (ws: WsAuthed, req) => {
+  // (opcional) validación de origen
+  const origin = req.headers.origin;
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    ws.close(1008, "origen no permitido");
+    return;
+  }
+
   const url = new URL(req.url || "", "http://localhost");
   const token = url.searchParams.get("token") || "";
-
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { sub?: string };
     if (!decoded?.sub) throw new Error("Token sin sub");
@@ -88,37 +112,28 @@ wss.on("connection", (ws: WsAuthed, req) => {
       return;
     }
     if (!data?.type || !data?.to) return;
-    // reescribimos from por seguridad
     send(data.to, { ...data, from: ws.userId });
   });
 
   ws.on("close", () => {
-    if (ws.userId) {
-      online.delete(ws.userId);
-      console.log("WS CLOSED:", ws.userId);
-    }
+    if (ws.userId) online.delete(ws.userId);
   });
-
-  ws.on("error", (err) => {
-    console.error("WS error:", err);
-  });
+  ws.on("error", (err) => console.error("WS error:", err));
 });
 
-// Heartbeat: limpia sockets muertos cada 30s
+// Heartbeat
 const interval = setInterval(() => {
   wss.clients.forEach((ws) => {
     const s = ws as WsAuthed;
     if (!s.isAlive) return ws.terminate();
     s.isAlive = false;
-    ws.ping();
+    try {
+      ws.ping();
+    } catch {}
   });
-}, 30_000);
-
+}, 25_000);
 wss.on("close", () => clearInterval(interval));
 
-server.listen(PORT2, () => {
-  console.log(`HTTP + WS en http://localhost:${PORT2}  (WS: /ws)`);
-});
 
 // Security and performance configuration
 const corsOptions = {
@@ -230,18 +245,20 @@ app.post("/api/emit-token", (req: Request, res: Response) => {
 // Error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
-
-app
-  .listen(PORT, () => {
-    console.log(`✨ Server running at http://:${PORT}`);
-  })
-  .on("error", (error: NodeJS.ErrnoException) => {
-    if (error.code === "EADDRINUSE") {
-      console.error(`⚠️ Port ${PORT} is already in use`);
-      process.exit(1);
-    } else {
-      console.error("❌ Server error:", error);
-      process.exit(1);
-    }
-  });
+// const PORT = process.env.PORT;
+server.listen(PORT, () => {
+  console.log(`HTTP + WS en http://localhost:${PORT}  (WS: /ws)`);
+});
+// app
+//   .listen(PORT, () => {
+//     console.log(`✨ Server running at http://:${PORT}`);
+//   })
+//   .on("error", (error: NodeJS.ErrnoException) => {
+//     if (error.code === "EADDRINUSE") {
+//       console.error(`⚠️ Port ${PORT} is already in use`);
+//       process.exit(1);
+//     } else {
+//       console.error("❌ Server error:", error);
+//       process.exit(1);
+//     }
+//   });
