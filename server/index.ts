@@ -53,6 +53,7 @@ const ALLOWED_ORIGINS = [
   "https://perfecttext.onrender.com",
   "http://localhost:5175",
   "http://localhost:3000",
+  "https://perfecttext.ai",
 ];
 app.use(
   cors({
