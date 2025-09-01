@@ -7,7 +7,6 @@ import { SuccessPaymentPage } from "./pages/SuccessPaymentPage";
 import InvitationPage from "./pages/InvitationPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
-import CallPage from "./pages/CallPage";
 
 // Configuración de las rutas
 const routes: RouteObject[] = [
@@ -42,11 +41,6 @@ const routes: RouteObject[] = [
   {
     path: "/terms",
     element: <TermsPage />,
-  },
-
-  {
-    path: "/call",
-    element: <CallPage />,
   },
 ];
 

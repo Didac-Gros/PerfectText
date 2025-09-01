@@ -11,7 +11,7 @@ import {
   ChatBubbleMessage,
 } from "./ui/chat-bubble";
 import { useAuth } from "../../hooks/useAuth";
-import { FeelComment } from "../../types/global";
+import { Comment } from "../../types/global";
 
 interface CommentDialogProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ interface CommentDialogProps {
   dueDate: string | null;
   onUpdateDueDate: (date: string | null) => void;
   isCompleted?: boolean;
-  comments: Array<FeelComment>;
+  comments: Array<Comment>;
   onAddComment: (text: string) => Promise<void>;
   onDeleteComment: (id: string) => void;
 }

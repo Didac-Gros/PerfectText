@@ -237,11 +237,7 @@ export interface Call {
 
 export type CallRole = "caller" | "callee" | null;
 
-export type NotificationType = 
-  | "reaction"
-  | "like"
-  | "comment" |"call";
-
+export type NotificationType = "reaction" | "like" | "comment" | "call";
 
 export interface Notification {
   id: string;

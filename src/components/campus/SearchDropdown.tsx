@@ -3,7 +3,6 @@ import { Search, X } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { User } from "../../types/global";
 
-
 interface SearchDropdownProps {
   allUsers: User[];
   onUserSelect?: (user: User) => void;
@@ -21,9 +20,11 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
   // Filter users based on search query
   useEffect(() => {
-    if (searchQuery.trim()) {
-      const filtered = allUsers.filter((user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const q = searchQuery.trim().toLowerCase();
+
+    if (q) {
+      const filtered = (allUsers ?? []).filter((u) =>
+        (u?.name ?? "").toLowerCase().includes(q)
       );
       setFilteredUsers(filtered);
     } else {
@@ -100,17 +101,15 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
                   className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50/80 transition-all duration-150 text-left group"
                 >
                   <Avatar
-                    src={user.profileImage}
-                    alt={user.name}
+                    src={user.profileImage ?? "/default_avatar.jpg"}
+                    alt={user.name ?? "Usuario"}
                     size="sm"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-800">
-                      {user.name}
+                      {user.name ?? "Sin nombre"}
                     </p>
-                   
                   </div>
-                  
                 </button>
               ))}
             </div>

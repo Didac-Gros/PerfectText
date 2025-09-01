@@ -227,9 +227,10 @@
          backdrop-blur-sm hover:scale-[1.02] hover:-translate-y-0.5 
          hover:shadow-xl cursor-pointer !important;
 }
+.fc-timegrid-event-harness { margin-right: 2px; }
 
 .fc-timegrid-event {
-  @reference min-h-[40px] !important;
+  @reference min-h-[40px] box-shadow: none !important;
 }
 
 .fc-event-main {

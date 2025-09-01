@@ -6,16 +6,11 @@ import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import {
   Plus,
-  Calendar as CalendarIcon,
-  LayoutGrid,
   ListMinus,
   Baseline as Timeline,
   Check,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  Filter,
-  Sun,
   Grid2X2,
   CalendarDays,
   RefreshCw,
@@ -96,7 +91,7 @@ export function CalendarTab({ sidebarOpen }: CalendarTabProps) {
   } = useCalendarStore();
 
   // Update slot height when zoom changes
-  React.useEffect(() => {
+  useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty(
       "--fc-timegrid-slot-height",
@@ -326,7 +321,7 @@ export function CalendarTab({ sidebarOpen }: CalendarTabProps) {
   const login = useGoogleLogin({
     flow: "auth-code", // Use 'auth-code' for server-side code exchange
     scope:
-      "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events",
+      "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly",
 
     onSuccess: async ({
       code,

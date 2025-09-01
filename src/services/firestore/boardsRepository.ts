@@ -11,7 +11,7 @@ import {
 import {
   AcceptInvitationError,
   Board,
-  FeelComment,
+  Comment,
   List,
   Member,
 } from "../../types/global"; // ajusta el path a tu archivo de interfaces
@@ -485,7 +485,7 @@ export const addCommentToFirestore = async (
   boardId: string,
   listId: string,
   cardId: string,
-  comment: FeelComment
+  comment: Comment
 ): Promise<void> => {
   const boardRef = doc(db, "boards", boardId);
   const boardSnap = await getDoc(boardRef);

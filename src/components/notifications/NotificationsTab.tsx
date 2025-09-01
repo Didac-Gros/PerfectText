@@ -16,6 +16,7 @@ import {
   getNotificationsByUser,
   markNotificationAsRead,
 } from "../../services/firestore/notificationsRepository";
+import { getRelativeTime } from "../../utils/utils";
 
 export const NotificationsTab = () => {
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -31,9 +32,7 @@ export const NotificationsTab = () => {
     try {
       await markNotificationAsRead(notificationId);
       setAllNotifications((prev) =>
-        prev.map((n) =>
-          n.id === notificationId ? { ...n, isRead: true } : n
-        )
+        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
       );
     } catch (error) {
       console.error("Error al marcar notificación como leída:", error);
@@ -187,7 +186,7 @@ export const NotificationsTab = () => {
                         <p className="text-xs text-gray-500 mt-1">
                           {notification.senderStudies?.year}º curso •{" "}
                           {notification.senderStudies?.career} •{" "}
-                          {notification.createdAt}
+                          {getRelativeTime(notification.createdAt)}
                         </p>
                       </div>
 
@@ -203,7 +202,9 @@ export const NotificationsTab = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => handleDeleteNotification(notification.id)}
+                          onClick={() =>
+                            handleDeleteNotification(notification.id)
+                          }
                           className="p-1.5 rounded-full hover:bg-red-100 text-red-600 transition-colors duration-150"
                           title="Eliminar notificación"
                         >

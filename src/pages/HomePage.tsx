@@ -269,7 +269,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "campus" ? (
             <CampusTab handleCall={call} />
           ) : currentView === "calls" ? (
-            <CallsTab state={state} sendCall={call} />
+            <CallsTab state={state} sendCall={call} hangup={hangup} />
           ) : currentView === "notifications" ? (
             <NotificationsTab
             />

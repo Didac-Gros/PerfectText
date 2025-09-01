@@ -42,28 +42,31 @@ export async function addNotification({
   type: NotificationType;
   senderId: string;
 }): Promise<string> {
-  const id = crypto.randomUUID();
+  if (senderId !== userReceiverId) {
+    const id = crypto.randomUUID();
 
-  // construimos el objeto, pero dejamos que Firestore genere el id
-  const notificationData: Notification = {
-    id,
-    senderName,
-    senderAvatar,
-    senderStudies,
-    userReceiverId,
-    message,
-    createdAt: new Date().toISOString(), // o puedes usar serverTimestamp()
-    isRead: false,
-    feelId,
-    type,
-    senderId,
-  };
+    // construimos el objeto, pero dejamos que Firestore genere el id
+    const notificationData: Notification = {
+      id,
+      senderName,
+      senderAvatar,
+      senderStudies,
+      userReceiverId,
+      message,
+      createdAt: new Date().toISOString(), // o puedes usar serverTimestamp()
+      isRead: false,
+      feelId: feelId || "",
+      type,
+      senderId,
+    };
 
-  const docRef = await addDoc(
-    collection(db, "notifications"),
-    notificationData
-  );
-  return docRef.id;
+    const docRef = await addDoc(
+      collection(db, "notifications"),
+      notificationData
+    );
+    return docRef.id;
+  }
+  return "";
 }
 
 /**
@@ -75,7 +78,6 @@ export async function deleteNotification(
   try {
     const notifRef = doc(db, "notifications", notificationId);
     await deleteDoc(notifRef);
-    console.log(`Notificación ${notificationId} eliminada`);
   } catch (error) {
     console.error("Error eliminando notificación:", error);
     throw error;

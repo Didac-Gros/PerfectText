@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Phone,
-  TrendingUp,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Phone, TrendingUp } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { FeelCard } from "./FeelCard";
 import { FilterTabs } from "./FilterTabs";
@@ -331,70 +326,74 @@ export function CampusTab({ handleCall }: CampusTabProps) {
                   <h3 className="text-sm font-medium text-gray-700 mb-4 flex items-center">
                     Llamadas recientes
                   </h3>
-                  <div className="space-y-3">
-                    {recentCalls.map((call: Call, i: number) => (
-                      <div
-                        key={call.id}
-                        className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-gray-100/50 shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="relative">
-                              <Avatar
-                                src={
-                                  userRecentCalls[i]?.profileImage ||
-                                  "/default_avatar.png"
-                                }
-                                alt={userRecentCalls[i]?.name}
-                                size="sm"
-                              />
-                              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-green-400 shadow-sm" />
-                            </div>
-                            <div>
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h3 className="text-sm font-semibold text-gray-900">
-                                  {userRecentCalls[i]?.name}
-                                </h3>
+                  <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-2">
+                    <div className="space-y-3">
+                      {recentCalls.map((call: Call, i: number) => (
+                        <div
+                          key={call.id}
+                          className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-gray-100/50 shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="relative">
+                                <Avatar
+                                  src={
+                                    userRecentCalls[i]?.profileImage ??
+                                    "/default_avatar.jpg"
+                                  }
+                                  alt={userRecentCalls[i]?.name}
+                                  size="sm"
+                                />
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-green-400 shadow-sm" />
                               </div>
-                              <div className="flex items-center space-x-3 text-xs text-gray-600">
-                                <span className="flex items-center">
-                                  <span
-                                    className={
-                                      userStore?.uid === call.callerUser
-                                        ? "text-blue-600"
-                                        : "text-green-600"
-                                    }
-                                  >
-                                    {userStore?.uid === call.callerUser
-                                      ? "↗️"
-                                      : "↙️"}
+                              <div>
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <h3 className="text-sm font-semibold text-gray-900">
+                                    {userRecentCalls[i]?.name}
+                                  </h3>
+                                </div>
+                                <div className="flex items-center space-x-3 text-xs text-gray-600">
+                                  <span className="flex items-center">
+                                    <span
+                                      className={
+                                        userStore?.uid === call.callerUser
+                                          ? "text-blue-600"
+                                          : "text-green-600"
+                                      }
+                                    >
+                                      {userStore?.uid === call.callerUser
+                                        ? "↗️"
+                                        : "↙️"}
+                                    </span>
                                   </span>
-                                </span>
-                                <span>{getRelativeTime(call.createdAt)}</span>
+                                  <span>{getRelativeTime(call.createdAt)}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          <div className="flex items-center space-x-3">
-                            <div className="text-right">
-                              <p className="text-sm font-semibold text-gray-900">
-                                {formatDuration(call.duration)}
-                              </p>
-                              <p className="text-xs text-gray-500">duración</p>
+                            <div className="flex items-center space-x-3">
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {formatDuration(call.duration)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  duración
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedUser(userRecentCalls[i]);
+                                  setShowCallModal(true);
+                                }}
+                                className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-110"
+                              >
+                                <Phone className="w-4 h-4" />
+                              </button>
                             </div>
-                            <button
-                              onClick={() => {
-                                setSelectedUser(userRecentCalls[i]);
-                                setShowCallModal(true);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-110"
-                            >
-                              <Phone className="w-4 h-4" />
-                            </button>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

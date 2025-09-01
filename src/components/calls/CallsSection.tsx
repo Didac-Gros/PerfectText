@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Phone,
-} from "lucide-react";
+import { Search, Phone } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { CallModal } from "./CallModal";
 import { Call, User } from "../../types/global";
 import { getAllUsers } from "../../services/firestore/userRepository";
 import { useAuth } from "../../hooks/useAuth";
-import { CallState } from "../../hooks/useVoiceCall";
+import { CallState, useVoiceCall } from "../../hooks/useVoiceCall";
 import { getUserRecentCalls } from "../../services/firestore/callsRepository";
 import { formatDuration, getRelativeTime } from "../../utils/utils";
+import { CallWaitingModal } from "./CallWaitingModal";
+import { addNotification } from "../../services/firestore/notificationsRepository";
 
 interface CallsProps {
   onCallStart?: (call: {
@@ -20,18 +19,15 @@ interface CallsProps {
   }) => void;
   state: CallState;
   call: (toUserId: string) => Promise<void>;
+  hangup: () => void;
 }
 
-const quickMessages = [
-  "¿Te saco de clase 5 min?",
-  "¿Una voz amiga ahora?",
-  "Estoy en la 3ª fila… ¿me acompañas con tu voz?",
-  "¿Hablamos un rato?",
-  "Necesito una distracción vocal",
-  "¿Te apetece charlar?",
-];
-
-export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
+export const Calls: React.FC<CallsProps> = ({
+  onCallStart,
+  state,
+  call,
+  hangup,
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCallModal, setShowCallModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -43,6 +39,7 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [recentCalls, setRecentCalls] = useState<Call[]>([]);
   const [userRecentCalls, setUserRecentCalls] = useState<User[]>([]);
+  const [showWaitingCallModal, setShowWaitingCallModal] = useState(false);
   const { userStore } = useAuth();
   // Frases dinámicas para el encabezado
   const dynamicPhrases = [
@@ -52,16 +49,6 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
     "¿Quién necesita escuchar tu voz?",
     "Conecta con una vibra similar a la tuya",
   ];
-
-  // Frases para hover en botones de llamada
-  const callHoverPhrases = [
-    "✨ Te robo 2 min de voz",
-    "💬 Hablemos un ratito",
-    "🍃 ¿Me escuchas?",
-    "🌟 Una charla rápida",
-    "💫 Tu voz me interesa",
-  ];
-
 
   // Cambiar frase dinámica cada 4 segundos
   useEffect(() => {
@@ -121,11 +108,32 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
 
     // Limpiar búsqueda para volver a la vista de llamadas recientes
     setSearchQuery("");
+  };
 
+  useEffect(() => {
+    if (state === "ringing-out") {
+      setShowWaitingCallModal(true);
+    } else {
+      setShowWaitingCallModal(false);
+    }
+  }, [state]);
+
+  const onCancelCall = async () => {
+    hangup();
+    setShowWaitingCallModal(false);
+    await addNotification({
+      senderName: userStore!.name,
+      senderAvatar: userStore!.profileImage,
+      senderStudies: userStore!.studies!,
+      userReceiverId: selectedUser!.uid,
+      message: `${userStore!.name} te ha llamado.`,
+      type: "call",
+      senderId: userStore!.uid,
+    });
   };
 
   return (
-    <div className="flex-1 p-8 max-w-4xl mx-auto">
+    <div className="flex-1 max-w-4xl mx-auto">
       {/* Header dinámico y completo */}
       <header className="mb-8 text-center">
         <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
@@ -165,7 +173,7 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
               <div className="flex items-start justify-between mb-3">
                 <div className="relative">
                   <Avatar
-                    src={user.profileImage || "/default_avatar.png"}
+                    src={user.profileImage || "/default_avatar.jpg"}
                     alt={user.name}
                     size="md"
                   />
@@ -231,67 +239,73 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
               Llamadas recientes
             </h2>
           </div>
-          <div className="space-y-3">
-            {recentCalls.map((call: Call, i: number) => (
-              <div
-                key={call.id}
-                className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-gray-100/50 shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      <Avatar
-                        src={userRecentCalls[i]?.profileImage || "/default_avatar.png"}
-                        alt={userRecentCalls[i]?.name}
-                        size="sm"
-                      />
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-green-400 shadow-sm" />
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="text-sm font-semibold text-gray-900">
-                          {userRecentCalls[i]?.name}
-                        </h3>
+          <div className="max-h-[50vh] overflow-y-auto overscroll-contain pr-2">
+            <div className="space-y-3">
+              {recentCalls.map((call: Call, i: number) => (
+                <div
+                  key={call.id}
+                  className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-gray-100/50 shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Avatar
+                          src={
+                            userRecentCalls[i]?.profileImage ??
+                            "/default_avatar.jpg"
+                          }
+                          alt={userRecentCalls[i]?.name}
+                          size="sm"
+                        />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-green-400 shadow-sm" />
                       </div>
-                      <div className="flex items-center space-x-3 text-xs text-gray-600">
-                        <span>
-                          {userRecentCalls[i]?.studies?.year}º curso • {userRecentCalls[i]?.studies?.career}
-                        </span>
-                        <span className="text-gray-400">•</span>
-                        <span className="flex items-center space-x-1">
-                          <span
-                            className={
-                              userStore?.uid === call.callerUser
-                                ? "text-blue-600"
-                                : "text-green-600"
-                            }
-                          >
-                            {userStore?.uid === call.callerUser ? "↗️" : "↙️"}
+                      <div>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="text-sm font-semibold text-gray-900">
+                            {userRecentCalls[i]?.name}
+                          </h3>
+                        </div>
+                        <div className="flex items-center space-x-3 text-xs text-gray-600">
+                          <span>
+                            {userRecentCalls[i]?.studies?.year}º curso •{" "}
+                            {userRecentCalls[i]?.studies?.career}
                           </span>
-                        </span>
-                        <span className="text-gray-400">•</span>
-                        <span>{getRelativeTime(call.createdAt)}</span>
+                          <span className="text-gray-400">•</span>
+                          <span className="flex items-center space-x-1">
+                            <span
+                              className={
+                                userStore?.uid === call.callerUser
+                                  ? "text-blue-600"
+                                  : "text-green-600"
+                              }
+                            >
+                              {userStore?.uid === call.callerUser ? "↗️" : "↙️"}
+                            </span>
+                          </span>
+                          <span className="text-gray-400">•</span>
+                          <span>{getRelativeTime(call.createdAt)}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center space-x-3">
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {formatDuration(call.duration)}
-                      </p>
-                      <p className="text-xs text-gray-500">duración</p>
+                    <div className="flex items-center space-x-3">
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatDuration(call.duration)}
+                        </p>
+                        <p className="text-xs text-gray-500">duración</p>
+                      </div>
+                      <button
+                        onClick={() => handleCallUser(userRecentCalls[i])}
+                        className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-110"
+                      >
+                        <Phone className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleCallUser(userRecentCalls[i])}
-                      className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-110"
-                    >
-                      <Phone className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -303,6 +317,15 @@ export const Calls: React.FC<CallsProps> = ({ onCallStart, state, call }) => {
           name={selectedUser.name}
           setShowCallModal={setShowCallModal}
           handleSendCall={handleSendCall}
+        />
+      )}
+
+      {/* Modal de llamada de espera rediseñado */}
+      {showWaitingCallModal && selectedUser && (
+        <CallWaitingModal
+          calleeName={selectedUser.name}
+          onCancel={onCancelCall}
+          avatarUrl={selectedUser.profileImage || "/default_avatar.jpg"}
         />
       )}
     </div>
