@@ -17,11 +17,9 @@ export const CallWaitingModal: React.FC<CallWaitingModalProps> = ({
       aria-modal="true"
       role="dialog"
       aria-label={`Llamando a ${calleeName}`}
-      onClick={onCancel} // clic fuera cierra
     >
       <div
         className="relative w-full max-w-xs rounded-2xl bg-white/95 shadow-2xl ring-1 ring-black/5 p-6 text-center"
-        onClick={(e) => e.stopPropagation()} // evita cerrar al clicar dentro
       >
         {/* Cabecera con avatar + ondas */}
         <div className="mx-auto mb-4 h-16 w-16 relative">

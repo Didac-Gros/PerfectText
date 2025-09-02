@@ -7,7 +7,6 @@ import {
   where,
   collection,
   doc,
-  updateDoc,
   setDoc,
   Timestamp,
   orderBy,

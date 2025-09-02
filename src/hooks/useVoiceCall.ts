@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CallRole } from "../types/global";
 
 type SigMsg =
@@ -47,7 +47,6 @@ const STUN: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
 export function useVoiceCall({
   me,
   jwt,
-  wsBase = "ws://localhost:3000/ws",
 }: {
   me: string; // userId actual
   jwt: string; // token JWT emitido por tu backend
@@ -74,6 +73,9 @@ export function useVoiceCall({
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const peerIdRef = useRef<string | null>(null);
+
+  const otherPartyId = peerId; // siempre el otro usuario
+  const calleeId = role === "caller" ? peerId : me; // "a quién estoy llamando" si soy caller
 
   useEffect(() => {
     peerIdRef.current = peerId;
@@ -292,7 +294,7 @@ export function useVoiceCall({
   const accept = async () => {
     setRole((r) => r ?? "callee");
     setState("connecting");
-    setIncomingFrom(null);
+    // setIncomingFrom(null);
     resetDuration();
     if (peerId && callId) {
       wsSend({ type: "accept", callId, to: peerId });
@@ -355,6 +357,9 @@ export function useVoiceCall({
     isCaller,
     isCallee,
 
+    calleeId, // <- este es el que pides
+    otherPartyId,
+    
     // acciones
     call,
     accept,

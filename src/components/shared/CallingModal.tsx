@@ -1,9 +1,6 @@
 import { Mic, MicOff } from "lucide-react";
 import React, { useState } from "react";
-import { addCall } from "../../services/firestore/callsRepository";
 import { useAuth } from "../../hooks/useAuth";
-import { CallState } from "../../hooks/useVoiceCall";
-import { CallRole } from "../../types/global";
 import { formatDuration } from "../../utils/utils";
 
 export interface CallingModalProps {
@@ -11,10 +8,8 @@ export interface CallingModalProps {
   toggleMute: () => void;
   muted: boolean;
   duration: number;
-  callUserId: string;
   avatar: string;
   name: string;
-  callRole: CallRole;
 }
 
 export function CallingModal({
@@ -24,13 +19,11 @@ export function CallingModal({
   duration,
   avatar,
   name,
-  callUserId,
-  callRole
+
 }: CallingModalProps) {
   const [callPosition, setCallPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const { userStore } = useAuth();
   // Add event listeners for dragging
   React.useEffect(() => {
     if (isDragging) {
@@ -74,22 +67,6 @@ export function CallingModal({
 
   const handleMouseUp = () => {
     setIsDragging(false);
-  };
-
-  const endCall = async () => {
-    handleEndCall();
-    console.log("Finalizando llamada...");
-
-    try {
-        await addCall({
-          callerUser: callRole === "caller" ? userStore!.uid : callUserId,
-          calleeUser: callRole === "caller" ? callUserId : userStore!.uid,
-          duration: duration,
-        });
-      
-    } catch (error) {
-      console.error("Error ending call:", error);
-    }
   };
 
   return (
@@ -155,22 +132,22 @@ export function CallingModal({
           <button
             onClick={toggleMute}
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
-              !muted
+              muted
                 ? "bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-400/30"
                 : "bg-green-500/20 hover:bg-green-500 text-green-400 hover:text-white border border-green-400/30"
             } cursor-pointer z-10 relative`}
-            title={muted ? "Silenciar micrófono" : "Activar micrófono"}
+            title={!muted ? "Silenciar micrófono" : "Activar micrófono"}
           >
             {!muted ? (
-              <MicOff className="w-5 h-5" />
-            ) : (
               <Mic className="w-5 h-5" />
+            ) : (
+              <MicOff className="w-5 h-5" />
             )}
           </button>
 
           {/* End Call Button */}
           <button
-            onClick={endCall}
+            onClick={handleEndCall}
             className="w-10 h-10 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
             title="Terminar llamada"
           >

@@ -5,11 +5,8 @@ import { ConceptMapGenerator } from "../components/ConceptMap/ConceptMapGenerato
 import { SummarizeTab } from "../components/summarize/SummarizeTab";
 import { CorrectTab } from "../components/correct/CorrectTab";
 import { useAuth } from "../hooks/useAuth";
-import {
-  updateFirestoreField,
-  updateUserTokens,
-} from "../services/firestore/firestore";
-import { Notification, SidebarType, TabType, User } from "../types/global";
+import { updateUserTokens } from "../services/firestore/firestore";
+import { SidebarType, TabType, User } from "../types/global";
 import { StripePricingTable } from "../components/shared/StripePricingTable";
 import { TokensPopUp } from "../components/shared/TokensPopUp";
 import { TraductorTab } from "../components/traductor/TraductorTab";
@@ -25,14 +22,11 @@ import { BoardTab } from "../components/board/BoardTab";
 import { NexusTab } from "../components/nexus/NexusTab";
 import { CalendarTab } from "../components/calendar/CalendarTab";
 import { Hero } from "../components/home/Hero";
-import { delay } from "framer-motion";
 import {
   getUserById,
   syncUserPhotoURL,
 } from "../services/firestore/userRepository";
-import { createDefaultBoards } from "../services/firestore/boardsRepository";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Footer from "../components/home/Footer";
 import { CampusTab } from "../components/campus/CampusTab";
 import { CallsTab } from "../components/calls/CallsTab";
 import { NotificationsTab } from "../components/notifications/NotificationsTab";
@@ -41,7 +35,7 @@ import { fetchEmitToken } from "../services/jwt/emitToken";
 import { useVoiceCall } from "../hooks/useVoiceCall";
 import { IncomingCallModal } from "../components/shared/IncomingCallModal";
 import { CallingModal } from "../components/shared/CallingModal";
-import { getNotificationsByUser } from "../services/firestore/notificationsRepository";
+import { addCall } from "../services/firestore/callsRepository";
 
 export const HomePage: React.FC = () => {
   const { user, userStore, token, emitToken } = useAuth();
@@ -66,8 +60,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const clientId =
     "492645116751-vrmkkpvn51d30id84l54h8btfddpmi1v.apps.googleusercontent.com";
-  const [showIncomingCallModal, setShowIncomingCallModal] =
-    useState<boolean>(false);
+  const [, setShowIncomingCallModal] = useState<boolean>(false);
   const [incomingCallUser, setIncomingCallUser] = useState<User | null>(null);
 
   const {
@@ -99,7 +92,8 @@ export const HomePage: React.FC = () => {
     toggleMute,
     bindRemoteAudio,
     durationSeconds,
-    role: callRole
+    role: callRole,
+    calleeId,
   } = useVoiceCall({ me: userStore?.uid || "", jwt: token || "" });
 
   useEffect(() => {
@@ -117,7 +111,6 @@ export const HomePage: React.FC = () => {
       };
       fetchToken();
     }
-
   }, []);
 
   useEffect(() => {
@@ -172,7 +165,6 @@ export const HomePage: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
     if (state === "ringing-in") {
       const fetchData = async () => {
@@ -180,6 +172,34 @@ export const HomePage: React.FC = () => {
           const user = await getUserById(incomingFrom!);
           setIncomingCallUser(user);
           setShowIncomingCallModal(true);
+        } catch (error) {
+          console.error("Error fetching incoming call data:", error);
+        }
+      };
+      fetchData();
+    } else if (state === "ringing-out") {
+      const fetchData = async () => {
+        try {
+          const user = await getUserById(calleeId!);
+          setIncomingCallUser(user);
+          setShowIncomingCallModal(true);
+        } catch (error) {
+          console.error("Error fetching incoming call data:", error);
+        }
+      };
+      fetchData();
+    } else if (state === "ended") {
+      const fetchData = async () => {
+        try {
+          if (incomingFrom !== null) {
+            await addCall({
+              callerUser:
+                callRole === "caller" ? userStore!.uid : incomingFrom!,
+              calleeUser:
+                callRole === "caller" ? incomingFrom! : userStore!.uid,
+              duration: durationSeconds,
+            });
+          }
         } catch (error) {
           console.error("Error fetching incoming call data:", error);
         }
@@ -208,8 +228,6 @@ export const HomePage: React.FC = () => {
             duration={durationSeconds}
             avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
             name={incomingCallUser?.name || "Desconocido"}
-            callUserId={incomingCallUser?.uid || ""}
-            callRole={callRole}
           />
         )}
 
@@ -271,8 +289,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "calls" ? (
             <CallsTab state={state} sendCall={call} hangup={hangup} />
           ) : currentView === "notifications" ? (
-            <NotificationsTab
-            />
+            <NotificationsTab />
           ) : (
             <CustomProfilePage
               bgColor={false}
@@ -344,8 +361,6 @@ export const HomePage: React.FC = () => {
           duration={durationSeconds}
           avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
           name={incomingCallUser?.name || "Desconocido"}
-          callUserId={callRole === "caller" ? userStore!.uid : incomingCallUser!.uid}
-          callRole={callRole}
         />
       )}
 

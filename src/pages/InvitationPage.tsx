@@ -6,9 +6,7 @@ import {
   getBoardById,
 } from "../services/firestore/boardsRepository";
 import { getUserById } from "../services/firestore/userRepository";
-import { use } from "marked";
 import { useAuth } from "../hooks/useAuth";
-import { useBoardStore } from "../hooks/useBoardStore";
 
 export default function InvitePage() {
   const [searchParams] = useSearchParams();
@@ -16,10 +14,8 @@ export default function InvitePage() {
   const [inviter, setInviter] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const token = searchParams.get("userId");
   const { user, userStore } = useAuth();
   const navigate = useNavigate();
-  const { setCurrentBoard } = useBoardStore();
   const boardId = searchParams.get("boardId");
 
   useEffect(() => {

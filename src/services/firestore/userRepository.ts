@@ -1,5 +1,5 @@
 import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
-import { Board, User } from "../../types/global";
+import { User } from "../../types/global";
 import { db } from "./firebase";
 import { getAuth } from "firebase/auth";
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Search, Phone } from "lucide-react";
+import { Search, Phone, Trash2 } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { CallModal } from "./CallModal";
 import { Call, User } from "../../types/global";
 import { getAllUsers } from "../../services/firestore/userRepository";
 import { useAuth } from "../../hooks/useAuth";
 import { CallState, useVoiceCall } from "../../hooks/useVoiceCall";
-import { getUserRecentCalls } from "../../services/firestore/callsRepository";
+import { deleteCallFromFirestore, deleteUserCallFromFirestore, getUserRecentCalls } from "../../services/firestore/callsRepository";
 import { formatDuration, getRelativeTime } from "../../utils/utils";
 import { CallWaitingModal } from "./CallWaitingModal";
 import { addNotification } from "../../services/firestore/notificationsRepository";
@@ -130,6 +130,15 @@ export const Calls: React.FC<CallsProps> = ({
       type: "call",
       senderId: userStore!.uid,
     });
+  };
+
+  const handleDeleteCall = async (callId: string) => {
+    try {
+      await deleteCallFromFirestore(callId);
+      setRecentCalls((prevCalls) => prevCalls.filter((call) => call.id !== callId));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -300,6 +309,12 @@ export const Calls: React.FC<CallsProps> = ({
                         className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-110"
                       >
                         <Phone className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCall(call.id)}
+                        className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-110"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
