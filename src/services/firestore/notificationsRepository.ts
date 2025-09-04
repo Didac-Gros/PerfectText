@@ -147,3 +147,25 @@ export async function markNotificationAsRead(
     throw error;
   }
 }
+
+/**
+ * Devuelve el número de notificaciones NO LEÍDAS de un usuario.
+ * @param userId string - El ID del usuario receptor (userReceiverId)
+ * @returns number - Cantidad de notificaciones no leídas
+ */
+export async function getUnreadNotificationsCount(userId: string): Promise<number> {
+  try {
+    const notifRef = collection(db, "notifications");
+    const q = query(
+      notifRef,
+      where("userReceiverId", "==", userId),
+      where("isRead", "==", false)
+    );
+    const snapshot = await getDocs(q);
+
+    return snapshot.size; // número de notificaciones no leídas
+  } catch (error) {
+    console.error("Error obteniendo notificaciones no leídas:", error);
+    return 0;
+  }
+}

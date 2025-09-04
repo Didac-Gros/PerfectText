@@ -141,15 +141,22 @@ export const Calls: React.FC<CallsProps> = ({
     }
   };
 
+  const handleRandomCall = () => {
+    const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
+    if (randomUser) {
+      handleCallUser(randomUser);
+    }
+  };
+
   return (
     <div className="flex-1 max-w-4xl mx-auto">
       {/* Header dinámico y completo */}
-      <header className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+      <header className="mb-7 text-center">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">
           Calls
         </h1>
         <p className="text-gray-500 text-xl font-light leading-relaxed">
-          Conecta por voz con otros estudiantes que vibran como tú
+          {dynamicPhrase}
         </p>
       </header>
 
@@ -243,10 +250,11 @@ export const Calls: React.FC<CallsProps> = ({
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="mb-4">
+          <div className="mb-4 flex justify-between">
             <h2 className="text-sm font-medium text-gray-600 mb-4">
               Llamadas recientes
             </h2>
+            <button className="p-2 bg-blue-400 rounded-lg text-white" onClick={handleRandomCall}>RANDOM CALL</button>
           </div>
           <div className="max-h-[50vh] overflow-y-auto overscroll-contain pr-2">
             <div className="space-y-3">

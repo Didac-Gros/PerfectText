@@ -36,6 +36,7 @@ import { useVoiceCall } from "../hooks/useVoiceCall";
 import { IncomingCallModal } from "../components/shared/IncomingCallModal";
 import { CallingModal } from "../components/shared/CallingModal";
 import { addCall } from "../services/firestore/callsRepository";
+import { getUnreadNotificationsCount } from "../services/firestore/notificationsRepository";
 
 export const HomePage: React.FC = () => {
   const { user, userStore, token, emitToken } = useAuth();
@@ -62,7 +63,7 @@ export const HomePage: React.FC = () => {
     "492645116751-vrmkkpvn51d30id84l54h8btfddpmi1v.apps.googleusercontent.com";
   const [, setShowIncomingCallModal] = useState<boolean>(false);
   const [incomingCallUser, setIncomingCallUser] = useState<User | null>(null);
-
+  const [numNotifications, setNumNotifications] = useState(0);
   const {
     recorderState,
     isPaused,
@@ -110,6 +111,17 @@ export const HomePage: React.FC = () => {
         }
       };
       fetchToken();
+
+      const fetchNotificationsCount = async () => {
+        try {
+          const count = await getUnreadNotificationsCount(userStore.uid);
+          setNumNotifications(count);
+        } catch (error) {
+          console.error("Error contando notificaciones:", error);
+        }
+      };
+
+      fetchNotificationsCount();
     }
   }, []);
 
@@ -208,6 +220,11 @@ export const HomePage: React.FC = () => {
     }
   }, [state]);
 
+  const checkNotificationReaded = () => {
+    if (numNotifications > 0) {
+      setNumNotifications(numNotifications - 1);
+    }
+  };
   if (currentView !== "") {
     return (
       <div className={`min-h-screen lg:pb-0 pb-20 `}>
@@ -271,6 +288,7 @@ export const HomePage: React.FC = () => {
                 useBoardStore.getState().setCurrentBoard("");
               }
             }}
+            numNotifications={numNotifications}
           />
 
           {currentView === "myspace" ? (
@@ -289,7 +307,7 @@ export const HomePage: React.FC = () => {
           ) : currentView === "calls" ? (
             <CallsTab state={state} sendCall={call} hangup={hangup} />
           ) : currentView === "notifications" ? (
-            <NotificationsTab />
+            <NotificationsTab checkNotificationReaded={checkNotificationReaded} setNumNotifications={setNumNotifications} />
           ) : (
             <CustomProfilePage
               bgColor={false}
@@ -403,6 +421,7 @@ export const HomePage: React.FC = () => {
               useBoardStore.getState().setCurrentBoard("");
             }
           }}
+          numNotifications={numNotifications}
         />
 
         {activeTab === "home" && (

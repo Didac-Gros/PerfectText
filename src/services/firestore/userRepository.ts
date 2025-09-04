@@ -82,3 +82,23 @@ export async function getAllUsers(userId: string): Promise<User[]> {
     return [];
   }
 }
+
+export async function getRandomUser(): Promise<User | null> {
+  try {
+    const usersCol = collection(db, "users");
+    const snapshot = await getDocs(usersCol);
+
+    if (snapshot.empty) {
+      console.log("No hay usuarios en la colección.");
+      return null;
+    }
+
+    const users = snapshot.docs.map((doc) => doc.data());
+    const randomIndex = Math.floor(Math.random() * users.length);
+
+    return users[randomIndex] as User;
+  } catch (error) {
+    console.error("Error obteniendo usuario aleatorio:", error);
+    return null;
+  }
+}

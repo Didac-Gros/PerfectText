@@ -18,7 +18,15 @@ import {
 } from "../../services/firestore/notificationsRepository";
 import { getRelativeTime } from "../../utils/utils";
 
-export const NotificationsTab = () => {
+interface NotificationsTabProps {
+  checkNotificationReaded: () => void;
+  setNumNotifications: (count: number) => void;
+}
+
+export const NotificationsTab: React.FC<NotificationsTabProps> = ({
+  checkNotificationReaded,
+  setNumNotifications,
+}) => {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const { userStore } = useAuth();
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
@@ -34,6 +42,7 @@ export const NotificationsTab = () => {
       setAllNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
       );
+      checkNotificationReaded();
     } catch (error) {
       console.error("Error al marcar notificación como leída:", error);
     }
@@ -45,6 +54,9 @@ export const NotificationsTab = () => {
       setAllNotifications((prev) =>
         prev.filter((n) => n.id !== notificationId)
       );
+      if (!allNotifications.find((n) => n.id === notificationId)?.isRead) {
+        checkNotificationReaded();
+      }
     } catch (error) {
       console.error("Error al eliminar notificación:", error);
     }
@@ -55,6 +67,9 @@ export const NotificationsTab = () => {
       try {
         const notifications = await getNotificationsByUser(userStore!.uid);
         setAllNotifications(notifications);
+
+        console.log(allNotifications);
+        setNumNotifications(notifications.filter((n) => !n.isRead).length);
       } catch (error) {
         console.error("Error al obtener notificaciones:", error);
       }

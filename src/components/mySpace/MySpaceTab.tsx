@@ -67,7 +67,6 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     React.useState<boolean>(false);
 
   useEffect(() => {
-    
     if (
       user &&
       userStore &&
@@ -180,8 +179,6 @@ export function MySpaceTab({ onViewChange }: MySpaceTabProps) {
     setCurrentBoard("");
     onViewChange("boards");
   };
-
-  const navigate = useNavigate();
 
   const formatEventTime = (date: Date) => {
     if (isToday(date)) {
