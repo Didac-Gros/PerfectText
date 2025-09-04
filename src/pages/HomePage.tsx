@@ -225,293 +225,587 @@ export const HomePage: React.FC = () => {
       setNumNotifications(numNotifications - 1);
     }
   };
-  if (currentView !== "") {
-    return (
-      <div className={`min-h-screen lg:pb-0 pb-20 `}>
-        {recorderState.isRecording && isMinimized && (
-          <AudioWindow
-            recordingTime={recordingTime}
-            isPaused={isPaused}
-            togglePause={togglePause}
-            handleMinimized={handleMinimized}
-            handleStopRecording={handleStopRecording}
-          ></AudioWindow>
-        )}
-        {state === "talking" && (
-          <CallingModal
-            handleEndCall={hangup}
-            toggleMute={toggleMute}
-            muted={muted}
-            duration={durationSeconds}
-            avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
-            name={incomingCallUser?.name || "Desconocido"}
-          />
-        )}
-
-        <div
-          className={` ${
-            sidebarOpen ? "ml-64" : "ml-0"
-          } transition-all duration-300`}
-          style={{ height: "calc(100vh - 4rem)" }}
-        >
-          <Navigation
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            user={user}
-            tokens={tokens ?? 0}
-            userStore={userStore}
-            setDarkMode={setIsDark}
-            isDarkMode={isDark}
-            toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-            closeSidebar={() => {
-              setSidebarOpen(false);
-              setCurrentView("");
-            }}
-            goToMySpace={() => {
-              setCurrentView("myspace");
-              setActiveTab("");
-              setSidebarOpen(false);
-            }}
-            goToProfile={() => {
-              setSidebarOpen(true);
-              setCurrentView("profile");
-              setActiveTab("");
-            }}
-          />
-          <Sidebar
-            isOpen={sidebarOpen}
-            currentView={currentView}
-            onViewChange={(view) => {
-              setCurrentView(view);
-              setActiveTab("");
-              if (view === "boards") {
-                useBoardStore.getState().setCurrentBoard("");
-              }
-            }}
-            numNotifications={numNotifications}
-          />
-
-          {currentView === "myspace" ? (
-            <MySpaceTab onViewChange={setCurrentView} boardId={boardId} />
-          ) : currentView === "calendar" ? (
-            <GoogleOAuthProvider clientId={clientId}>
-              {" "}
-              <CalendarTab sidebarOpen={sidebarOpen} />
-            </GoogleOAuthProvider>
-          ) : currentBoard ? (
-            <BoardTab />
-          ) : currentView === "boards" ? (
-            <NexusTab />
-          ) : currentView === "campus" ? (
-            <CampusTab handleCall={call} />
-          ) : currentView === "calls" ? (
-            <CallsTab state={state} sendCall={call} hangup={hangup} />
-          ) : currentView === "notifications" ? (
-            <NotificationsTab checkNotificationReaded={checkNotificationReaded} setNumNotifications={setNumNotifications} />
-          ) : (
-            <CustomProfilePage
-              bgColor={false}
-              setSidebarOpen={setSidebarOpen}
-            />
-          )}
-          {showPopUp && (
-            <div className="text-center mb-8">
-              <TokensPopUp
-                onClose={() => setShowPopUp(false)}
-                onUpdatePlan={() => {
-                  setActiveTab("plans");
-                  setShowPopUp(false);
-                }}
-                userExpirationDate={userStore!.expirationDate}
-              ></TokensPopUp>
-            </div>
-          )}
-          {state === "ringing-in" && (
-            <IncomingCallModal
-              profileImage={
-                incomingCallUser?.profileImage || "/default_avatar.jpg"
-              }
-              name={incomingCallUser?.name || "Desconocido"}
-              handleAcceptCall={accept}
-              handleRejectCall={reject}
-            />
-          )}
-
-          {/* Audio remoto (invisible) */}
-          <audio ref={bindRemoteAudio} autoPlay playsInline />
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div
-      className={`min-h-screen lg:pb-0 pb-20 ${
-        activeTab === "voice"
-          ? "dark:bg-gray-950 bg-gray-50"
-          : "bg-gradient-to-br from-gray-50 to-gray-100"
-      } `}
-    >
-      {recorderState.isRecording && isMinimized && (
-        <AudioWindow
-          recordingTime={recordingTime}
-          isPaused={isPaused}
-          togglePause={togglePause}
-          handleMinimized={handleMinimized}
-          handleStopRecording={handleStopRecording}
-        ></AudioWindow>
-      )}
+    <div>
+      {currentView !== "" ? (
+        <>
+          {" "}
+          <div className={`min-h-screen lg:pb-0 pb-20 `}>
+            {recorderState.isRecording && isMinimized && (
+              <AudioWindow
+                recordingTime={recordingTime}
+                isPaused={isPaused}
+                togglePause={togglePause}
+                handleMinimized={handleMinimized}
+                handleStopRecording={handleStopRecording}
+              ></AudioWindow>
+            )}
+            {state === "talking" && (
+              <CallingModal
+                handleEndCall={hangup}
+                toggleMute={toggleMute}
+                muted={muted}
+                duration={durationSeconds}
+                avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+                name={incomingCallUser?.name || "Desconocido"}
+              />
+            )}
 
-      {state === "ringing-in" && (
-        <IncomingCallModal
-          profileImage={incomingCallUser?.profileImage || "/default_avatar.jpg"}
-          name={incomingCallUser?.name || "Desconocido"}
-          handleAcceptCall={accept}
-          handleRejectCall={reject}
-        />
-      )}
+            <div
+              className={` ${
+                sidebarOpen ? "ml-64" : "ml-0"
+              } transition-all duration-300`}
+              style={{ height: "calc(100vh - 4rem)" }}
+            >
+              <Navigation
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                user={user}
+                tokens={tokens ?? 0}
+                userStore={userStore}
+                setDarkMode={setIsDark}
+                isDarkMode={isDark}
+                toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                closeSidebar={() => {
+                  setSidebarOpen(false);
+                  setCurrentView("");
+                }}
+                goToMySpace={() => {
+                  setCurrentView("myspace");
+                  setActiveTab("");
+                  setSidebarOpen(false);
+                }}
+                goToProfile={() => {
+                  setSidebarOpen(true);
+                  setCurrentView("profile");
+                  setActiveTab("");
+                }}
+              />
+              <Sidebar
+                isOpen={sidebarOpen}
+                currentView={currentView}
+                onViewChange={(view) => {
+                  setCurrentView(view);
+                  setActiveTab("");
+                  if (view === "boards") {
+                    useBoardStore.getState().setCurrentBoard("");
+                  }
+                }}
+                numNotifications={numNotifications}
+              />
 
-      {state === "talking" && (
-        <CallingModal
-          handleEndCall={hangup}
-          toggleMute={toggleMute}
-          muted={muted}
-          duration={durationSeconds}
-          avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
-          name={incomingCallUser?.name || "Desconocido"}
-        />
-      )}
-
-      <div className="max-w-[80rem] mx-auto px-4 md:py-6">
-        <Navigation
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          user={user}
-          tokens={tokens ?? 0}
-          userStore={userStore}
-          setDarkMode={setIsDark}
-          isDarkMode={isDark}
-          toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          closeSidebar={() => {
-            setSidebarOpen(false);
-            setCurrentView("");
-          }}
-          goToMySpace={() => {
-            if (user) {
-              setCurrentView("myspace");
-              setActiveTab("");
-              setSidebarOpen(false);
-            }
-          }}
-          goToProfile={() => {
-            if (user) {
-              setCurrentView("profile");
-              setActiveTab("");
-              setSidebarOpen(false);
-            }
-          }}
-        />
-        <Sidebar
-          isOpen={sidebarOpen}
-          currentView={currentView}
-          onViewChange={(view) => {
-            setCurrentView(view);
-            setActiveTab("");
-            if (view === "boards") {
-              useBoardStore.getState().setCurrentBoard("");
-            }
-          }}
-          numNotifications={numNotifications}
-        />
-
-        {activeTab === "home" && (
-          <>
-            {/* <Hero onTabChange={setActiveTab} />
-            <PricingSection /> */}
-            <Hero onAccessClick={handleLogin}></Hero>
-          </>
-        )}
-
-        {showPopUp && (
-          <div className="text-center mb-8">
-            <TokensPopUp
-              onClose={() => setShowPopUp(false)}
-              onUpdatePlan={() => {
-                setActiveTab("plans");
-                setShowPopUp(false);
-              }}
-              userExpirationDate={userStore!.expirationDate}
-            ></TokensPopUp>
+              {currentView === "myspace" ? (
+                <MySpaceTab onViewChange={setCurrentView} boardId={boardId} />
+              ) : currentView === "calendar" ? (
+                <GoogleOAuthProvider clientId={clientId}>
+                  {" "}
+                  <CalendarTab sidebarOpen={sidebarOpen} />
+                </GoogleOAuthProvider>
+              ) : currentBoard ? (
+                <BoardTab />
+              ) : currentView === "boards" ? (
+                <NexusTab />
+              ) : currentView === "campus" ? (
+                <CampusTab handleCall={call} />
+              ) : currentView === "calls" ? (
+                <CallsTab state={state} sendCall={call} hangup={hangup} />
+              ) : currentView === "notifications" ? (
+                <NotificationsTab
+                  checkNotificationReaded={checkNotificationReaded}
+                  setNumNotifications={setNumNotifications}
+                />
+              ) : (
+                <CustomProfilePage
+                  bgColor={false}
+                  setSidebarOpen={setSidebarOpen}
+                />
+              )}
+              {showPopUp && (
+                <div className="text-center mb-8">
+                  <TokensPopUp
+                    onClose={() => setShowPopUp(false)}
+                    onUpdatePlan={() => {
+                      setActiveTab("plans");
+                      setShowPopUp(false);
+                    }}
+                    userExpirationDate={userStore!.expirationDate}
+                  ></TokensPopUp>
+                </div>
+              )}
+              {state === "ringing-in" && (
+                <IncomingCallModal
+                  profileImage={
+                    incomingCallUser?.profileImage || "/default_avatar.jpg"
+                  }
+                  name={incomingCallUser?.name || "Desconocido"}
+                  handleAcceptCall={accept}
+                  handleRejectCall={reject}
+                />
+              )}
+            </div>
           </div>
-        )}
+        </>
+      ) : (
+        <>
+          <div
+            className={`min-h-screen lg:pb-0 pb-20 ${
+              activeTab === "voice"
+                ? "dark:bg-gray-950 bg-gray-50"
+                : "bg-gradient-to-br from-gray-50 to-gray-100"
+            } `}
+          >
+            {recorderState.isRecording && isMinimized && (
+              <AudioWindow
+                recordingTime={recordingTime}
+                isPaused={isPaused}
+                togglePause={togglePause}
+                handleMinimized={handleMinimized}
+                handleStopRecording={handleStopRecording}
+              ></AudioWindow>
+            )}
 
-        {activeTab === "correct" && (
-          <CorrectTab
-            onTabChange={setActiveTab}
-            user={user}
-            removeTokens={removeTokens}
-            userTokens={userStore?.tokens ?? 0}
-            setShowPopUpTokens={setShowPopUp}
-          />
-        )}
+            {state === "ringing-in" && (
+              <IncomingCallModal
+                profileImage={
+                  incomingCallUser?.profileImage || "/default_avatar.jpg"
+                }
+                name={incomingCallUser?.name || "Desconocido"}
+                handleAcceptCall={accept}
+                handleRejectCall={reject}
+              />
+            )}
 
-        {activeTab === "traductor" && (
-          <TraductorTab onTabChange={setActiveTab} activeTab={activeTab} />
-        )}
+            {state === "talking" && (
+              <CallingModal
+                handleEndCall={hangup}
+                toggleMute={toggleMute}
+                muted={muted}
+                duration={durationSeconds}
+                avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+                name={incomingCallUser?.name || "Desconocido"}
+              />
+            )}
 
-        {activeTab === "summarize" && (
-          <SummarizeTab
-            onTabChange={setActiveTab}
-            user={user}
-            removeTokens={removeTokens}
-            userTokens={userStore?.tokens ?? 0}
-            setShowPopUpTokens={setShowPopUp}
-          />
-        )}
+            <div className="max-w-[80rem] mx-auto px-4 md:py-6">
+              <Navigation
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                user={user}
+                tokens={tokens ?? 0}
+                userStore={userStore}
+                setDarkMode={setIsDark}
+                isDarkMode={isDark}
+                toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                closeSidebar={() => {
+                  setSidebarOpen(false);
+                  setCurrentView("");
+                }}
+                goToMySpace={() => {
+                  if (user) {
+                    setCurrentView("myspace");
+                    setActiveTab("");
+                    setSidebarOpen(false);
+                  }
+                }}
+                goToProfile={() => {
+                  if (user) {
+                    setCurrentView("profile");
+                    setActiveTab("");
+                    setSidebarOpen(false);
+                  }
+                }}
+              />
+              <Sidebar
+                isOpen={sidebarOpen}
+                currentView={currentView}
+                onViewChange={(view) => {
+                  setCurrentView(view);
+                  setActiveTab("");
+                  if (view === "boards") {
+                    useBoardStore.getState().setCurrentBoard("");
+                  }
+                }}
+                numNotifications={numNotifications}
+              />
 
-        {activeTab === "quiz" && (
-          <QuizGame
-            removeTokens={removeTokens}
-            userTokens={userStore?.tokens ?? 0}
-            setShowPopUpTokens={setShowPopUp}
-          />
-        )}
+              {activeTab === "home" && (
+                <>
+                  {/* <Hero onTabChange={setActiveTab} />
+            <PricingSection /> */}
+                  <Hero onAccessClick={handleLogin}></Hero>
+                </>
+              )}
 
-        {activeTab === "conceptmap" && (
-          <ConceptMapGenerator
-            user={user}
-            removeTokens={removeTokens}
-            userTokens={userStore?.tokens ?? 0}
-            setShowPopUpTokens={setShowPopUp}
-          />
-        )}
+              {showPopUp && (
+                <div className="text-center mb-8">
+                  <TokensPopUp
+                    onClose={() => setShowPopUp(false)}
+                    onUpdatePlan={() => {
+                      setActiveTab("plans");
+                      setShowPopUp(false);
+                    }}
+                    userExpirationDate={userStore!.expirationDate}
+                  ></TokensPopUp>
+                </div>
+              )}
 
-        {activeTab === "voice" && (
-          <VoiceTab
-            isMinimized={isMinimized}
-            setIsMinimized={setIsMinimized}
-            recorderState={recorderState}
-            isPaused={isPaused}
-            recordingTime={recordingTime}
-            audioPreview={audioPreview}
-            canvasRef={canvasRef}
-            startRecording={startRecording}
-            togglePause={togglePause}
-            stopRecording={() => stopRecording(false)}
-            setAudioPreview={setAudioPreview}
-            setRecordingTime={setRecordingTime}
-            setIsPaused={setIsPaused}
-            setRecorderState={setRecorderState}
-            restartAudio={() => stopRecording(true)}
-          />
-        )}
+              {activeTab === "correct" && (
+                <CorrectTab
+                  onTabChange={setActiveTab}
+                  user={user}
+                  removeTokens={removeTokens}
+                  userTokens={userStore?.tokens ?? 0}
+                  setShowPopUpTokens={setShowPopUp}
+                />
+              )}
 
-        {user && activeTab === "plans" && <StripePricingTable />}
-      </div>
+              {activeTab === "traductor" && (
+                <TraductorTab
+                  onTabChange={setActiveTab}
+                  activeTab={activeTab}
+                />
+              )}
 
-      {/* Audio remoto (invisible) */}
+              {activeTab === "summarize" && (
+                <SummarizeTab
+                  onTabChange={setActiveTab}
+                  user={user}
+                  removeTokens={removeTokens}
+                  userTokens={userStore?.tokens ?? 0}
+                  setShowPopUpTokens={setShowPopUp}
+                />
+              )}
+
+              {activeTab === "quiz" && (
+                <QuizGame
+                  removeTokens={removeTokens}
+                  userTokens={userStore?.tokens ?? 0}
+                  setShowPopUpTokens={setShowPopUp}
+                />
+              )}
+
+              {activeTab === "conceptmap" && (
+                <ConceptMapGenerator
+                  user={user}
+                  removeTokens={removeTokens}
+                  userTokens={userStore?.tokens ?? 0}
+                  setShowPopUpTokens={setShowPopUp}
+                />
+              )}
+
+              {activeTab === "voice" && (
+                <VoiceTab
+                  isMinimized={isMinimized}
+                  setIsMinimized={setIsMinimized}
+                  recorderState={recorderState}
+                  isPaused={isPaused}
+                  recordingTime={recordingTime}
+                  audioPreview={audioPreview}
+                  canvasRef={canvasRef}
+                  startRecording={startRecording}
+                  togglePause={togglePause}
+                  stopRecording={() => stopRecording(false)}
+                  setAudioPreview={setAudioPreview}
+                  setRecordingTime={setRecordingTime}
+                  setIsPaused={setIsPaused}
+                  setRecorderState={setRecorderState}
+                  restartAudio={() => stopRecording(true)}
+                />
+              )}
+
+              {user && activeTab === "plans" && <StripePricingTable />}
+            </div>
+          </div>
+        </>
+      )}
       <audio ref={bindRemoteAudio} autoPlay playsInline />
-      {/* <Footer></Footer> */}
     </div>
   );
+
+  // if (currentView !== "") {
+  //   return (
+  //     <div className={`min-h-screen lg:pb-0 pb-20 `}>
+  //       {recorderState.isRecording && isMinimized && (
+  //         <AudioWindow
+  //           recordingTime={recordingTime}
+  //           isPaused={isPaused}
+  //           togglePause={togglePause}
+  //           handleMinimized={handleMinimized}
+  //           handleStopRecording={handleStopRecording}
+  //         ></AudioWindow>
+  //       )}
+  //       {state === "talking" && (
+  //         <CallingModal
+  //           handleEndCall={hangup}
+  //           toggleMute={toggleMute}
+  //           muted={muted}
+  //           duration={durationSeconds}
+  //           avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+  //           name={incomingCallUser?.name || "Desconocido"}
+  //         />
+  //       )}
+
+  //       <div
+  //         className={` ${
+  //           sidebarOpen ? "ml-64" : "ml-0"
+  //         } transition-all duration-300`}
+  //         style={{ height: "calc(100vh - 4rem)" }}
+  //       >
+  //         <Navigation
+  //           activeTab={activeTab}
+  //           onTabChange={setActiveTab}
+  //           user={user}
+  //           tokens={tokens ?? 0}
+  //           userStore={userStore}
+  //           setDarkMode={setIsDark}
+  //           isDarkMode={isDark}
+  //           toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+  //           closeSidebar={() => {
+  //             setSidebarOpen(false);
+  //             setCurrentView("");
+  //           }}
+  //           goToMySpace={() => {
+  //             setCurrentView("myspace");
+  //             setActiveTab("");
+  //             setSidebarOpen(false);
+  //           }}
+  //           goToProfile={() => {
+  //             setSidebarOpen(true);
+  //             setCurrentView("profile");
+  //             setActiveTab("");
+  //           }}
+  //         />
+  //         <Sidebar
+  //           isOpen={sidebarOpen}
+  //           currentView={currentView}
+  //           onViewChange={(view) => {
+  //             setCurrentView(view);
+  //             setActiveTab("");
+  //             if (view === "boards") {
+  //               useBoardStore.getState().setCurrentBoard("");
+  //             }
+  //           }}
+  //           numNotifications={numNotifications}
+  //         />
+
+  //         {currentView === "myspace" ? (
+  //           <MySpaceTab onViewChange={setCurrentView} boardId={boardId} />
+  //         ) : currentView === "calendar" ? (
+  //           <GoogleOAuthProvider clientId={clientId}>
+  //             {" "}
+  //             <CalendarTab sidebarOpen={sidebarOpen} />
+  //           </GoogleOAuthProvider>
+  //         ) : currentBoard ? (
+  //           <BoardTab />
+  //         ) : currentView === "boards" ? (
+  //           <NexusTab />
+  //         ) : currentView === "campus" ? (
+  //           <CampusTab handleCall={call} />
+  //         ) : currentView === "calls" ? (
+  //           <CallsTab state={state} sendCall={call} hangup={hangup} />
+  //         ) : currentView === "notifications" ? (
+  //           <NotificationsTab
+  //             checkNotificationReaded={checkNotificationReaded}
+  //             setNumNotifications={setNumNotifications}
+  //           />
+  //         ) : (
+  //           <CustomProfilePage
+  //             bgColor={false}
+  //             setSidebarOpen={setSidebarOpen}
+  //           />
+  //         )}
+  //         {showPopUp && (
+  //           <div className="text-center mb-8">
+  //             <TokensPopUp
+  //               onClose={() => setShowPopUp(false)}
+  //               onUpdatePlan={() => {
+  //                 setActiveTab("plans");
+  //                 setShowPopUp(false);
+  //               }}
+  //               userExpirationDate={userStore!.expirationDate}
+  //             ></TokensPopUp>
+  //           </div>
+  //         )}
+  //         {state === "ringing-in" && (
+  //           <IncomingCallModal
+  //             profileImage={
+  //               incomingCallUser?.profileImage || "/default_avatar.jpg"
+  //             }
+  //             name={incomingCallUser?.name || "Desconocido"}
+  //             handleAcceptCall={accept}
+  //             handleRejectCall={reject}
+  //           />
+  //         )}
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+  // return (
+  //   <div
+  //     className={`min-h-screen lg:pb-0 pb-20 ${
+  //       activeTab === "voice"
+  //         ? "dark:bg-gray-950 bg-gray-50"
+  //         : "bg-gradient-to-br from-gray-50 to-gray-100"
+  //     } `}
+  //   >
+  //     {recorderState.isRecording && isMinimized && (
+  //       <AudioWindow
+  //         recordingTime={recordingTime}
+  //         isPaused={isPaused}
+  //         togglePause={togglePause}
+  //         handleMinimized={handleMinimized}
+  //         handleStopRecording={handleStopRecording}
+  //       ></AudioWindow>
+  //     )}
+
+  //     {state === "ringing-in" && (
+  //       <IncomingCallModal
+  //         profileImage={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+  //         name={incomingCallUser?.name || "Desconocido"}
+  //         handleAcceptCall={accept}
+  //         handleRejectCall={reject}
+  //       />
+  //     )}
+
+  //     {state === "talking" && (
+  //       <CallingModal
+  //         handleEndCall={hangup}
+  //         toggleMute={toggleMute}
+  //         muted={muted}
+  //         duration={durationSeconds}
+  //         avatar={incomingCallUser?.profileImage || "/default_avatar.jpg"}
+  //         name={incomingCallUser?.name || "Desconocido"}
+  //       />
+  //     )}
+
+  //     <div className="max-w-[80rem] mx-auto px-4 md:py-6">
+  //       <Navigation
+  //         activeTab={activeTab}
+  //         onTabChange={setActiveTab}
+  //         user={user}
+  //         tokens={tokens ?? 0}
+  //         userStore={userStore}
+  //         setDarkMode={setIsDark}
+  //         isDarkMode={isDark}
+  //         toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+  //         closeSidebar={() => {
+  //           setSidebarOpen(false);
+  //           setCurrentView("");
+  //         }}
+  //         goToMySpace={() => {
+  //           if (user) {
+  //             setCurrentView("myspace");
+  //             setActiveTab("");
+  //             setSidebarOpen(false);
+  //           }
+  //         }}
+  //         goToProfile={() => {
+  //           if (user) {
+  //             setCurrentView("profile");
+  //             setActiveTab("");
+  //             setSidebarOpen(false);
+  //           }
+  //         }}
+  //       />
+  //       <Sidebar
+  //         isOpen={sidebarOpen}
+  //         currentView={currentView}
+  //         onViewChange={(view) => {
+  //           setCurrentView(view);
+  //           setActiveTab("");
+  //           if (view === "boards") {
+  //             useBoardStore.getState().setCurrentBoard("");
+  //           }
+  //         }}
+  //         numNotifications={numNotifications}
+  //       />
+
+  //       {activeTab === "home" && (
+  //         <>
+  //           {/* <Hero onTabChange={setActiveTab} />
+  //           <PricingSection /> */}
+  //           <Hero onAccessClick={handleLogin}></Hero>
+  //         </>
+  //       )}
+
+  //       {showPopUp && (
+  //         <div className="text-center mb-8">
+  //           <TokensPopUp
+  //             onClose={() => setShowPopUp(false)}
+  //             onUpdatePlan={() => {
+  //               setActiveTab("plans");
+  //               setShowPopUp(false);
+  //             }}
+  //             userExpirationDate={userStore!.expirationDate}
+  //           ></TokensPopUp>
+  //         </div>
+  //       )}
+
+  //       {activeTab === "correct" && (
+  //         <CorrectTab
+  //           onTabChange={setActiveTab}
+  //           user={user}
+  //           removeTokens={removeTokens}
+  //           userTokens={userStore?.tokens ?? 0}
+  //           setShowPopUpTokens={setShowPopUp}
+  //         />
+  //       )}
+
+  //       {activeTab === "traductor" && (
+  //         <TraductorTab onTabChange={setActiveTab} activeTab={activeTab} />
+  //       )}
+
+  //       {activeTab === "summarize" && (
+  //         <SummarizeTab
+  //           onTabChange={setActiveTab}
+  //           user={user}
+  //           removeTokens={removeTokens}
+  //           userTokens={userStore?.tokens ?? 0}
+  //           setShowPopUpTokens={setShowPopUp}
+  //         />
+  //       )}
+
+  //       {activeTab === "quiz" && (
+  //         <QuizGame
+  //           removeTokens={removeTokens}
+  //           userTokens={userStore?.tokens ?? 0}
+  //           setShowPopUpTokens={setShowPopUp}
+  //         />
+  //       )}
+
+  //       {activeTab === "conceptmap" && (
+  //         <ConceptMapGenerator
+  //           user={user}
+  //           removeTokens={removeTokens}
+  //           userTokens={userStore?.tokens ?? 0}
+  //           setShowPopUpTokens={setShowPopUp}
+  //         />
+  //       )}
+
+  //       {activeTab === "voice" && (
+  //         <VoiceTab
+  //           isMinimized={isMinimized}
+  //           setIsMinimized={setIsMinimized}
+  //           recorderState={recorderState}
+  //           isPaused={isPaused}
+  //           recordingTime={recordingTime}
+  //           audioPreview={audioPreview}
+  //           canvasRef={canvasRef}
+  //           startRecording={startRecording}
+  //           togglePause={togglePause}
+  //           stopRecording={() => stopRecording(false)}
+  //           setAudioPreview={setAudioPreview}
+  //           setRecordingTime={setRecordingTime}
+  //           setIsPaused={setIsPaused}
+  //           setRecorderState={setRecorderState}
+  //           restartAudio={() => stopRecording(true)}
+  //         />
+  //       )}
+
+  //       {user && activeTab === "plans" && <StripePricingTable />}
+  //     </div>
+  //   </div>
+  // );
 };
