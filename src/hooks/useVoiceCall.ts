@@ -238,7 +238,6 @@ export function useVoiceCall({
           setState("connecting");
           break;
         }
-
         case "reject":
           setState("ended");
           stopTimer();
@@ -359,7 +358,7 @@ export function useVoiceCall({
 
     calleeId, // <- este es el que pides
     otherPartyId,
-    
+
     // acciones
     call,
     accept,

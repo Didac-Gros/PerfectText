@@ -115,7 +115,6 @@ export function Sidebar({
           ))}
         </div>
         <div className="space-y-1">
-          {/* {menuDownItems.map((item) => ( */}
           <button
             onClick={() => {
               setCurrentBoard("");
@@ -132,9 +131,11 @@ export function Sidebar({
               className={`size-5 ${currentView === "notifications" ? "text-[#0ea5e9]" : ""}`}
             />
             <span className="text-sm font-medium">{"Notifications"}</span>
-            <div className="relative bottom-1 right-2 size-4 bg-blue-500 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-sm">
-              {numNotifications}
-            </div>
+            {numNotifications > 0 && (
+              <div className="relative bottom-1 right-2 size-4 bg-blue-500 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-sm">
+                {numNotifications}
+              </div>
+            )}
           </button>
           <button
             onClick={() => {
@@ -153,7 +154,6 @@ export function Sidebar({
             />
             <span className="text-sm font-medium">{"Perfil"}</span>
           </button>
-          {/* ))} */}
         </div>
       </div>
     </aside>

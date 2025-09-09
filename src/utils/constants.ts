@@ -313,6 +313,7 @@ export const majors = [
   "Estudios Árabes e Islámicos",
   "Estudios Hebreos y Arameos",
 ];
+
 export const yearOptions = [
   { value: "1", label: "1º Curso" },
   { value: "2", label: "2º Curso" },
