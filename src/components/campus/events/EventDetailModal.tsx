@@ -12,8 +12,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { Avatar } from "../../shared/Avatar";
-import { Event, User } from "../../../types/global";
+import { Event, EventComment, User } from "../../../types/global";
 import { getUserById } from "../../../services/firestore/userRepository";
+import { useAuth } from "../../../hooks/useAuth";
+import { getRelativeTime } from "../../../utils/utils";
+import { addCommentToEvent } from "../../../services/firestore/eventsRepository";
 
 interface EventDetailModalProps {
   isOpen: boolean;
@@ -21,89 +24,17 @@ interface EventDetailModalProps {
   event: Event;
   onToggleAttendance: (eventId: string) => void;
   onDeleteEvent?: (eventId: string) => void;
-  currentUser: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
 }
 
-// Mock attendees data
-const mockAttendees = [
-  {
-    id: "1",
-    name: "Ana Martín",
-    initials: "AM",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=ana&size=64",
-    year: "2º Curso",
-    major: "Ingeniería",
-  },
-  {
-    id: "2",
-    name: "Carlos Ruiz",
-    initials: "CR",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=carlos&size=64",
-    year: "4º Curso",
-    major: "Medicina",
-  },
-  {
-    id: "3",
-    name: "Laura Sánchez",
-    initials: "LS",
-    year: "1º Curso",
-    major: "Filosofía",
-  },
-  {
-    id: "4",
-    name: "Diego López",
-    initials: "DL",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=diego&size=64",
-    year: "3º Curso",
-    major: "Informática",
-  },
-  {
-    id: "5",
-    name: "Sofía Herrera",
-    initials: "SH",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=sofia&size=64",
-    year: "2º Curso",
-    major: "Arte",
-  },
-];
-
-// Mock comments data
-const mockComments = [
-  {
-    id: "1",
-    author: {
-      name: "Elena Ruiz",
-      initials: "ER",
-      year: "2º Curso",
-      major: "Psicología",
-      avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=elena&size=64",
-    },
-    content: "¡Genial! ¿Hay que traer algo en particular?",
-    timestamp: "hace 2h",
-    likes: 3,
-    isLiked: false,
-  },
-  {
-    id: "2",
-    author: {
-      name: "Pablo García",
-      initials: "PG",
-      year: "3º Curso",
-      major: "Ingeniería",
-      avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=elena&size=64",
-    },
-    content: "Perfecto, nos vemos allí 👍",
-    timestamp: "hace 1h",
-    likes: 1,
-    isLiked: true,
-  },
-];
+interface Comment {
+  id: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  comment: string;
+  createdAt: string;
+}
 
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   isOpen,
@@ -111,9 +42,8 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   event,
   onToggleAttendance,
   onDeleteEvent,
-  currentUser,
 }) => {
-  const [comments, setComments] = useState(mockComments);
+  const [eventComments, setEventComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [activeTab, setActiveTab] = useState<
     "details" | "attendees" | "comments"
@@ -122,10 +52,10 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   const [organizer, setOrganizer] = useState<User>();
   // Usar el evento que viene por props directamente (se actualiza automáticamente)
   const currentEvent = event;
-
+  const { userStore } = useAuth();
   // Verificar si el usuario actual es el organizador del evento
-  const isOwner = event.organizerId === currentUser.name;
-
+  const isOwner = userStore?.uid === currentEvent.organizerId;
+  const [eventAattendees, setEventAttendees] = useState<User[]>([]);
   if (!isOpen) return null;
 
   useEffect(() => {
@@ -139,33 +69,70 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
     fetchOrganizer();
   }, [event.organizerId]);
 
+  useEffect(() => {
+    const fetchAttendees = async () => {
+      const users = await Promise.all(
+        event.attendees.map((attendee) => getUserById(attendee))
+      );
+      setEventAttendees(users as User[]);
+    };
+    fetchAttendees();
+  }, [event.attendees]);
+
+  useEffect(() => {
+    // Mapear los comentarios del evento al formato esperado
+    const fetchComments = async () => {
+      if (!event.comments) return;
+      const mappedComments = await Promise.all(
+        event.comments!.map(async (comment) => {
+          const user = await getUserById(comment.userId);
+          return {
+            id: comment.id,
+            author: {
+              name: user?.name || "Unknown",
+              avatar: user?.profileImage || "/default_avatar.jpg",
+            },
+            comment: comment.comment,
+            createdAt: comment.createdAt,
+          };
+        })
+      );
+      setEventComments(mappedComments as Comment[]);
+    };
+    fetchComments();
+  }, [event.comments]);
+
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const handleSubmitComment = (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    const comment = {
-      id: Date.now().toString(),
-      author: {
-        name: currentUser.name,
-        avatar: currentUser.avatar || "/public/default_avatar.jpg",
-        initials: currentUser.initials,
-        year: "3º Curso",
-        major: "Psicología",
-      },
-      content: newComment,
-      timestamp: "ahora",
-      likes: 0,
-      isLiked: false,
-    };
+    try {
+      await addCommentToEvent(
+        currentEvent.id,
+        userStore!.uid,
+        newComment.trim()
+      );
+      const comment: Comment = {
+        id: Date.now().toString(),
+        author: {
+          name: userStore!.name,
+          avatar: userStore!.profileImage || "/public/default_avatar.jpg",
+        },
+        comment: newComment.trim(),
+        createdAt: new Date().toISOString(),
+      };
 
-    setComments([...comments, comment]);
-    setNewComment("");
+      setEventComments([...eventComments, comment]);
+      setNewComment("");
+    } catch (error) {
+      console.error("Error al enviar el comentario:", error);
+    }
   };
 
   const openInGoogleMaps = () => {
@@ -236,7 +203,8 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                   {organizer?.name || "Organizador"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {organizer?.studies?.year || "Año"} • {organizer?.studies?.career || "Carrera"}
+                  {organizer?.studies?.year || "Año"} •{" "}
+                  {organizer?.studies?.career || "Carrera"}
                 </p>
               </div>
             </div>
@@ -272,7 +240,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             },
             {
               id: "comments",
-              label: `Comentarios (${comments.length})`,
+              label: `Comentarios (${eventComments.length})`,
               icon: MessageCircle,
             },
           ].map((tab) => {
@@ -359,7 +327,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                         Plazas
                       </p>
                       <p className="text-sm text-gray-600">
-                        {currentEvent.attendees}{" "}
+                        {currentEvent.attendees.length}
                         {currentEvent.maxAttendees
                           ? `/ ${currentEvent.maxAttendees}`
                           : ""}{" "}
@@ -375,34 +343,41 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           {activeTab === "attendees" && (
             <div className="p-6">
               <div className="space-y-3">
-                {mockAttendees
-                  .slice(0, currentEvent.attendees.length)
-                  .map((attendee) => (
+                {eventAattendees.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm">
+                      Aún no hay asistentes
+                    </p>
+                  </div>
+                ) : (
+                  eventAattendees.map((eventAattendees) => (
                     <div
-                      key={attendee.id}
+                      key={eventAattendees.uid}
                       className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200"
                     >
                       <Avatar
-                        src={attendee.avatar}
-                        alt={attendee.name}
-                        initials={attendee.initials}
+                        src={eventAattendees.profileImage}
+                        alt={eventAattendees.name}
                         size="sm"
                       />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">
-                          {attendee.name}
+                          {eventAattendees.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {attendee.year} • {attendee.major}
+                          {eventAattendees.studies?.year}º curso •{" "}
+                          {eventAattendees.studies?.career}
                         </p>
                       </div>
-                      {attendee.name === organizer?.name && (
+                      {eventAattendees.name === organizer?.name && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                           Organizador
                         </span>
                       )}
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -410,7 +385,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           {activeTab === "comments" && (
             <div className="p-6">
               <div className="space-y-4 mb-6">
-                {comments.length === 0 ? (
+                {eventComments.length === 0 ? (
                   <div className="text-center py-8">
                     <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
@@ -418,7 +393,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                     </p>
                   </div>
                 ) : (
-                  comments.map((comment) => (
+                  eventComments.map((comment) => (
                     <div
                       key={comment.id}
                       className="flex items-start space-x-3"
@@ -426,7 +401,6 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                       <Avatar
                         src={comment.author.avatar}
                         alt={comment.author.name}
-                        initials={comment.author.initials}
                         size="sm"
                       />
                       <div className="flex-1">
@@ -437,11 +411,11 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                             </h4>
                             <span className="text-xs text-gray-500">•</span>
                             <span className="text-xs text-gray-500">
-                              {comment.timestamp}
+                              {getRelativeTime(comment.createdAt)}
                             </span>
                           </div>
                           <p className="text-gray-800 text-sm leading-relaxed">
-                            {comment.content}
+                            {comment.comment}
                           </p>
                         </div>
                       </div>
@@ -456,9 +430,8 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 className="flex items-center space-x-3 border-t border-gray-100 pt-4"
               >
                 <Avatar
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
-                  initials={currentUser.initials}
+                  src={userStore?.profileImage || "/default_avatar.jpg"}
+                  alt={userStore?.name || "Usuario"}
                   size="sm"
                 />
                 <div className="flex-1 flex items-center space-x-2">
@@ -508,7 +481,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                   !currentEvent.isAttending
                 )
               }
-              className={`flex items-center space-x-2 px-8 py-3.5 text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm ${
+              className={`flex items-center space-x-2 px-8 py-3.5 text-sm font-semibold rounded-xl transition-all duration-200 ease-in-out shadow-sm ${
                 currentEvent.isAttending
                   ? "bg-green-500 text-white hover:bg-green-600 border border-green-500 hover:shadow-md hover:scale-105"
                   : currentEvent.maxAttendees &&
@@ -536,18 +509,6 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
               )}
             </button>
           </div>
-
-          {/* Botón secundario para desapuntarse cuando está confirmado */}
-          {currentEvent.isAttending && (
-            <div className="mt-3 text-center">
-              <button
-                onClick={handleToggleAttendance}
-                className="text-sm text-gray-500 hover:text-red-600 transition-colors duration-200 underline hover:no-underline"
-              >
-                Cambiar de opinión y no ir
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

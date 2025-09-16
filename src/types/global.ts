@@ -266,50 +266,12 @@ export interface EventCategory {
   emoji: string;
 }
 
-// export type EventCategory = [
-//   {
-//     id: "study";
-//     name: "Estudio";
-//     color: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100";
-//     selectedColor: "bg-blue-500 text-white border-blue-500";
-//     emoji: "📚";
-//   },
-//   {
-//     id: "social";
-//     name: "Social";
-//     color: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100";
-//     selectedColor: "bg-green-500 text-white border-green-500";
-//     emoji: "🎉";
-//   },
-//   {
-//     id: "sports";
-//     name: "Deporte";
-//     color: "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100";
-//     selectedColor: "bg-orange-500 text-white border-orange-500";
-//     emoji: "⚽";
-//   },
-//   {
-//     id: "culture";
-//     name: "Cultural";
-//     color: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100";
-//     selectedColor: "bg-purple-500 text-white border-purple-500";
-//     emoji: "🎭";
-//   },
-//   {
-//     id: "food";
-//     name: "Comida";
-//     color: "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100";
-//     selectedColor: "bg-yellow-500 text-white border-yellow-500";
-//     emoji: "🍕";
-//   },
-//   {
-//     id: "other";
-//     name: "Otro";
-//     color: "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100";
-//     selectedColor: "bg-gray-500 text-white border-gray-500";
-//     emoji: "📌";
-//   },
-// ];
+export interface EventComment {
+  id: string;
+  userId: string;
+  comment: string;
+  createdAt: string;
+}
 
 export interface Event {
   id: string;
@@ -324,4 +286,6 @@ export interface Event {
   category: EventCategory;
   isAttending?: boolean;
   image?: string;
+  comments?: EventComment[];
+  createdAt: string;
 }

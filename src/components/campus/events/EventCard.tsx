@@ -11,6 +11,7 @@ import {
 import { EventDetailModal } from "./EventDetailModal";
 import { EventCategory, EventOrganizer, User } from "../../../types/global";
 import { getUserById } from "../../../services/firestore/userRepository";
+import { useAuth } from "../../../hooks/useAuth";
 
 interface EventCardProps {
   id: string;
@@ -24,16 +25,9 @@ interface EventCardProps {
   attendees: string[];
   maxAttendees?: number;
   category: EventCategory;
-  isAttending?: boolean;
+  createdAt: string;
   onToggleAttendance?: (eventId: string) => void;
   onDeleteEvent?: (eventId: string) => void;
-  currentUser?: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
 }
 
 export const EventCard: React.FC<EventCardProps> = ({
@@ -47,27 +41,28 @@ export const EventCard: React.FC<EventCardProps> = ({
   attendees,
   maxAttendees,
   category,
-  isAttending = false,
   onToggleAttendance,
   onDeleteEvent,
-  currentUser,
+  createdAt,
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [organizer, setOrganizer] = useState<User>();
   // Verificar si el usuario actual es el organizador del evento
-  const isOwner = currentUser && organizerId === currentUser.name;
+  const {userStore} = useAuth();
+  const isOwner = userStore?.uid === organizerId;
+  const [isAttending, setIsAttending] = useState(
+    attendees.includes(userStore!.uid)
+  );
 
   useEffect(() => {
-    // Simular una llamada a API para obtener los datos del organizador
     const fetchOrganizer = async () => {
-      // Aquí deberías hacer una llamada real a tu API
-      // Por simplicidad, usaremos datos estáticos
       const organizer = await getUserById(organizerId);
       setOrganizer(organizer!);
     };
     fetchOrganizer();
+
   }, [organizerId]);
 
   const handleAttendanceToggle = () => {
@@ -249,7 +244,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       )}
       {/* Event Detail Modal */}
-      {showDetailModal && currentUser && (
+      {showDetailModal && (
         <EventDetailModal
           isOpen={showDetailModal}
           onClose={() => setShowDetailModal(false)}
@@ -265,10 +260,10 @@ export const EventCard: React.FC<EventCardProps> = ({
             maxAttendees,
             category,
             isAttending,
+            createdAt,
           }}
           onToggleAttendance={onToggleAttendance || (() => {})}
           onDeleteEvent={onDeleteEvent}
-          currentUser={currentUser}
         />
       )}
     </>

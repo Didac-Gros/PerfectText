@@ -341,11 +341,6 @@ export async function getBoardsForUser(userId: string): Promise<Board[]> {
 
 export async function updateBoardLists(boardId: string, lists: List[]) {
   const boardRef = doc(db, "boards", boardId);
-  console.log(
-    "Actualitzant llistes del tauler:",
-    boardId,
-    lists.forEach((list) => console.log(list))
-  );
   try {
     await updateDoc(boardRef, {
       lists,

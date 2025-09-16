@@ -6,7 +6,11 @@ import { Call, User } from "../../types/global";
 import { getAllUsers } from "../../services/firestore/userRepository";
 import { useAuth } from "../../hooks/useAuth";
 import { CallState, useVoiceCall } from "../../hooks/useVoiceCall";
-import { deleteCallFromFirestore, deleteUserCallFromFirestore, getUserRecentCalls } from "../../services/firestore/callsRepository";
+import {
+  deleteCallFromFirestore,
+  deleteUserCallFromFirestore,
+  getUserRecentCalls,
+} from "../../services/firestore/callsRepository";
 import { formatDuration, getRelativeTime } from "../../utils/utils";
 import { CallWaitingModal } from "./CallWaitingModal";
 import { addNotification } from "../../services/firestore/notificationsRepository";
@@ -20,6 +24,7 @@ interface CallsProps {
   state: CallState;
   call: (toUserId: string) => Promise<void>;
   hangup: () => void;
+  startMusic: (muted: boolean) => void;
 }
 
 export const Calls: React.FC<CallsProps> = ({
@@ -27,6 +32,7 @@ export const Calls: React.FC<CallsProps> = ({
   state,
   call,
   hangup,
+  startMusic,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCallModal, setShowCallModal] = useState(false);
@@ -112,8 +118,10 @@ export const Calls: React.FC<CallsProps> = ({
 
   useEffect(() => {
     if (state === "ringing-out") {
+      startMusic(true);
       setShowWaitingCallModal(true);
     } else {
+      startMusic(false);
       setShowWaitingCallModal(false);
     }
   }, [state]);
@@ -135,7 +143,9 @@ export const Calls: React.FC<CallsProps> = ({
   const handleDeleteCall = async (callId: string) => {
     try {
       await deleteCallFromFirestore(callId);
-      setRecentCalls((prevCalls) => prevCalls.filter((call) => call.id !== callId));
+      setRecentCalls((prevCalls) =>
+        prevCalls.filter((call) => call.id !== callId)
+      );
     } catch (error) {
       console.error(error);
     }
@@ -254,7 +264,12 @@ export const Calls: React.FC<CallsProps> = ({
             <h2 className="text-sm font-medium text-gray-600 mb-4">
               Llamadas recientes
             </h2>
-            <button className="p-2 bg-blue-400 rounded-lg text-white" onClick={handleRandomCall}>RANDOM CALL</button>
+            <button
+              className="p-2 bg-blue-400 rounded-lg text-white"
+              onClick={handleRandomCall}
+            >
+              RANDOM CALL
+            </button>
           </div>
           <div className="max-h-[50vh] overflow-y-auto overscroll-contain pr-2">
             <div className="space-y-3">

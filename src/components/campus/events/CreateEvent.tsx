@@ -55,6 +55,17 @@ const eventCategories = [
   }
 ];
 
+export interface EventFormData {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  maxAttendees: string;
+  category: typeof eventCategories[number];
+  image: string;
+}
+
 export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateEvent, onCancel }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -68,7 +79,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
   } | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const balloonsRef = React.useRef<{ launchAnimation: () => void } | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EventFormData>({
     title: '',
     description: '',
     date: '',
@@ -93,20 +104,10 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
           balloonsRef.current.launchAnimation();
         }
       }, 300);
-      
       // Crear el evento después de un pequeño delay
       setTimeout(() => {
-        onCreateEvent({
-          ...formData,
-          image: formData.image, // Incluir la imagen en los datos del evento
-          location: selectedLocation?.formattedAddress || formData.location,
-          coordinates: selectedLocation?.coordinates,
-          placeId: selectedLocation?.placeId,
-          maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
-          attendees: 1,
-          isAttending: true
-        });
-        
+        onCreateEvent(formData);
+
         // Redirigir al feed después de la animación
         setTimeout(() => {
           setShowCelebration(false);

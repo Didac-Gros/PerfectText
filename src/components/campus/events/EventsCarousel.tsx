@@ -21,13 +21,6 @@ interface EventsCarouselProps {
   onToggleAttendance: (eventId: string) => void;
   onDeleteEvent?: (eventId: string) => void;
   onCreateEventClick?: () => void;
-  currentUser: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
 }
 
 // Función para obtener el número de cards visibles según el ancho de pantalla
@@ -54,7 +47,6 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
   onToggleAttendance,
   onDeleteEvent,
   onCreateEventClick,
-  currentUser,
 }) => {
   const [visibleCards, setVisibleCards] = useState(getVisibleCards());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -78,12 +70,13 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
   }, []);
 
   useEffect(() => {
+    if (events.length === 0) return; // evita llamadas innecesarias
+
     const fetchOrganizers = async () => {
       const organizersPromises = events.map((event) =>
         getUserById(event.organizerId)
       );
       const organizers = await Promise.all(organizersPromises);
-      console.log(organizers);
       setEventsOrganizers(organizers as User[]);
     };
     fetchOrganizers();
@@ -338,7 +331,6 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
           event={getUpdatedEvent(selectedEvent.id) || selectedEvent}
           onToggleAttendance={onToggleAttendance}
           onDeleteEvent={onDeleteEvent}
-          currentUser={currentUser}
         />
       )}
     </section>

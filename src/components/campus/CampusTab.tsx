@@ -18,9 +18,18 @@ import { getAllUsers } from "../../services/firestore/userRepository";
 import { formatDuration, getRelativeTime } from "../../utils/utils";
 import { EventsCarousel } from "./events/EventsCarousel";
 import { GradientHeading } from "./events/ui/gradient-heading";
-import { CreateEvent } from "./events/CreateEvent";
+import { CreateEvent, EventFormData } from "./events/CreateEvent";
 import { EventCard } from "./events/EventCard";
 import { active } from "d3";
+import { v4 as uuidv4 } from "uuid";
+import {
+  addEventToFirestore,
+  getAllEvents,
+  getEventsByUser,
+  addAssistantToEvent,
+  removeAssistantToEvent
+} from "../../services/firestore/eventsRepository";
+import { updateFirestoreField } from "../../services/firestore/firestore";
 
 export interface CampusTabProps {
   handleCall: (userId: string) => void;
@@ -37,118 +46,8 @@ export function CampusTab({ handleCall }: CampusTabProps) {
   const [activeScreen, setActiveScreen] = useState<"feels" | "events">("feels");
   const [showCreateEventForm, setShowCreateEventForm] = useState(false);
   // Mock events data
-  const [campusEvents, setCampusEvents] = useState<Event[]>([
-    {
-      id: "1",
-      title: "Grupo de estudio - Cálculo II",
-      description:
-        "Nos juntamos para repasar los ejercicios del parcial. Traed apuntes y muchas ganas.",
-      image:
-        "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&h=600&fit=crop",
-      organizerId: "Carlos Ruiz",
-      date: "2024-01-15",
-      time: "16:00",
-      location: "Biblioteca Central, Sala 3",
-      attendees: ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"],
-      maxAttendees: 12,
-      category: {
-        name: "Estudio",
-        color: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
-        selectedColor: "bg-blue-500 text-white border-blue-500",
-        emoji: "📚",
-      },
-      isAttending: false,
-    },
-    {
-      id: "2",
-      title: "Quedada para cenar",
-      description:
-        "Vamos a probar el nuevo restaurante japonés cerca del campus. ¡Apúntate!",
-      image:
-        "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&h=600&fit=crop",
-      organizerId: "Carlos Ruiz",
-      date: "2024-01-12",
-      time: "20:30",
-      location: "Sakura Ramen, Calle Mayor 15",
-      attendees: ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"],
-      maxAttendees: 8,
-      category: {
-        name: "Social",
-
-        color: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
-        selectedColor: "bg-green-500 text-white border-green-500",
-        emoji: "🎉",
-      },
-      isAttending: true,
-    },
-    {
-      id: "3",
-      title: "Partido de fútbol",
-      description:
-        "Partido amistoso en el campo de la universidad. Nivel principiante-intermedio.",
-      image:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=600&fit=crop",
-            organizerId: "Carlos Ruiz",
-
-      date: "2024-01-14",
-      time: "17:00",
-      location: "Campo de fútbol del campus",
-      attendees: ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"],
-      maxAttendees: 20,
-      category: {
-        name: "Deporte",
-        color:
-          "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100",
-        selectedColor: "bg-orange-500 text-white border-orange-500",
-        emoji: "⚽",
-      },
-      isAttending: false,
-    },
-    {
-      id: "4",
-      title: "Noche de karaoke",
-      description:
-        "Karaoke en el bar de estudiantes. Canciones en español e inglés. ¡Diversión garantizada!",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=600&fit=crop",
-            organizerId: "Carlos Ruiz",
-
-      date: "2024-01-13",
-      time: "21:00",
-      location: "Bar Universitario",
-      attendees: ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"],
-      category: {
-        name: "Cultural",
-        color:
-          "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
-        selectedColor: "bg-purple-500 text-white border-purple-500",
-        emoji: "🎭",
-      },
-      isAttending: false,
-    },
-    {
-      id: "5",
-      title: "Noche de karaoke",
-      description:
-        "Karaoke en el bar de estudiantes. Canciones en español e inglés. ¡Diversión garantizada!",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=600&fit=crop",
-            organizerId: "Carlos Ruiz",
-
-      date: "2024-01-13",
-      time: "21:00",
-      location: "Bar Universitario",
-      attendees: ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"],
-      category: {
-        name: "Cultural",
-        color:
-          "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
-        selectedColor: "bg-purple-500 text-white border-purple-500",
-        emoji: "🎭",
-      },
-      isAttending: false,
-    },
-  ]);
+  const [campusEvents, setCampusEvents] = useState<Event[]>([]);
+  const [myEvents, setMyEvents] = useState<Event[]>([]);
 
   const { userStore } = useAuth();
 
@@ -209,6 +108,29 @@ export function CampusTab({ handleCall }: CampusTabProps) {
       }
     };
     loadRecentCalls();
+
+    const loadEvents = async () => {
+      try {
+        const events = await getAllEvents();
+        events.forEach((event) => {
+          event.isAttending = event.attendees.includes(userStore!.uid);
+        });
+        setCampusEvents(events);
+      } catch (error) {
+        console.error("Error cargando eventos del campus:", error);
+      }
+    };
+    loadEvents();
+
+    const loadMyEvents = async () => {
+      try {
+        const events = await getEventsByUser(userStore!.uid);
+        setMyEvents(events);
+      } catch (error) {
+        console.error("Error cargando mis eventos:", error);
+      }
+    };
+    loadMyEvents();
   }, []);
 
   const handlePost = async (
@@ -261,33 +183,79 @@ export function CampusTab({ handleCall }: CampusTabProps) {
     setShowCallModal(true);
   };
 
-  const handleToggleEventAttendance = (eventId: string) => {
+  // id;
+
+  //   try {
+  //     const res = await toggleEventAttendance( eventId, userId);
+
+  //     if (res.status === "full") {
+  //       // opcional: muestra un toast
+  //       // toast.error("El evento está completo");
+  //       return; // no actualizamos nada localmente
+  //     }
+  //     if (res.status === "not_found") {
+  //       // toast.error("Evento no encontrado");
+  //       return;
+  //     }
+
+  //     setCampusEvents((prev) =>
+  //       prev.map((event) => {
+  //         if (event.id !== eventId) return event;
+
+  //         const isAttending =
+  //           res.status === "joined"
+  //             ? true
+  //             : res.status === "left"
+  //               ? false
+  //               : event.isAttending;
+
+  //         return {
+  //           ...event,
+  //           isAttending,
+  //           attendees: res.attendees, // lista fresca desde la transacción
+  //         };
+  //       })
+  //     );
+  //   } catch (e) {
+  //     console.error("Error al alternar asistencia:", e);
+  //     // opcional: revertir UI o mostrar alerta
+  //   }
+
+  const handleToggleEventAttendance = async (eventId: string) => {
     setCampusEvents(
-      campusEvents.map((event) => {
-        if (event.id === eventId) {
-          const isCurrentlyAttending = event.isAttending;
-          const newAttendingStatus = !isCurrentlyAttending;
+      await Promise.all(
+        campusEvents.map(async (event) => {
+          if (event.id === eventId) {
+            const isCurrentlyAttending = event.isAttending;
+            const newAttendingStatus = !isCurrentlyAttending;
 
-          // Verificar si el evento está lleno y el usuario no está asistiendo
-          if (
-            !isCurrentlyAttending &&
-            event.maxAttendees &&
-            event.attendees.length >= event.maxAttendees
-          ) {
-            // No permitir apuntarse si está lleno
-            return event;
+            // Verificar si el evento está lleno y el usuario no está asistiendo
+            if (
+              !isCurrentlyAttending &&
+              event.maxAttendees &&
+              event.attendees.length >= event.maxAttendees
+            ) {
+              // No permitir apuntarse si está lleno
+              return event;
+            }
+
+            if (newAttendingStatus) {
+              await addAssistantToEvent(eventId, userStore!.uid);
+            } else {
+              await removeAssistantToEvent(eventId, userStore!.uid);
+            }
+
+            return {
+              ...event,
+              isAttending: newAttendingStatus,
+              attendees: isCurrentlyAttending
+                ? event.attendees.filter((user) => user !== userStore!.uid)
+                : [...event.attendees, userStore!.uid],
+            };
           }
-
-          return {
-            ...event,
-            isAttending: newAttendingStatus,
-            attendees: isCurrentlyAttending
-              ? event.attendees.filter((user) => user !== userStore!.uid)
-              : [...event.attendees, userStore!.uid],
-          };
-        }
-        return event;
-      })
+          return event;
+        })
+      )
     );
   };
   const handleDeleteEvent = (eventId: string) => {
@@ -301,16 +269,43 @@ export function CampusTab({ handleCall }: CampusTabProps) {
     }
   };
 
-  const handleCreateEvent = (eventData: any) => {
-    const newEvent = {
-      id: `event-${Date.now()}`,
-      ...eventData,
-      organizer: currentUser,
-      attendees: 1, // El organizador siempre asiste
+  const handleCreateEvent = async (eventData: EventFormData) => {
+    console.log("Creating event with data:", eventData);
+
+    const eventId = uuidv4();
+
+    const newEvent: Event = {
+      id: eventId,
+      title: eventData.title,
+      description: eventData.description,
+      organizerId: currentUser.id,
+      date: eventData.date,
+      time: eventData.time,
+      location: eventData.location,
+      attendees: [currentUser.id], // El organizador siempre asiste
+      maxAttendees: Number(eventData.maxAttendees),
+      category: eventData.category,
+      image: eventData.image || undefined,
       isAttending: true,
+      createdAt: new Date().toISOString(),
     };
 
     setCampusEvents([newEvent, ...campusEvents]);
+    try {
+      await addEventToFirestore({
+        id: eventId,
+        title: eventData.title,
+        description: eventData.description,
+        date: eventData.date,
+        time: eventData.time,
+        location: eventData.location,
+        category: eventData.category,
+        maxAttendees: Number(eventData.maxAttendees),
+        image: eventData.image || undefined,
+      });
+    } catch (error) {
+      console.error("Error creating event:", error);
+    }
     // No ocultar el formulario aquí, dejar que la animación maneje la redirección
   };
 
@@ -408,7 +403,6 @@ export function CampusTab({ handleCall }: CampusTabProps) {
                       onToggleAttendance={handleToggleEventAttendance}
                       onDeleteEvent={handleDeleteEvent}
                       onCreateEventClick={handleCreateEventClick}
-                      currentUser={currentUser}
                     />
                     <div className="space-y-3">
                       <div className="mb-4">
@@ -457,19 +451,19 @@ export function CampusTab({ handleCall }: CampusTabProps) {
                     ) : (
                       <>
                         {/* Mis eventos */}
-                        {getUserEvents().length > 0 && (
+                        {myEvents.length > 0 && (
                           <div className="mb-6">
                             <h2 className="text-sm font-semibold text-gray-500 mb-4 flex items-center justify-between">
                               <div className="flex items-center">
                                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
-                                Mis eventos ({getUserEvents().length})
+                                Mis eventos ({myEvents.length})
                               </div>
                               <span className="text-xs text-gray-400 font-normal tracking-wide">
                                 Creados o asistiendo
                               </span>
                             </h2>
                             <div className="grid gap-3">
-                              {getUserEvents().map((event) => (
+                              {myEvents.map((event) => (
                                 <EventCard
                                   key={event.id}
                                   {...event}
@@ -477,7 +471,7 @@ export function CampusTab({ handleCall }: CampusTabProps) {
                                     handleToggleEventAttendance
                                   }
                                   onDeleteEvent={handleDeleteEvent}
-                                  currentUser={currentUser}
+                                  createdAt={event.createdAt}
                                 />
                               ))}
                             </div>

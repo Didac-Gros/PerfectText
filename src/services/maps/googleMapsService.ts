@@ -2,7 +2,8 @@
 class GoogleMapsService {
   private static instance: GoogleMapsService;
   private isLoaded = false;
-  private _isLoading = false;
+  private isLoading = false;
+  private loadPromise: Promise<void> | null = null;
   private autocompleteService: any = null;
   private placesService: any = null;
 
@@ -15,34 +16,95 @@ class GoogleMapsService {
     return GoogleMapsService.instance;
   }
 
+  private loadGoogleMapsScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Verificar si ya está cargado
+      if (window.google && window.google.maps && window.google.maps.places) {
+        console.log('✅ Google Maps API ya estaba cargado');
+        this.isLoaded = true;
+        resolve();
+        return;
+      }
+
+      // Verificar si el script ya existe
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        // Esperar a que se cargue el script existente
+        const checkLoaded = () => {
+          if (window.google && window.google.maps && window.google.maps.places) {
+            console.log('✅ Google Maps API cargado desde script existente');
+            this.isLoaded = true;
+            resolve();
+          } else {
+            setTimeout(checkLoaded, 100);
+          }
+        };
+        checkLoaded();
+        return;
+      }
+
+      // Crear callback global único
+      const callbackName = 'initGoogleMapsCallback_' + Date.now();
+      (window as any)[callbackName] = () => {
+        console.log('✅ Google Maps API cargado dinámicamente');
+        this.isLoaded = true;
+        delete (window as any)[callbackName];
+        resolve();
+      };
+
+      // Crear y cargar el script
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA0J1xx7N4AF58MEs-qpwQFzpp12jaeupc&libraries=places&callback=${callbackName}`;
+      script.async = true;
+      script.defer = true;
+      
+      script.onerror = () => {
+        console.error('❌ Error cargando Google Maps API');
+        delete (window as any)[callbackName];
+        reject(new Error('Failed to load Google Maps API'));
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
   private async initializeServices(): Promise<void> {
-    if (this.isLoaded) {
+    if (this.isLoaded && this.autocompleteService && this.placesService) {
       return;
     }
 
-    this._isLoading = true;
-
-    try {
-      // Esperar a que Google Maps API esté completamente cargado
-      await window.googleMapsApiLoaded;
-      
-      // Verificar que la API esté disponible
-      if (!window.google || !window.google.maps || !window.google.maps.places) {
-        throw new Error('Google Maps API not available');
-      }
-
-      // Inicializar servicios
-      this.autocompleteService = new window.google.maps.places.AutocompleteService();
-      this.placesService = new window.google.maps.places.PlacesService(document.createElement('div'));
-      this.isLoaded = true;
-      
-      console.log('✅ Google Maps Services inicializados correctamente');
-    } catch (error) {
-      console.error('❌ Error inicializando Google Maps:', error);
-      throw error;
-    } finally {
-      this._isLoading = false;
+    if (this.isLoading) {
+      return this.loadPromise!;
     }
+
+    this.isLoading = true;
+    this.loadPromise = this.loadGoogleMapsScript().then(() => {
+      try {
+        // Verificar que la API esté disponible
+        if (!window.google || !window.google.maps || !window.google.maps.places) {
+          throw new Error('Google Maps API not available after loading');
+        }
+
+        // Inicializar servicios
+        this.autocompleteService = new window.google.maps.places.AutocompleteService();
+        this.placesService = new window.google.maps.places.PlacesService(document.createElement('div'));
+        this.isLoaded = true;
+        this.isLoading = false;
+        
+        console.log('✅ Google Maps Services inicializados correctamente');
+      } catch (error) {
+        this.isLoading = false;
+        this.isLoaded = false;
+        console.error('❌ Error inicializando Google Maps:', error);
+        throw error;
+      }
+    }).catch((error) => {
+      this.isLoading = false;
+      this.isLoaded = false;
+      throw error;
+    });
+
+    return this.loadPromise;
   }
 
   async searchPlaces(query: string): Promise<LocationSuggestion[]> {
@@ -130,7 +192,7 @@ class GoogleMapsService {
   }
 
   isApiLoading(): boolean {
-    return this._isLoading;
+    return this.isLoading;
   }
 }
 
@@ -146,8 +208,6 @@ interface LocationSuggestion {
 declare global {
   interface Window {
     google: any;
-    googleMapsApiLoaded: Promise<void>;
-    initGoogleMaps: () => void;
   }
 }
 
