@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Phone, Trash2 } from "lucide-react";
+import { Search, Phone, Trash2, Shuffle } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { CallModal } from "./CallModal";
 import { Call, User } from "../../types/global";
@@ -46,6 +46,8 @@ export const Calls: React.FC<CallsProps> = ({
   const [recentCalls, setRecentCalls] = useState<Call[]>([]);
   const [userRecentCalls, setUserRecentCalls] = useState<User[]>([]);
   const [showWaitingCallModal, setShowWaitingCallModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"recent" | "random">("recent");
+
   const { userStore } = useAuth();
   // Frases dinámicas para el encabezado
   const dynamicPhrases = [
@@ -170,6 +172,33 @@ export const Calls: React.FC<CallsProps> = ({
         </p>
       </header>
 
+      {/* Tabs */}
+      <div className="flex justify-center mb-8">
+        <div className="flex space-x-1 bg-gray-100 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab("recent")}
+            className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+              activeTab === "recent"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            Llamadas Recientes
+          </button>
+          <button
+            onClick={() => setActiveTab("random")}
+            className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center space-x-2 ${
+              activeTab === "random"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            <Shuffle className="w-4 h-4" />
+            <span>Random Calls</span>
+          </button>
+        </div>
+      </div>
+
       {/* Buscador elegante */}
       <div className="relative mb-8 max-w-lg mx-auto">
         <div className="relative group">
@@ -183,6 +212,8 @@ export const Calls: React.FC<CallsProps> = ({
           />
         </div>
       </div>
+
+      
 
       {/* Contenido condicional basado en búsqueda */}
       {searchQuery.trim() ? (

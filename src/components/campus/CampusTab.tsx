@@ -183,44 +183,6 @@ export function CampusTab({ handleCall }: CampusTabProps) {
     setShowCallModal(true);
   };
 
-  // id;
-
-  //   try {
-  //     const res = await toggleEventAttendance( eventId, userId);
-
-  //     if (res.status === "full") {
-  //       // opcional: muestra un toast
-  //       // toast.error("El evento está completo");
-  //       return; // no actualizamos nada localmente
-  //     }
-  //     if (res.status === "not_found") {
-  //       // toast.error("Evento no encontrado");
-  //       return;
-  //     }
-
-  //     setCampusEvents((prev) =>
-  //       prev.map((event) => {
-  //         if (event.id !== eventId) return event;
-
-  //         const isAttending =
-  //           res.status === "joined"
-  //             ? true
-  //             : res.status === "left"
-  //               ? false
-  //               : event.isAttending;
-
-  //         return {
-  //           ...event,
-  //           isAttending,
-  //           attendees: res.attendees, // lista fresca desde la transacción
-  //         };
-  //       })
-  //     );
-  //   } catch (e) {
-  //     console.error("Error al alternar asistencia:", e);
-  //     // opcional: revertir UI o mostrar alerta
-  //   }
-
   const handleToggleEventAttendance = async (eventId: string) => {
     setCampusEvents(
       await Promise.all(
@@ -278,11 +240,11 @@ export function CampusTab({ handleCall }: CampusTabProps) {
       id: eventId,
       title: eventData.title,
       description: eventData.description,
-      organizerId: currentUser.id,
+      organizerId: userStore!.uid,
       date: eventData.date,
       time: eventData.time,
       location: eventData.location,
-      attendees: [currentUser.id], // El organizador siempre asiste
+      attendees: [userStore!.uid], // El organizador siempre asiste
       maxAttendees: Number(eventData.maxAttendees),
       category: eventData.category,
       image: eventData.image || undefined,

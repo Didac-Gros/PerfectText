@@ -78,6 +78,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
     formattedAddress?: string;
   } | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  // Use the correct ref type for Balloons
   const balloonsRef = React.useRef<{ launchAnimation: () => void } | null>(null);
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
@@ -110,7 +111,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
 
         // Redirigir al feed después de la animación
         setTimeout(() => {
-          setShowCelebration(false);
+          // setShowCelebration(false);
           resetForm();
         }, 2000);
       }, 100);
@@ -138,91 +139,6 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
     // Asegurar que volvemos al feed principal
     if (onCancel) {
       onCancel();
-    }
-  };
-
-  // Componente de animación de celebración
-  const CelebrationAnimation = () => {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-        {/* Componente de globos */}
-        {/* <Balloons 
-          ref={balloonsRef}
-          type="default"
-          className="absolute inset-0 pointer-events-none"
-        /> */}
-        
-        {/* Partículas tipo fuegos artificiales */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute"
-              style={{
-                left: '50%',
-                top: '50%',
-                transform: `translate(-50%, -50%) rotate(${i * 12}deg)`
-              }}
-            >
-              <div
-                className="w-1 h-8 bg-gradient-to-t from-blue-400 to-transparent rounded-full animate-ping"
-                style={{
-                  animationDelay: `${i * 0.05}s`,
-                  animationDuration: '1.5s'
-                }}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Modal de éxito */}
-        <div className="relative z-10 bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
-          <div className="text-center">
-            {/* Icono de éxito animado */}
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-
-            {/* Mensaje de éxito */}
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              ¡Evento creado con éxito! 🎉
-            </h3>
-            <p className="text-gray-600 text-sm mb-6">
-              Tu evento "{formData.title}" ya está disponible en el feed
-            </p>
-
-            {/* Botón para ver en el feed */}
-            <button
-              onClick={handleViewInFeed}
-              className="w-full px-6 py-3 bg-blue-500 text-white text-sm font-medium rounded-xl hover:bg-blue-600 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center space-x-2"
-            >
-              <span>Ver en el feed</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const oldHandleSubmit = () => {
-    if (formData.title.trim() && formData.date && formData.time && (formData.location.trim() || selectedLocation)) {
-      onCreateEvent({
-        ...formData,
-        location: selectedLocation?.formattedAddress || formData.location,
-        coordinates: selectedLocation?.coordinates,
-        placeId: selectedLocation?.placeId,
-        maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
-        attendees: 1,
-        isAttending: true
-      });
-      resetForm();
     }
   };
 
@@ -909,12 +825,12 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
       {/* Animación de celebración */}
       {showCelebration && (
         <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          {/* Componente de globos */}
-          {/* <Balloons 
-            ref={balloonsRef}
+           <Balloons 
+            ref={balloonsRef as React.Ref<any>}
             type="default"
             className="absolute inset-0 pointer-events-none"
-          /> */}
+          /> 
+          
           
           {/* Partículas tipo fuegos artificiales */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">

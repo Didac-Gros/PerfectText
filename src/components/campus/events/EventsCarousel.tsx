@@ -71,7 +71,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
 
   useEffect(() => {
     if (events.length === 0) return; // evita llamadas innecesarias
-
+    console.log("Fetching organizers for events...", events);
     const fetchOrganizers = async () => {
       const organizersPromises = events.map((event) =>
         getUserById(event.organizerId)

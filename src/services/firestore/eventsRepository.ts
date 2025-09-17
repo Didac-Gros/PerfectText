@@ -55,9 +55,9 @@ export const addEventToFirestore = async ({
       time,
       location,
       attendees: [user.uid],
-      maxAttendees,
+      maxAttendees : maxAttendees || null,
       category,
-      image,
+      image: image || "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&h=600&fit=crop",
       createdAt: new Date().toISOString(),
     });
 
