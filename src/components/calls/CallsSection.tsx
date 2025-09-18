@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Search, Phone, Trash2, Shuffle } from "lucide-react";
+import { Search, Phone, Trash2, Shuffle, X } from "lucide-react";
 import { Avatar } from "../shared/Avatar";
 import { CallModal } from "./CallModal";
 import { Call, User } from "../../types/global";
-import { getAllUsers } from "../../services/firestore/userRepository";
+import {
+  getAllUsers,
+  getUserById,
+} from "../../services/firestore/userRepository";
 import { useAuth } from "../../hooks/useAuth";
 import { CallState, useVoiceCall } from "../../hooks/useVoiceCall";
 import {
@@ -14,6 +17,8 @@ import {
 import { formatDuration, getRelativeTime } from "../../utils/utils";
 import { CallWaitingModal } from "./CallWaitingModal";
 import { addNotification } from "../../services/firestore/notificationsRepository";
+import { GradientHeading } from "../campus/events/ui/gradient-heading";
+import { SlideButton } from "./ui/slide-button";
 
 interface CallsProps {
   onCallStart?: (call: {
@@ -25,6 +30,7 @@ interface CallsProps {
   call: (toUserId: string) => Promise<void>;
   hangup: () => void;
   startMusic: (muted: boolean) => void;
+  callDuration: number;
 }
 
 export const Calls: React.FC<CallsProps> = ({
@@ -33,6 +39,7 @@ export const Calls: React.FC<CallsProps> = ({
   call,
   hangup,
   startMusic,
+  callDuration,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCallModal, setShowCallModal] = useState(false);
@@ -47,6 +54,15 @@ export const Calls: React.FC<CallsProps> = ({
   const [userRecentCalls, setUserRecentCalls] = useState<User[]>([]);
   const [showWaitingCallModal, setShowWaitingCallModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"recent" | "random">("recent");
+
+  // Random Calls state
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [currentRandomUser, setCurrentRandomUser] = useState<User | null>(null);
+  const [onlineCount, setOnlineCount] = useState(38);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [connectionTime, setConnectionTime] = useState(0);
+  const [isInRandomCall, setIsInRandomCall] = useState(false);
+  const [backgroundAnimation, setBackgroundAnimation] = useState(0);
 
   const { userStore } = useAuth();
   // Frases dinámicas para el encabezado
@@ -153,20 +169,66 @@ export const Calls: React.FC<CallsProps> = ({
     }
   };
 
-  const handleRandomCall = () => {
-    const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
-    if (randomUser) {
-      handleCallUser(randomUser);
-    }
+  const handleRandomCall = async () => {
+    // const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
+    // if (randomUser) {
+    //   // handleCallUser(randomUser);
+    //   setSelectedUser(randomUser);
+    //   setIsInRandomCall(true);
+    // }
+
+    setIsConnecting(true);
+    setIsInRandomCall(true);
+
+    // Simular conexión
+    setTimeout(async () => {
+      const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
+      const user = await getUserById("xeFQUxfKZuPnsYOvwaALHagl6Rj1");
+      setCurrentRandomUser(user);
+      setIsConnecting(false);
+      call(user!.uid);
+    }, 2000);
+  };
+
+  const nextRandomUser = () => {
+    hangup();
+    setIsTransitioning(true);
+
+    // Animación de transición
+    setTimeout(() => {
+      setIsConnecting(true);
+      setCurrentRandomUser(null);
+
+      setTimeout(() => {
+        const randomUser =
+          allUsers[Math.floor(Math.random() * allUsers.length)];
+        setCurrentRandomUser(randomUser);
+        setIsConnecting(false);
+        setIsTransitioning(false);
+      }, 1500);
+    }, 300);
+  };
+
+  const endRandomCall = () => {
+    hangup();
+    setIsInRandomCall(false);
+    setCurrentRandomUser(null);
+    setIsConnecting(false);
+    setIsTransitioning(false);
   };
 
   return (
     <div className="flex-1 max-w-4xl mx-auto">
       {/* Header dinámico y completo */}
       <header className="mb-7 text-center">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">
+        <GradientHeading
+          variant="default"
+          size="lg"
+          weight="bold"
+          className="mb-3"
+        >
           Calls
-        </h1>
+        </GradientHeading>
         <p className="text-gray-500 text-xl font-light leading-relaxed">
           {dynamicPhrase}
         </p>
@@ -213,10 +275,156 @@ export const Calls: React.FC<CallsProps> = ({
         </div>
       </div>
 
-      
-
       {/* Contenido condicional basado en búsqueda */}
-      {searchQuery.trim() ? (
+      {/* Contenido condicional basado en búsqueda */}
+      {activeTab === "random" ? (
+        /* Random Calls Section */
+        <div className="max-w-lg mx-auto">
+          {!isInRandomCall ? (
+            /* Welcome Screen */
+            <div className="text-center space-y-8 py-12">
+              {/* Icono principal minimalista */}
+              <div
+                className="relative group cursor-pointer"
+                onClick={handleRandomCall}
+              >
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <Shuffle className="w-8 h-8 text-white" />
+                </div>
+                {/* Onda de pulso sutil */}
+                <div className="absolute inset-0 w-24 h-24 mx-auto border-2 border-blue-400/30 rounded-full animate-ping" />
+              </div>
+
+              {/* Título y descripción compactos */}
+              <div className="space-y-3">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Random Calls
+                </h2>
+                <p className="text-gray-600 max-w-sm mx-auto">
+                  Conecta con alguien nuevo al azar
+                </p>
+
+                {/* Online counter integrado discretamente */}
+                {/* <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-1.5">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="font-medium">{onlineCount} personas conectadas</span>
+                  </div>
+                </div> */}
+              </div>
+
+              {/* Botón principal compacto */}
+              <div className="flex justify-center">
+                <SlideButton
+                  onComplete={handleRandomCall}
+                  resolveTo="success"
+                />
+              </div>
+            </div>
+          ) : (
+            /* Call Interface */
+            <div className="space-y-4">
+              {/* Call Frame */}
+              <div className="relative bg-gray-50 rounded-2xl p-6 shadow-lg border border-gray-200">
+                {isConnecting ? (
+                  /* Connecting State */
+                  <div className="text-center space-y-4 py-8">
+                    <div className="relative">
+                      <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full animate-spin">
+                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                          <Shuffle className="w-6 h-6 text-gray-700" />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">
+                        Conectando...
+                      </h3>
+                      <p className="text-gray-500 text-sm">
+                        Buscando alguien disponible
+                      </p>
+                    </div>
+                  </div>
+                ) : currentRandomUser ? (
+                  /* Connected State */
+                  <div
+                    className={`text-center space-y-6 py-8 transition-all duration-500 ${
+                      isTransitioning
+                        ? "opacity-0 scale-95"
+                        : "opacity-100 scale-100"
+                    }`}
+                  >
+                    <div className="relative">
+                      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-2 border-gray-200 shadow-lg">
+                        <img
+                          src={
+                            currentRandomUser.profileImage ||
+                            "/default_avatar.jpg"
+                          }
+                          alt={currentRandomUser.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      {/* Online Indicator */}
+                      <div className="absolute bottom-0 right-1/2 transform translate-x-1/2 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {currentRandomUser.name}
+                      </h3>
+                      <div className="flex items-center justify-center space-x-2 text-gray-600 text-sm">
+                        {currentRandomUser.studies && (
+                          <div>
+                            <span>
+                              {currentRandomUser.studies?.year}º Curso
+                            </span>
+                            <span> • </span>
+                            <span>{currentRandomUser.studies?.career}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {state === "talking" ? (
+                      <div className="flex items-center justify-center space-x-1 text-green-600">
+                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                        <span className="font-mono text-sm">
+                          {formatDuration(callDuration)}
+                        </span>
+                      </div>
+                    ) : (
+                      <h1>Esperando respuesta</h1>
+                    )}
+                    {/* Connection Timer */}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Action Buttons */}
+              {!isConnecting && currentRandomUser && (
+                <div className="flex items-center justify-center space-x-4">
+                  <button
+                    onClick={nextRandomUser}
+                    disabled={isTransitioning}
+                    className="group flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    <Shuffle className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
+                    <span>Siguiente</span>
+                  </button>
+
+                  <button
+                    onClick={endRandomCall}
+                    className="group flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm"
+                  >
+                    <X className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                    <span>Terminar</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ) : searchQuery.trim() ? (
         /* Grid de usuarios cuando hay búsqueda */
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredUsers.map((user) => (

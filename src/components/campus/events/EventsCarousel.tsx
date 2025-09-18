@@ -207,7 +207,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
               <div
                 key={event.id}
                 className="flex-shrink-0"
-                style={{ width: `${100 / events.length}%` }}
+                style={{ width: `${80 / events.length}%` }}
               >
                 <div className="px-1">
                   <div
@@ -301,7 +301,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
         </div>
 
         {/* Indicadores de posición */}
-        {events.length > visibleCards && (
+        {/* {events.length > visibleCards && (
           <div className="flex justify-center mt-4 space-x-1">
             {Array.from({
               length: Math.ceil(events.length / visibleCards),
@@ -317,7 +317,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
               />
             ))}
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Event Detail Modal */}

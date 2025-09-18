@@ -100,7 +100,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
 
   const handleReaction = async (emoji: string) => {
     const currentlyReacted = userReactions[emoji];
-    console.log(userReactions)
+    console.log(userReactions);
     const newUserReactions = { ...userReactions, [emoji]: !currentlyReacted };
     setUserReactions(newUserReactions);
 
@@ -126,7 +126,11 @@ export const FeelCard: React.FC<FeelCardProps> = ({
     try {
       await addReactionToFeel(id, emoji, userStore!.uid, currentlyReacted);
       currentlyReacted
-        ? await deleteNotificationsByFeelId(id, userStore!.uid, `Ha reaccionado con ${emoji} a tu feel.`)
+        ? await deleteNotificationsByFeelId(
+            id,
+            userStore!.uid,
+            `Ha reaccionado con ${emoji} a tu feel.`
+          )
         : await addNotification({
             senderName: userStore!.name,
             senderAvatar: userStore!.profileImage,
@@ -135,7 +139,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
             message: `Ha reaccionado con ${emoji} a tu feel.`,
             feelId: id,
             type: "reaction",
-            senderId: userStore!.uid
+            senderId: userStore!.uid,
           });
     } catch (error) {
       console.error("Error añadiendo reacción:", error);
@@ -287,22 +291,24 @@ export const FeelCard: React.FC<FeelCardProps> = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between space-x-6">
-              <div className="relative right-2">
+            {/* Acciones - Reaccionar y comentar */}
+            <div className="flex items-center gap-4 pt-2 border-t border-gray-50">
+              <div className="relative">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowReactionPicker(!showReactionPicker);
                   }}
-                  className="flex items-center space-x-1.5 p-1 rounded-full text-gray-500 hover:text-yellow-500 hover:bg-yellow-100 transition-all duration-200"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
                 >
-                  <span className="text-base">😊</span>
+                  <span className="text-lg">😊</span>
+                  <span>Reaccionar</span>
                 </button>
 
                 {/* Selector de reacciones */}
                 {showReactionPicker && (
                   <div
-                    className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-100 p-2 z-50 flex space-x-1"
+                    className="absolute bottom-full left-0 mb-2 bg-white rounded-xl shadow-lg border border-gray-100 p-3 z-50 flex gap-2 flex-wrap max-w-xs"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {universityReactions.map((emoji) => (
@@ -312,7 +318,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
                           e.stopPropagation();
                           handleReaction(emoji);
                         }}
-                        className="w-8 h-8 rounded-full hover:bg-gray-100 transition-colors duration-150 flex items-center justify-center text-base"
+                        className="w-10 h-10 rounded-lg hover:bg-gray-50 transition-colors duration-150 flex items-center justify-center text-lg hover:scale-110"
                       >
                         {emoji}
                       </button>
@@ -326,10 +332,15 @@ export const FeelCard: React.FC<FeelCardProps> = ({
                   e.stopPropagation();
                   setShowComments(true);
                 }}
-                className="flex items-center space-x-1.5 px-2 py-1 rounded-full text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-all duration-200"
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span className="text-xs font-medium">{comments.length}</span>
+                <span>Comentar</span>
+                {comments.length > 0 && (
+                  <span className="text-xs text-gray-400 font-medium">
+                    ({comments.length})
+                  </span>
+                )}
               </button>
             </div>
           </div>

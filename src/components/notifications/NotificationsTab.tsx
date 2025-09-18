@@ -17,6 +17,7 @@ import {
   markNotificationAsRead,
 } from "../../services/firestore/notificationsRepository";
 import { getRelativeTime } from "../../utils/utils";
+import { GradientHeading } from "../campus/events/ui/gradient-heading";
 
 interface NotificationsTabProps {
   checkNotificationReaded: () => void;
@@ -97,9 +98,14 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
       <div className="max-w-[1400px] mx-auto space-y-8">
         <header className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+            <GradientHeading
+              variant="default"
+              size="lg"
+              weight="bold"
+              className="mb-3"
+            >
               Notificaciones
-            </h1>
+            </GradientHeading>
           </div>
 
           {/* Filter Tabs */}
@@ -176,9 +182,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                     />
                     {/* Unread indicator - number badge over avatar */}
                     {!notification.isRead && (
-                      <div className="absolute -top-1 -right-1 size-4 bg-blue-500 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-sm border-2 border-white">
-                        
-                      </div>
+                      <div className="absolute -top-1 -right-1 size-4 bg-blue-500 text-white text-xs font-semibold rounded-full flex items-center justify-center shadow-sm border-2 border-white"></div>
                     )}
                     {/* Notification type icon */}
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full border-2 border-white flex items-center justify-center shadow-sm">

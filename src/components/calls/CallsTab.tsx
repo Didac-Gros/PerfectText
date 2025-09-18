@@ -6,9 +6,10 @@ interface CallsTabProps {
   state: CallState;
   sendCall: (toUserId: string) => Promise<void>;
   hangup: () => void;
+  callDuration: number; // Duración de la llamada en segundos
 }
 
-export function CallsTab({ state, sendCall, hangup }: CallsTabProps) {
+export function CallsTab({ state, sendCall, hangup, callDuration }: CallsTabProps) {
   const [activeCall, setActiveCall] = useState<{
     participants: any[];
     initiator: any;
@@ -71,6 +72,7 @@ export function CallsTab({ state, sendCall, hangup }: CallsTabProps) {
           call={sendCall}
           hangup={hangup}
           startMusic={setEnabled}
+          callDuration={callDuration}
         />
       </div>
     </div>
