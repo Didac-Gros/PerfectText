@@ -3,15 +3,9 @@ import { Avatar } from '../../shared/Avatar';
 import { Calendar, Clock, MapPin, Users, X, Plus, Sparkles, ChevronRight, ChevronLeft, ChevronDown, ExternalLink, Navigation, Image, Upload, Camera, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { Balloons } from './ui/balloons';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface CreateEventProps {
-  currentUser: {
-    name: string;
-    avatar?: string;
-    initials: string;
-    year: string;
-    major: string;
-  };
   onCreateEvent: (eventData: any) => void;
   onCancel?: () => void;
 }
@@ -66,7 +60,7 @@ export interface EventFormData {
   image: string;
 }
 
-export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateEvent, onCancel }) => {
+export const CreateEvent: React.FC<CreateEventProps> = ({ onCreateEvent, onCancel }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -90,6 +84,7 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
     category: eventCategories[0],
     image: ''
   });
+  const {userStore} = useAuth();
 
   const totalSteps = 4;
 
@@ -757,20 +752,15 @@ export const CreateEvent: React.FC<CreateEventProps> = ({ currentUser, onCreateE
                     <div className="absolute right-0 bottom-0 left-0 z-10 p-2 text-white">
                       <div className="flex items-center gap-2">
                         <div className="size-4 border border-white/20 relative flex h-4 w-4 shrink-0 overflow-hidden rounded-full">
-                          {currentUser.avatar ? (
                             <img 
-                              alt={currentUser.name} 
-                              src={currentUser.avatar}
+                              alt={userStore?.name || 'User Avatar'} 
+                              src={userStore?.profileImage || '/default_avatar.jpg'}
                               className="aspect-square h-full w-full"
                             />
-                          ) : (
-                            <div className="bg-white/10 text-white text-xs flex h-full w-full items-center justify-center rounded-full">
-                              {currentUser.initials}
-                            </div>
-                          )}
+                        
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="truncate font-medium text-xs leading-tight">{currentUser.name}</span>
+                          <span className="truncate font-medium text-xs leading-tight">{userStore?.name || 'Usuario Anónimo'}</span>
                           <div className="text-xs opacity-80">
                             <div>{formData.time || '00:00'}</div>
                           </div>

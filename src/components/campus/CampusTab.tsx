@@ -20,16 +20,16 @@ import { EventsCarousel } from "./events/EventsCarousel";
 import { GradientHeading } from "./events/ui/gradient-heading";
 import { CreateEvent, EventFormData } from "./events/CreateEvent";
 import { EventCard } from "./events/EventCard";
-import { active } from "d3";
 import { v4 as uuidv4 } from "uuid";
 import {
   addEventToFirestore,
   getAllEvents,
   getEventsByUser,
   addAssistantToEvent,
-  removeAssistantToEvent
+  removeAssistantToEvent,
 } from "../../services/firestore/eventsRepository";
-import { updateFirestoreField } from "../../services/firestore/firestore";
+import { CallModal } from "../calls/CallModal";
+import { RecentCallCard } from "./RecentCallCard";
 
 export interface CampusTabProps {
   handleCall: (userId: string) => void;
@@ -282,19 +282,6 @@ export function CampusTab({ handleCall }: CampusTabProps) {
     setShowCreateEventForm(true); // Mostrar el formulario
   };
 
-  const [currentUser, setCurrentUser] = useState({
-    id: "current",
-    name: "María García",
-    initials: "MG",
-    year: "3º Curso",
-    major: "Psicología",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=maria&size=64",
-  });
-  const getUserEvents = () => {
-    return campusEvents.filter(
-      (event) => event.organizerId === currentUser.id || event.isAttending
-    );
-  };
   return (
     <div className=" bg-gray-50 dark:bg-gray-900 pt-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -477,7 +464,6 @@ export function CampusTab({ handleCall }: CampusTabProps) {
               <>
                 {showCreateEventForm && (
                   <CreateEvent
-                    currentUser={currentUser}
                     onCreateEvent={handleCreateEvent}
                     onCancel={handleCancelCreateEvent}
                   />
@@ -507,67 +493,13 @@ export function CampusTab({ handleCall }: CampusTabProps) {
                 <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-2">
                   <div className="space-y-3">
                     {recentCalls.map((call: Call, i: number) => (
-                      <div
-                        key={call.id}
-                        className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-gray-100/50 shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-300 group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="relative">
-                              <Avatar
-                                src={
-                                  userRecentCalls[i]?.profileImage ??
-                                  "/default_avatar.jpg"
-                                }
-                                alt={userRecentCalls[i]?.name}
-                                size="sm"
-                              />
-                              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white bg-green-400 shadow-sm" />
-                            </div>
-                            <div>
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h3 className="text-sm font-semibold text-gray-900">
-                                  {userRecentCalls[i]?.name}
-                                </h3>
-                              </div>
-                              <div className="flex items-center space-x-3 text-xs text-gray-600">
-                                <span className="flex items-center">
-                                  <span
-                                    className={
-                                      userStore?.uid === call.callerUser
-                                        ? "text-blue-600"
-                                        : "text-green-600"
-                                    }
-                                  >
-                                    {userStore?.uid === call.callerUser
-                                      ? "↗️"
-                                      : "↙️"}
-                                  </span>
-                                </span>
-                                <span>{getRelativeTime(call.createdAt)}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-3">
-                            <div className="text-right">
-                              <p className="text-sm font-semibold text-gray-900">
-                                {formatDuration(call.duration)}
-                              </p>
-                              <p className="text-xs text-gray-500">duración</p>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedUser(userRecentCalls[i]);
-                                setShowCallModal(true);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-110"
-                            >
-                              <Phone className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                      <RecentCallCard
+                        call={call}
+                        i={i}
+                        userRecentCalls={userRecentCalls}
+                        setShowCallModal={setShowCallModal}
+                        setSelectedUser={setSelectedUser}
+                      ></RecentCallCard>
                     ))}
                   </div>
                 </div>
@@ -578,46 +510,12 @@ export function CampusTab({ handleCall }: CampusTabProps) {
 
         {/* Modal de llamada desde sidebar */}
         {showCallModal && selectedUser && (
-          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 max-w-xs w-full shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-100/50">
-              <div className="text-center mb-6">
-                <div className="relative inline-block mb-4">
-                  <Avatar
-                    src={selectedUser.profileImage}
-                    alt={selectedUser.name}
-                    size="md"
-                  />
-                  <div className="absolute inset-0 rounded-full border-2 border-blue-200/50 animate-pulse" />
-                </div>
-
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {selectedUser.name}
-                </h3>
-
-                <p className="text-gray-500 text-xs mb-3"></p>
-                <p className="text-sm text-neutral-600 tracking-wide mb-3">
-                  ¿Te apetece hablar un rato?
-                </p>
-              </div>
-
-              {/* Botones de acción */}
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowCallModal(false)}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-all duration-150"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSendCall}
-                  className="flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 transition-all duration-150 flex items-center justify-center space-x-1.5 active:scale-95"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Llamar</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          <CallModal
+            avatar={selectedUser.profileImage || "/default_avatar.jpg"}
+            name={selectedUser.name}
+            setShowCallModal={setShowCallModal}
+            handleSendCall={handleSendCall}
+          />
         )}
       </div>
     </div>
