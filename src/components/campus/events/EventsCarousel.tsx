@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Event, User } from "../../../types/global";
 import { getUserById } from "../../../services/firestore/userRepository";
+import { log } from "console";
 
 interface EventsCarouselProps {
   events: Event[];
@@ -30,7 +31,7 @@ const getVisibleCards = () => {
   if (width < 640) return 2; // mobile: 2 cards
   if (width < 768) return 3; // tablet: 3 cards
   if (width < 1024) return 4; // desktop small: 4 cards
-  return 5; // desktop large: 5 cards
+  return 4; // desktop large: 4 cards
 };
 
 // Imágenes específicas para cada tipo de evento
@@ -55,6 +56,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [eventsOrganizers, setEventsOrganizers] = useState<User[]>([]);
+
   // Encontrar el evento actualizado en la lista de eventos
   const getUpdatedEvent = (eventId: string) => {
     return events.find((e) => e.id === eventId) || selectedEvent;
@@ -84,19 +86,40 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
 
   // Actualizar estados de navegación
   useEffect(() => {
+    // Es pot anar enrere si no estem a la primera targeta
     setCanScrollPrev(currentIndex > 0);
-    setCanScrollNext(currentIndex < events.length - visibleCards);
+
+    // Es pot anar endavant si NO estem a l’últim grup visible
+    const canGoNext = currentIndex < events.length - visibleCards - 2;
+
+    setCanScrollNext(canGoNext);
+
+    // Debug opcional
+    console.log({
+      currentIndex,
+      totalEvents: events.length,
+      visibleCards,
+      canGoNext,
+    });
   }, [currentIndex, events.length, visibleCards]);
 
   const scrollPrev = () => {
     if (canScrollPrev) {
-      setCurrentIndex(Math.max(0, currentIndex - 1));
+      setCurrentIndex((prev) => Math.max(0, prev - 1));
     }
   };
 
   const scrollNext = () => {
     if (canScrollNext) {
-      setCurrentIndex(Math.min(events.length - visibleCards, currentIndex + 1));
+      // màxim índex inicial que encara permet veure un bloc complet
+      const maxIndex = Math.max(0, events.length - visibleCards);
+
+      // si estàs a prop del final i el següent salt deixaria espai buit,
+      // ajusta directament a maxIndex
+      setCurrentIndex((prev) => {
+        const nextIndex = prev + 1;
+        return nextIndex > maxIndex ? maxIndex : nextIndex;
+      });
     }
   };
 
@@ -164,142 +187,137 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
             <span className="text-lg font-light">+</span>
             <span>Crear evento</span>
           </button>
-
-          {/* Controles de navegación - solo mostrar si hay más eventos que cards visibles */}
-          {events.length > visibleCards && (
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={scrollPrev}
-                disabled={!canScrollPrev}
-                className={`p-2 rounded-full transition-all duration-200 ${
-                  canScrollPrev
-                    ? "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900"
-                    : "bg-gray-50 text-gray-300 cursor-not-allowed"
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={scrollNext}
-                disabled={!canScrollNext}
-                className={`p-2 rounded-full transition-all duration-200 ${
-                  canScrollNext
-                    ? "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900"
-                    : "bg-gray-50 text-gray-300 cursor-not-allowed"
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </div>
+        <div className="relative">
+          {canScrollPrev && (
+            <button
+              onClick={scrollPrev}
+              disabled={!canScrollPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg border border-gray-200/50 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-110 hover:shadow-xl"
+              aria-label="Eventos anteriores"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
 
-        {/* Contenedor del carrusel */}
-        <div className="relative overflow-hidden">
-          <div
-            className="flex transition-transform duration-300 ease-out"
-            style={{
-              transform: `translateX(-${currentIndex * (100 / visibleCards)}%)`,
-              width: `${(events.length / visibleCards) * 100}%`,
-            }}
-          >
-            {events.map((event, index) => (
-              <div
-                key={event.id}
-                className="flex-shrink-0"
-                style={{ width: `${80 / events.length}%` }}
-              >
-                <div className="px-1">
-                  <div
-                    className="group relative overflow-hidden rounded-xl bg-muted/40 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aspect-[3/4]"
-                    onClick={() => handleEventClick(event)}
-                  >
-                    <img
-                      src={getEventImage(event, index)}
-                      alt={event.title}
-                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-90"
-                    />
+          {canScrollNext && (
+            <button
+              onClick={scrollNext}
+              disabled={!canScrollNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/95 backdrop-blur-sm hover:bg-white rounded-full shadow-lg border border-gray-200/50 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-110 hover:shadow-xl"
+              aria-label="Siguientes eventos"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+          {/* Contenedor del carrusel */}
+          <div className="relative overflow-hidden">
+            <div
+              className="flex transition-transform duration-300 ease-out"
+              style={{
+                transform: `translateX(-${currentIndex * (100 / visibleCards)}%)`,
+                width: `${(events.length / visibleCards) * 100}%`,
+              }}
+            >
+              {events.map((event, index) => (
+                <div
+                  key={event.id}
+                  className="flex-shrink-0"
+                  style={{ width: `${80 / events.length}%` }}
+                >
+                  <div className="px-1">
+                    <div
+                      className="group relative overflow-hidden rounded-xl bg-muted/40 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aspect-[3/4]"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <img
+                        src={getEventImage(event, index)}
+                        alt={event.title}
+                        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-90"
+                      />
 
-                    {/* Overlay gradiente */}
-                    <div className="absolute right-0 left-0 h-10 from-black/20 to-transparent bottom-0 bg-gradient-to-t" />
+                      {/* Overlay gradiente */}
+                      <div className="absolute right-0 left-0 h-10 from-black/20 to-transparent bottom-0 bg-gradient-to-t" />
 
-                    {/* Título del evento en la parte superior */}
-                    <div className="absolute top-0 right-0 left-0 z-10 p-3 text-white">
-                      <div className="text-xs font-semibold line-clamp-2 leading-tight">
-                        {event.title}
+                      {/* Título del evento en la parte superior */}
+                      <div className="absolute top-0 right-0 left-0 z-10 p-3 text-white">
+                        <div className="text-xs font-semibold line-clamp-2 leading-tight">
+                          {event.title}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Información del evento en la parte inferior */}
-                    <div className="absolute right-0 bottom-0 left-0 z-10 p-3 text-white">
-                      <div className="flex items-center gap-2">
-                        <div className="size-5 border border-white/20 relative flex h-5 w-5 shrink-0 overflow-hidden rounded-full">
-                          <img
-                            alt={eventsOrganizers[index]?.name || "Organizador"}
-                            src={eventsOrganizers[index]?.profileImage || ""}
-                            className="aspect-square h-full w-full"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="truncate font-medium text-xs">
-                            {eventsOrganizers[index]?.name || "Organizador"}
-                          </span>
-                          <div className="text-xs opacity-80 space-y-0.5">
-                            <div>{event.time}</div>
-                            <div className="truncate">{event.location}</div>
+                      {/* Información del evento en la parte inferior */}
+                      <div className="absolute right-0 bottom-0 left-0 z-10 p-3 text-white">
+                        <div className="flex items-center gap-2">
+                          <div className="size-5 border border-white/20 relative flex h-5 w-5 shrink-0 overflow-hidden rounded-full">
+                            <img
+                              alt={
+                                eventsOrganizers[index]?.name || "Organizador"
+                              }
+                              src={eventsOrganizers[index]?.profileImage || ""}
+                              className="aspect-square h-full w-full"
+                            />
                           </div>
-                        </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="truncate font-medium text-xs">
+                              {eventsOrganizers[index]?.name || "Organizador"}
+                            </span>
+                            <div className="text-xs opacity-80 space-y-0.5">
+                              <div>{event.time}</div>
+                              <div className="truncate">{event.location}</div>
+                            </div>
+                          </div>
 
-                        {/* Botón de asistencia */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Verificar si el evento está lleno antes de permitir apuntarse
-                            if (
-                              !event.isAttending &&
-                              event.maxAttendees &&
-                              event.attendees &&
-                              event.attendees.length >= event.maxAttendees
-                            ) {
-                              return; // No hacer nada si está lleno
+                          {/* Botón de asistencia */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Verificar si el evento está lleno antes de permitir apuntarse
+                              if (
+                                !event.isAttending &&
+                                event.maxAttendees &&
+                                event.attendees &&
+                                event.attendees.length >= event.maxAttendees
+                              ) {
+                                return; // No hacer nada si está lleno
+                              }
+                              onToggleAttendance(event.id);
+                            }}
+                            disabled={
+                              !!(
+                                event.maxAttendees &&
+                                event.attendees &&
+                                event.attendees.length >= event.maxAttendees &&
+                                !event.isAttending
+                              )
                             }
-                            onToggleAttendance(event.id);
-                          }}
-                          disabled={
-                            !!(
-                              event.maxAttendees &&
-                              event.attendees &&
-                              event.attendees.length >= event.maxAttendees &&
-                              !event.isAttending
-                            )
-                          }
-                          className={`px-1.5 py-0.5 text-xs font-medium rounded transition-all duration-200 ${
-                            event.isAttending
-                              ? "bg-green-500/20 text-green-300 border border-green-400/30 hover:bg-green-500/30"
+                            className={`px-1.5 py-0.5 text-xs font-medium rounded transition-all duration-200 ${
+                              event.isAttending
+                                ? "bg-green-500/20 text-green-300 border border-green-400/30 hover:bg-green-500/30"
+                                : event.maxAttendees &&
+                                    event.attendees &&
+                                    event.attendees.length >= event.maxAttendees
+                                  ? "bg-gray-500/20 text-gray-400 border border-gray-400/30 cursor-not-allowed"
+                                  : "bg-white/20 text-white border border-white/30 hover:bg-white/30 hover:scale-105"
+                            }`}
+                          >
+                            {event.isAttending
+                              ? "✓ Voy"
                               : event.maxAttendees &&
                                   event.attendees &&
                                   event.attendees.length >= event.maxAttendees
-                                ? "bg-gray-500/20 text-gray-400 border border-gray-400/30 cursor-not-allowed"
-                                : "bg-white/20 text-white border border-white/30 hover:bg-white/30 hover:scale-105"
-                          }`}
-                        >
-                          {event.isAttending
-                            ? "✓ Voy"
-                            : event.maxAttendees &&
-                                event.attendees &&
-                                event.attendees.length >= event.maxAttendees
-                              ? "Lleno"
-                              : "+ Ir"}
-                        </button>
+                                ? "Lleno"
+                                : "+ Ir"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-
         {/* Indicadores de posición */}
         {/* {events.length > visibleCards && (
           <div className="flex justify-center mt-4 space-x-1">

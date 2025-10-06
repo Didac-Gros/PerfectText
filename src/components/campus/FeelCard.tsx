@@ -189,7 +189,7 @@ export const FeelCard: React.FC<FeelCardProps> = ({
             setShowComments(true);
           }
         }}
-        className="bg-white rounded-xl p-4 hover:bg-gray-50/50 transition-all duration-200 group border border-gray-100/50 cursor-pointer"
+        className="bg-white rounded-xl p-6 py-8 hover:bg-gray-50/50 transition-all duration-200 group border border-gray-100/50 cursor-pointer"
       >
         <div className="flex items-start space-x-3">
           <Avatar src={avatar} alt={name} size="md" />
