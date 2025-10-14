@@ -90,7 +90,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
     setCanScrollPrev(currentIndex > 0);
 
     // Es pot anar endavant si NO estem a l’últim grup visible
-    const canGoNext = currentIndex < events.length - visibleCards - 2;
+    const canGoNext = currentIndex < events.length - visibleCards - 3;
 
     setCanScrollNext(canGoNext);
 
@@ -215,7 +215,7 @@ export const EventsCarousel: React.FC<EventsCarouselProps> = ({
             <div
               className="flex transition-transform duration-300 ease-out"
               style={{
-                transform: `translateX(-${currentIndex * (100 / visibleCards)}%)`,
+                transform: `translateX(-${currentIndex * (100 / visibleCards +5)}%)`,
                 width: `${(events.length / visibleCards) * 100}%`,
               }}
             >
